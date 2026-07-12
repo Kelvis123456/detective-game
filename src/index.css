@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background-color: #0a0a0f;
+    color: #e8e0d5;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0a0a0f; }
+  ::-webkit-scrollbar-thumb { background: #c8a96e; border-radius: 3px; }
+}
+
+@keyframes flicker {
+  0%, 89%, 91%, 94%, 96%, 100% { opacity: 1; }
+  90%, 95% { opacity: 0.4; }
+  93% { opacity: 0.6; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 8px rgba(200,169,110,0.4); }
+  50% { box-shadow: 0 0 24px rgba(200,169,110,0.9), 0 0 48px rgba(200,169,110,0.3); }
+}
+
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 8px rgba(139,26,26,0.5); }
+  50% { box-shadow: 0 0 24px rgba(139,26,26,0.9), 0 0 48px rgba(139,26,26,0.4); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes rain-drop {
+  0% { transform: translateY(-20px) translateX(0); opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(110vh) translateX(-30px); opacity: 0; }
+}
+
+@keyframes typewriter-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes zoom-in {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-flicker { animation: flicker 6s infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
+.animate-pulse-red { animation: pulse-red 2s ease-in-out infinite; }
+.animate-slide-in { animation: slide-in-right 0.4s ease forwards; }
+.animate-zoom-in { animation: zoom-in 0.3s ease forwards; }
+.cursor-blink { animation: typewriter-cursor 1s step-end infinite; }
