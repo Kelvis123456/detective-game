@@ -1,4 +1,13 @@
-import type { Case, CaseProgress, Suspect, Evidence } from '../types'
+import type {
+  AccusationInput,
+  Case,
+  CaseProgress,
+  EndingType,
+  ProofCategory,
+  Suspect,
+  TensionEvent,
+  Evidence,
+} from '../types'
 
 export function createCaseProgress(caseId: string): CaseProgress {
   return {
@@ -8,6 +17,15 @@ export function createCaseProgress(caseId: string): CaseProgress {
     accusedSuspectId: null,
     solved: false,
     correct: false,
+    discoveredDeviceIds: new Set<string>(),
+    unlockedDeviceIds: new Set<string>(),
+    readThreadIds: new Set<string>(),
+    readNoteIds: new Set<string>(),
+    lockedThreadIds: new Set<string>(),
+    lockedNoteIds: new Set<string>(),
+    actionCount: 0,
+    firedTensionEventIds: new Set<string>(),
+    playerConnections: [],
   }
 }
 
@@ -87,4 +105,108 @@ export function getEvidenceRevealedByDialogue(case_: Case, dialogueId: string): 
     }
   }
   return []
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * Means/motive/opportunity deduction + multiple endings
+ *
+ * This is purely additive — `makeAccusation` above is untouched and keeps
+ * driving `caseProgress.correct`/`solved`/`accusedSuspectId` exactly as
+ * before. `evaluateAccusation` layers richer scoring on top of that,
+ * without which existing tests calling `makeAccusation` directly would
+ * see no behavior change.
+ * ───────────────────────────────────────────────────────────────── */
+
+export interface AccusationEvaluation {
+  correct: boolean
+  ending: EndingType
+  proofScore: number
+  proofDetail: Record<ProofCategory, boolean>
+}
+
+function isProofCategorySatisfied(
+  case_: Case,
+  progress: CaseProgress,
+  category: ProofCategory,
+  suppliedEvidenceId: string | undefined
+): boolean {
+  const required = case_.solution.proof?.[category]
+  // No `proof` data at all, or an empty list for this category, means the
+  // case hasn't been authored with that category in mind yet — it passes
+  // vacuously so unmigrated/partially-migrated cases still reach
+  // 'correct-full-case' rather than being stuck below it forever.
+  if (!required || required.length === 0) return true
+  if (!suppliedEvidenceId) return false
+  // You cannot cite evidence you never actually found.
+  if (!progress.collectedEvidenceIds.has(suppliedEvidenceId)) return false
+  return required.includes(suppliedEvidenceId)
+}
+
+export function evaluateAccusation(
+  progress: CaseProgress,
+  case_: Case,
+  input: AccusationInput
+): AccusationEvaluation {
+  const suspectCorrect = input.suspectId === case_.solution.guiltyId
+
+  if (!suspectCorrect) {
+    const ending: EndingType =
+      getProgressPercent(progress, case_) < 25
+        ? 'insufficient-evidence'
+        : 'wrong-suspect-culprit-escapes'
+    return {
+      correct: false,
+      ending,
+      proofScore: 0,
+      proofDetail: { means: false, motive: false, opportunity: false },
+    }
+  }
+
+  const proofDetail: Record<ProofCategory, boolean> = {
+    means: isProofCategorySatisfied(case_, progress, 'means', input.meansEvidenceId),
+    motive: isProofCategorySatisfied(case_, progress, 'motive', input.motiveEvidenceId),
+    opportunity: isProofCategorySatisfied(case_, progress, 'opportunity', input.opportunityEvidenceId),
+  }
+  const proofScore = Object.values(proofDetail).filter(Boolean).length
+
+  return {
+    correct: true,
+    ending: proofScore === 3 ? 'correct-full-case' : 'correct-partial-reasoning',
+    proofScore,
+    proofDetail,
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * Narrative tension mechanic — lives as pure functions here, but is only
+ * ever invoked from the store (see gameStore.ts), never from the other
+ * pure engine functions above, so existing tests that call
+ * collectEvidence/recordInterview/makeAccusation directly are unaffected.
+ * ───────────────────────────────────────────────────────────────── */
+
+export function incrementActionCount(progress: CaseProgress): CaseProgress {
+  return { ...progress, actionCount: progress.actionCount + 1 }
+}
+
+export function checkTensionEvents(progress: CaseProgress, case_: Case): TensionEvent[] {
+  const events = case_.tensionEvents ?? []
+  return events.filter(
+    (e) => e.triggerActionCount <= progress.actionCount && !progress.firedTensionEventIds.has(e.id)
+  )
+}
+
+export function applyTensionEvent(progress: CaseProgress, event: TensionEvent): CaseProgress {
+  const next: CaseProgress = {
+    ...progress,
+    firedTensionEventIds: new Set(progress.firedTensionEventIds).add(event.id),
+  }
+  if (event.effect?.lockThreadIds?.length) {
+    next.lockedThreadIds = new Set(progress.lockedThreadIds)
+    for (const id of event.effect.lockThreadIds) next.lockedThreadIds.add(id)
+  }
+  if (event.effect?.lockNoteIds?.length) {
+    next.lockedNoteIds = new Set(progress.lockedNoteIds)
+    for (const id of event.effect.lockNoteIds) next.lockedNoteIds.add(id)
+  }
+  return next
 }

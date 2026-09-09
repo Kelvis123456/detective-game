@@ -1,19 +1,21 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
-import type { Hotspot, Evidence } from '../../types'
+import type { Hotspot, Evidence, DigitalDevice } from '../../types'
 import GameHUD from '../ui/GameHUD'
 
 export default function CrimeScene() {
   const selectedCase = useGameStore((s) => s.selectedCase)
   const caseProgress = useGameStore((s) => s.caseProgress)
   const collectEvidence = useGameStore((s) => s.collectEvidence)
+  const discoverDevice = useGameStore((s) => s.discoverDevice)
   const goTo = useGameStore((s) => s.goTo)
   const showNotification = useGameStore((s) => s.showNotification)
   const startInterview = useGameStore((s) => s.startInterview)
 
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null)
   const [activeEvidence, setActiveEvidence] = useState<Evidence | null>(null)
+  const [activeDevice, setActiveDevice] = useState<DigitalDevice | null>(null)
 
   if (!selectedCase || !caseProgress) return null
 
@@ -22,16 +24,29 @@ export default function CrimeScene() {
     if (hotspot.evidenceId) {
       const evidence = selectedCase.evidence.find((e) => e.id === hotspot.evidenceId)
       if (evidence) {
+        setActiveDevice(null)
         setActiveEvidence(evidence)
         if (!caseProgress.collectedEvidenceIds.has(evidence.id)) {
           collectEvidence(evidence.id)
           showNotification(`Evidencia recopilada: ${evidence.name}`)
         }
       }
+    } else if (hotspot.deviceId) {
+      const device = selectedCase.digitalDevices?.find((d) => d.id === hotspot.deviceId)
+      if (device) {
+        setActiveEvidence(null)
+        setActiveDevice(device)
+        if (!caseProgress.discoveredDeviceIds.has(device.id)) {
+          discoverDevice(device.id)
+          showNotification(`Encontraste un dispositivo: ${device.label}`)
+        }
+      }
     }
   }
 
   const collected = caseProgress.collectedEvidenceIds
+  const isHotspotDone = (h: Hotspot) =>
+    h.evidenceId ? collected.has(h.evidenceId) : h.deviceId ? caseProgress.discoveredDeviceIds.has(h.deviceId) : false
 
   return (
     <div className="relative flex min-h-screen flex-col bg-zinc-950 pb-16">
@@ -194,7 +209,7 @@ export default function CrimeScene() {
 
               {/* Hotspot buttons — positioning via wrapper div, animation via motion inside */}
               {selectedCase.hotspots.map((hotspot, idx) => {
-                const hasEvidence = !!hotspot.evidenceId && collected.has(hotspot.evidenceId)
+                const hasEvidence = isHotspotDone(hotspot)
                 const isActive = activeHotspot === hotspot.id
                 return (
                   <div
@@ -300,6 +315,38 @@ export default function CrimeScene() {
                   ← Cerrar
                 </button>
               </motion.div>
+            ) : activeDevice ? (
+              <motion.div
+                key={activeDevice.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                className="flex-1 p-5"
+              >
+                <div className="mb-4 flex items-start gap-3">
+                  <span className="text-3xl">📱</span>
+                  <div>
+                    <p className="text-[10px] tracking-[0.15em] text-zinc-600">DISPOSITIVO ENCONTRADO</p>
+                    <h4 className="font-bold text-amber-300 leading-tight">{activeDevice.label}</h4>
+                  </div>
+                </div>
+                <p className="mb-4 text-xs text-zinc-400 leading-relaxed">
+                  Este dispositivo puede contener mensajes, notas y archivos borrados. Ábrelo en la
+                  sección de Forensia Digital para investigarlo a fondo.
+                </p>
+                <button
+                  onClick={() => goTo('digital-forensics')}
+                  className="w-full rounded border border-amber-700/60 bg-amber-950/40 py-2.5 text-xs tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-all"
+                >
+                  Abrir Forensia Digital →
+                </button>
+                <button
+                  onClick={() => setActiveDevice(null)}
+                  className="mt-3 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-600 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                >
+                  ← Cerrar
+                </button>
+              </motion.div>
             ) : (
               <motion.div
                 key="placeholder"
@@ -318,8 +365,8 @@ export default function CrimeScene() {
                       className="flex items-center gap-2.5 text-xs p-2 rounded border border-zinc-800/50 hover:border-zinc-700 transition-colors cursor-pointer"
                       onClick={() => handleHotspotClick(h)}
                     >
-                      <span className="text-base">{collected.has(h.evidenceId ?? '') ? '✅' : h.icon}</span>
-                      <span className={collected.has(h.evidenceId ?? '') ? 'text-zinc-400 line-through' : 'text-zinc-600'}>
+                      <span className="text-base">{isHotspotDone(h) ? '✅' : h.icon}</span>
+                      <span className={isHotspotDone(h) ? 'text-zinc-400 line-through' : 'text-zinc-600'}>
                         {h.label}
                       </span>
                     </motion.div>

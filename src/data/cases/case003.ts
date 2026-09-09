@@ -307,6 +307,16 @@ const case003: Case = {
     },
   ],
 
+  correctConnections: [
+    { fromId: 'huella-pasamanos', toId: 'diego-navarro' },
+    { fromId: 'poliza-seguro', toId: 'diego-navarro' },
+    { fromId: 'fotos-vigilancia', toId: 'diego-navarro' },
+    { fromId: 'mensaje-borrado', toId: 'diego-navarro' },
+    { fromId: 'fotografia-contrabando', toId: 'diego-navarro' },
+    { fromId: 'credencial-agente', toId: 'isabel-reyes' },
+    { fromId: 'deuda-escrita', toId: 'rafael-moreno' },
+  ],
+
   solution: {
     guiltyId: 'diego-navarro',
     explanation:
@@ -320,6 +330,11 @@ const case003: Case = {
       { time: '03:22 AM', description: 'El cuerpo de Fuentes es encontrado por un vigilante nocturno.' },
       { time: '03:45 AM', description: 'Navarro llega al hotel y registra su entrada. Coartada tardía.' },
     ],
+    proof: {
+      means: ['huella-pasamanos'],
+      motive: ['poliza-seguro', 'fotografia-contrabando'],
+      opportunity: ['fotos-vigilancia'],
+    },
   },
 }
 

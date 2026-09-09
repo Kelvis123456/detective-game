@@ -257,6 +257,18 @@ const case001: Case = {
       analysis:
         'Cuatro imágenes distintas muestran el maletín de Marco Delgado. A las 21:00 parece vacío. A las 23:35, al salir del hotel, parece considerablemente más pesado. Algo fue añadido durante la noche.',
     },
+    {
+      id: 'chat-comprador',
+      name: "Hilo de ChatVía: 'Coleccionista Privado'",
+      description: 'Conversación recuperada del teléfono de Marco Delgado con un contacto guardado como "Coleccionista Privado".',
+      type: 'digital',
+      icon: '💬',
+      location: 'Teléfono de Marco Delgado, olvidado en el guardarropa',
+      isKey: true,
+      analysis:
+        'La conversación confirma que la sustitución del diamante se planeó con semanas de anticipación y que ya existía un comprador con el pago acordado. Delgado prometió borrar el hilo tras la gala — el respaldo automático de NubePlus lo conservó de todas formas.',
+      digitalSourceId: 'msg-comprador-4',
+    },
   ],
 
   hotspots: [
@@ -305,6 +317,95 @@ const case001: Case = {
       description: 'Mesa auxiliar con una copa volcada y restos de bocadillos.',
       icon: '🍽️',
     },
+    {
+      id: 'guardarropa',
+      x: 60,
+      y: 78,
+      label: 'Guardarropa',
+      evidenceId: null,
+      deviceId: 'phone-delgado',
+      description: 'Un teléfono quedó olvidado entre los abrigos del guardarropa cercano a la sala.',
+      icon: '🧥',
+    },
+  ],
+
+  digitalDevices: [
+    {
+      id: 'phone-delgado',
+      ownerSuspectId: 'marco-delgado',
+      label: 'Teléfono de Marco Delgado',
+      lockType: 'pin',
+      unlockCode: '1103',
+      unlockHint: 'La fecha de su evaluación oficial del diamante fue "cuatro días antes de la gala". Día y mes, sin espacios.',
+      apps: ['chatvia', 'anotta'],
+      threads: [
+        {
+          id: 'thread-comprador',
+          appId: 'chatvia',
+          title: 'Coleccionista Privado',
+          participants: ['Marco Delgado', 'Coleccionista Privado'],
+          isDeleted: true,
+          messages: [
+            {
+              id: 'msg-comprador-1',
+              sender: 'Coleccionista Privado',
+              timestamp: 'hace 6 días, 22:14',
+              text: '¿La pieza estará lista para la gala?',
+            },
+            {
+              id: 'msg-comprador-2',
+              sender: 'Marco Delgado',
+              timestamp: 'hace 6 días, 22:20',
+              text: 'Estará lista. La sustitución ya se hizo durante la evaluación oficial. Nadie lo notó.',
+            },
+            {
+              id: 'msg-comprador-3',
+              sender: 'Coleccionista Privado',
+              timestamp: 'hace 6 días, 22:21',
+              text: 'El segundo pago se hace contra entrega. Nada de fotos, nada de mensajes después de esta noche.',
+            },
+            {
+              id: 'msg-comprador-4',
+              sender: 'Marco Delgado',
+              timestamp: 'hace 6 días, 22:25',
+              text: 'Entendido. Borraré esta conversación después de la gala.\n\n[Nota forense: la conversación no fue borrada — el respaldo automático de NubePlus la conservó.]',
+              evidenceId: 'chat-comprador',
+            },
+          ],
+        },
+      ],
+      notes: [
+        {
+          id: 'nota-borrador-delgado',
+          appId: 'anotta',
+          title: 'Sin título',
+          isDeleted: true,
+          body:
+            'Treinta años de carrera para que un imbécil como Whitmore compre lo que no sabe apreciar. Él ni siquiera puede distinguir un corte excelente de uno mediocre. Se merece la réplica. Yo me merezco—\n\n(la nota termina ahí, sin guardar los últimos cambios)',
+        },
+      ],
+    },
+  ],
+
+  tensionEvents: [
+    {
+      id: 'tension-001-hint',
+      triggerActionCount: 6,
+      message: 'Algo te dice que no has terminado de revisar las pertenencias de Delgado.',
+      effect: {
+        revealHint: 'Sientes que se te escapa algo del teléfono olvidado en el guardarropa — quizás deberías revisarlo antes de acusar.',
+      },
+    },
+  ],
+
+  correctConnections: [
+    { fromId: 'ficha-evaluacion', toId: 'marco-delgado' },
+    { fromId: 'recibo-materiales', toId: 'marco-delgado' },
+    { fromId: 'guante-trabajo', toId: 'marco-delgado' },
+    { fromId: 'camara-seguridad', toId: 'marco-delgado' },
+    { fromId: 'chat-comprador', toId: 'marco-delgado' },
+    { fromId: 'nota-amenaza', toId: 'valentina-cruz' },
+    { fromId: 'copa-vino', toId: 'sofia-reyes' },
   ],
 
   solution: {
@@ -320,6 +421,11 @@ const case001: Case = {
       { time: '23:35', description: 'Sale del hotel con el maletín cargado. La cámara lo capta.' },
       { time: '00:15', description: 'El robo es descubierto cuando Whitmore va a mostrar la joya a sus invitados.' },
     ],
+    proof: {
+      means: ['recibo-materiales', 'guante-trabajo'],
+      motive: ['chat-comprador'],
+      opportunity: ['ficha-evaluacion'],
+    },
   },
 }
 

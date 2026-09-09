@@ -7,7 +7,7 @@
  *   [EDGE] = caso límite que puede ser correcto o incorrecto según la intención
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import {
   createCaseProgress,
   collectEvidence,
@@ -35,7 +35,7 @@ import {
   isSuspectFullyInterviewed,
 } from '../engine/InterrogationEngine'
 import { ALL_CASES } from '../data'
-import type { Case, CaseProgress, Evidence, Suspect } from '../types'
+import type { Case, CaseProgress, Suspect } from '../types'
 
 /* ══════════════════════════════════════════════════════════════════
    FIXTURES
@@ -43,11 +43,9 @@ import type { Case, CaseProgress, Evidence, Suspect } from '../types'
 
 const case001 = ALL_CASES[0] // El Diamante Rojo
 const case002 = ALL_CASES[1] // La Última Nota
-const case003 = ALL_CASES[2] // Sombras en el Puerto
 
 const marco = case001.suspects.find((s) => s.id === 'marco-delgado')!
 const valentina = case001.suspects.find((s) => s.id === 'valentina-cruz')!
-const lucia = case002.suspects.find((s) => s.id === 'lucia-mendez')!
 
 const NONEXISTENT_ID = '__id_que_no_existe_en_ningun_caso__'
 

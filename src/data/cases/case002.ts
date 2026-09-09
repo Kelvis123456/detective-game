@@ -307,6 +307,15 @@ const case002: Case = {
     },
   ],
 
+  correctConnections: [
+    { fromId: 'frasco-digoxina', toId: 'lucia-mendez' },
+    { fromId: 'correo-confrontacion', toId: 'lucia-mendez' },
+    { fromId: 'estados-cuenta', toId: 'lucia-mendez' },
+    { fromId: 'registro-acceso', toId: 'lucia-mendez' },
+    { fromId: 'guantes-papelera', toId: 'lucia-mendez' },
+    { fromId: 'nota-musical', toId: 'carmen-blanco' },
+  ],
+
   solution: {
     guiltyId: 'lucia-mendez',
     explanation:
@@ -321,6 +330,11 @@ const case002: Case = {
       { time: '19:30', description: 'Eduardo Vidal muere de paro cardíaco inducido por digoxina.' },
       { time: '20:15', description: 'El asistente de producción encuentra el cuerpo.' },
     ],
+    proof: {
+      means: ['frasco-digoxina', 'guantes-papelera'],
+      motive: ['correo-confrontacion', 'estados-cuenta'],
+      opportunity: ['registro-acceso'],
+    },
   },
 }
 

@@ -3,6 +3,7 @@ import { useGameStore } from '../../store/gameStore'
 import { ALL_CASES } from '../../data'
 import { Case } from '../../types'
 import Particles from '../ui/Particles'
+import { getDetectiveRank } from '../../engine/RankEngine'
 
 const DIFFICULTY_COLOR: Record<string, string> = {
   Fácil: 'text-green-400 border-green-700/50',
@@ -13,6 +14,8 @@ const DIFFICULTY_COLOR: Record<string, string> = {
 export default function CaseSelection() {
   const selectCase = useGameStore((s) => s.selectCase)
   const goTo = useGameStore((s) => s.goTo)
+  const stats = useGameStore((s) => s.playerStats)
+  const rank = getDetectiveRank(stats)
 
   return (
     <div className="relative min-h-screen bg-zinc-950 pb-16 pt-8">
@@ -38,6 +41,9 @@ export default function CaseSelection() {
           <p className="mt-4 text-sm text-zinc-500">
             Selecciona un caso para comenzar tu investigación
           </p>
+          <span className="mt-3 inline-block rounded border border-zinc-800 bg-zinc-900/60 px-3 py-1 text-[10px] tracking-widest text-zinc-500">
+            🕵️ RANGO ACTUAL: <span className="text-amber-400">{rank.toUpperCase()}</span>
+          </span>
         </motion.div>
 
         {/* Case cards */}

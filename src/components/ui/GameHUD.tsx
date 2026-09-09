@@ -3,13 +3,14 @@ import { useGameStore } from '../../store/gameStore'
 import { getProgressPercent } from '../../engine/CaseEngine'
 import type { Scene } from '../../types'
 
-type ActiveTab = 'scene' | 'evidence' | 'accuse'
+type ActiveTab = 'scene' | 'evidence' | 'digital' | 'accuse'
 
-const TABS: { id: ActiveTab; label: string; icon: string; scene: Scene }[] = [
+const BASE_TABS: { id: ActiveTab; label: string; icon: string; scene: Scene }[] = [
   { id: 'scene', label: 'Escena', icon: '🔦', scene: 'crime-scene' },
   { id: 'evidence', label: 'Evidencias', icon: '📎', scene: 'evidence-board' },
-  { id: 'accuse', label: 'Acusar', icon: '⚖️', scene: 'accusation' },
 ]
+const DIGITAL_TAB = { id: 'digital' as const, label: 'Digital', icon: '📱', scene: 'digital-forensics' as const }
+const ACCUSE_TAB = { id: 'accuse' as const, label: 'Acusar', icon: '⚖️', scene: 'accusation' as const }
 
 export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
   const selectedCase = useGameStore((s) => s.selectedCase)
@@ -17,6 +18,10 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
   const goTo = useGameStore((s) => s.goTo)
 
   if (!selectedCase || !caseProgress) return null
+
+  const hasDigital =
+    (selectedCase.digitalDevices?.length ?? 0) > 0 && caseProgress.discoveredDeviceIds.size > 0
+  const TABS = hasDigital ? [...BASE_TABS, DIGITAL_TAB, ACCUSE_TAB] : [...BASE_TABS, ACCUSE_TAB]
 
   const progress = getProgressPercent(caseProgress, selectedCase)
   const evidenceCount = caseProgress.collectedEvidenceIds.size

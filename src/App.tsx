@@ -6,6 +6,7 @@ import CaseIntro from './components/scenes/CaseIntro'
 import CrimeScene from './components/scenes/CrimeScene'
 import Interrogation from './components/scenes/Interrogation'
 import EvidenceBoard from './components/scenes/EvidenceBoard'
+import DigitalForensics from './components/scenes/DigitalForensics'
 import Accusation from './components/scenes/Accusation'
 import Resolution from './components/scenes/Resolution'
 import Notification from './components/ui/Notification'
@@ -44,6 +45,7 @@ export default function App() {
           {scene === 'crime-scene' && <CrimeScene />}
           {scene === 'interrogation' && <Interrogation />}
           {scene === 'evidence-board' && <EvidenceBoard />}
+          {scene === 'digital-forensics' && <DigitalForensics />}
           {scene === 'accusation' && <Accusation />}
           {scene === 'resolution' && <Resolution />}
         </motion.div>

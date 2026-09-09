@@ -1,16 +1,25 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
-import type { Suspect } from '../../types'
+import { getCollectedEvidence } from '../../engine/CaseEngine'
+import type { Evidence, ProofCategory, Suspect } from '../../types'
+
+const PROOF_CATEGORIES: { id: ProofCategory; label: string; hint: string; icon: string }[] = [
+  { id: 'means', label: 'Medios', hint: '¿Con qué pudo hacerlo?', icon: '🔧' },
+  { id: 'motive', label: 'Móvil', hint: '¿Por qué lo haría?', icon: '🎯' },
+  { id: 'opportunity', label: 'Oportunidad', hint: '¿Cuándo pudo hacerlo?', icon: '⏱️' },
+]
 
 export default function Accusation() {
   const selectedCase = useGameStore((s) => s.selectedCase)
   const caseProgress = useGameStore((s) => s.caseProgress)
-  const accuseSuspect = useGameStore((s) => s.accuseSuspect)
+  const submitAccusation = useGameStore((s) => s.submitAccusation)
   const goTo = useGameStore((s) => s.goTo)
 
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [accusedSuspect, setAccusedSuspect] = useState<Suspect | null>(null)
+  const [proofChoice, setProofChoice] = useState<Partial<Record<ProofCategory, string>>>({})
 
   if (!selectedCase || !caseProgress) return null
 
@@ -18,13 +27,115 @@ export default function Accusation() {
     (e) => e.isKey && caseProgress.collectedEvidenceIds.has(e.id)
   ).length
   const totalKey = selectedCase.evidence.filter((e) => e.isKey).length
+  const requiresProof = Boolean(selectedCase.solution.proof)
 
   const handleSelect = (suspect: Suspect) => {
-    if (confirmId === suspect.id) {
-      accuseSuspect(suspect.id)
-    } else {
+    if (confirmId !== suspect.id) {
       setConfirmId(suspect.id)
+      return
     }
+    if (requiresProof) {
+      setAccusedSuspect(suspect)
+    } else {
+      submitAccusation({ suspectId: suspect.id })
+    }
+  }
+
+  if (accusedSuspect) {
+    const collectedEvidence = getCollectedEvidence(caseProgress, selectedCase)
+
+    return (
+      <div className="relative min-h-screen bg-zinc-950 flex flex-col">
+        <div
+          className="pointer-events-none fixed inset-0"
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 40%, rgba(80,0,0,0.4) 100%)',
+          }}
+        />
+        <div className="relative z-10 flex items-center justify-between border-b border-red-900/30 bg-zinc-900/80 px-6 py-3">
+          <button
+            onClick={() => setAccusedSuspect(null)}
+            className="text-xs tracking-widest text-zinc-600 hover:text-amber-400 transition-colors"
+          >
+            ← CAMBIAR SOSPECHOSO
+          </button>
+          <p className="text-xs tracking-widest text-red-400">⚖️ FUNDAMENTA TU ACUSACIÓN</p>
+          <div />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-2xl w-full px-6 py-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-2xl font-bold text-red-400 mb-2">
+              Acusas a {accusedSuspect.name}
+            </h2>
+            <p className="text-sm text-zinc-500">
+              Señala la evidencia que sustenta medios, móvil y oportunidad. Puedes presentar la
+              acusación sin completar las tres — pero un caso completo pesa más ante el jurado.
+            </p>
+          </motion.div>
+
+          <div className="space-y-6 mb-8">
+            {PROOF_CATEGORIES.map((cat) => (
+              <div key={cat.id} className="rounded border border-zinc-800 bg-zinc-900/60 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">{cat.icon}</span>
+                  <span className="text-sm font-bold text-amber-400">{cat.label}</span>
+                  <span className="text-xs text-zinc-600">— {cat.hint}</span>
+                </div>
+                <div className="grid gap-2">
+                  <button
+                    onClick={() =>
+                      setProofChoice((prev) => ({ ...prev, [cat.id]: undefined }))
+                    }
+                    className={`rounded border px-3 py-2 text-left text-xs transition-all ${
+                      !proofChoice[cat.id]
+                        ? 'border-amber-700/60 bg-amber-950/30 text-amber-300'
+                        : 'border-zinc-800 text-zinc-600 hover:border-zinc-700'
+                    }`}
+                  >
+                    Sin evidencia específica
+                  </button>
+                  {collectedEvidence.map((e: Evidence) => (
+                    <button
+                      key={e.id}
+                      onClick={() =>
+                        setProofChoice((prev) => ({ ...prev, [cat.id]: e.id }))
+                      }
+                      className={`rounded border px-3 py-2 text-left text-xs transition-all ${
+                        proofChoice[cat.id] === e.id
+                          ? 'border-amber-700/60 bg-amber-950/30 text-amber-300'
+                          : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
+                      }`}
+                    >
+                      <span className="mr-1.5">{e.icon}</span>
+                      {e.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() =>
+              submitAccusation({
+                suspectId: accusedSuspect.id,
+                meansEvidenceId: proofChoice.means,
+                motiveEvidenceId: proofChoice.motive,
+                opportunityEvidenceId: proofChoice.opportunity,
+              })
+            }
+            className="w-full rounded border border-red-700 bg-red-950/40 px-6 py-3 text-sm tracking-widest uppercase text-red-300 hover:bg-red-900/50 hover:text-red-100 transition-all"
+          >
+            Presentar Acusación
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -146,7 +257,7 @@ export default function Accusation() {
                         >
                           ¿Confirmar?
                           <br />
-                          <span className="text-[10px] text-red-600">Clic para acusar</span>
+                          <span className="text-[10px] text-red-600">Clic para continuar</span>
                         </motion.div>
                       ) : (
                         <div className="text-zinc-700 text-xl">→</div>

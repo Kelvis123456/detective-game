@@ -1,5 +1,74 @@
 import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
+import type { EndingType } from '../../types'
+
+const ENDING_META: Record<
+  EndingType,
+  { icon: string; title: string; subtitle: string; tone: 'green' | 'amber' | 'red' | 'zinc' }
+> = {
+  'correct-full-case': {
+    icon: '🏆',
+    title: '¡CASO RESUELTO!',
+    subtitle: 'Tu análisis fue impecable: sospechoso, medios, móvil y oportunidad, todo demostrado.',
+    tone: 'green',
+  },
+  'correct-partial-reasoning': {
+    icon: '✔️',
+    title: 'CULPABLE IDENTIFICADO',
+    subtitle:
+      'Acusaste a la persona correcta, pero tu caso ante el jurado quedó incompleto — te faltó fundamentar una parte de la acusación.',
+    tone: 'amber',
+  },
+  'wrong-suspect-culprit-escapes': {
+    icon: '❌',
+    title: 'ACUSACIÓN INCORRECTA',
+    subtitle: 'El verdadero culpable sigue libre. La justicia falló esta vez.',
+    tone: 'red',
+  },
+  'insufficient-evidence': {
+    icon: '🌫️',
+    title: 'CASO ARCHIVADO SIN PRUEBAS',
+    subtitle:
+      'Acusaste demasiado pronto, con muy poca evidencia reunida. El caso queda abierto y nadie responde por él.',
+    tone: 'zinc',
+  },
+}
+
+const TONE_STYLES: Record<
+  'green' | 'amber' | 'red' | 'zinc',
+  { vignette: string; text: string; glow: string; border: string; bg: string }
+> = {
+  green: {
+    vignette: 'radial-gradient(ellipse at center, rgba(0,60,0,0.25) 0%, transparent 70%)',
+    text: 'text-green-400',
+    glow: '0 0 30px rgba(0,200,0,0.4)',
+    border: 'border-green-900/40',
+    bg: 'bg-green-950/20',
+  },
+  amber: {
+    vignette: 'radial-gradient(ellipse at center, rgba(90,60,0,0.25) 0%, transparent 70%)',
+    text: 'text-amber-400',
+    glow: '0 0 30px rgba(200,150,0,0.35)',
+    border: 'border-amber-900/40',
+    bg: 'bg-amber-950/20',
+  },
+  red: {
+    vignette: 'radial-gradient(ellipse at center, rgba(80,0,0,0.35) 0%, transparent 70%)',
+    text: 'text-red-400',
+    glow: '0 0 30px rgba(200,0,0,0.4)',
+    border: 'border-red-900/40',
+    bg: 'bg-red-950/20',
+  },
+  zinc: {
+    vignette: 'radial-gradient(ellipse at center, rgba(60,60,60,0.25) 0%, transparent 70%)',
+    text: 'text-zinc-400',
+    glow: '0 0 30px rgba(150,150,150,0.25)',
+    border: 'border-zinc-700/40',
+    bg: 'bg-zinc-900/40',
+  },
+}
+
+const PROOF_LABELS = { means: 'Medios', motive: 'Móvil', opportunity: 'Oportunidad' } as const
 
 export default function Resolution() {
   const selectedCase = useGameStore((s) => s.selectedCase)
@@ -11,20 +80,17 @@ export default function Resolution() {
 
   const accused = selectedCase.suspects.find((s) => s.id === caseProgress.accusedSuspectId)
   const guilty = selectedCase.suspects.find((s) => s.id === selectedCase.solution.guiltyId)
+  const ending: EndingType =
+    caseProgress.ending ?? (caseProgress.correct ? 'correct-full-case' : 'wrong-suspect-culprit-escapes')
   const isCorrect = caseProgress.correct
-  const { explanation, timeline } = selectedCase.solution
+  const meta = ENDING_META[ending]
+  const tone = TONE_STYLES[meta.tone]
+  const { explanation, timeline, proof } = selectedCase.solution
 
   return (
     <div className="relative min-h-screen bg-zinc-950 pb-16">
       {/* Color overlay */}
-      <div
-        className="pointer-events-none fixed inset-0"
-        style={{
-          background: isCorrect
-            ? 'radial-gradient(ellipse at center, rgba(0,60,0,0.25) 0%, transparent 70%)'
-            : 'radial-gradient(ellipse at center, rgba(80,0,0,0.35) 0%, transparent 70%)',
-        }}
-      />
+      <div className="pointer-events-none fixed inset-0" style={{ background: tone.vignette }} />
 
       <div className="relative z-10 mx-auto max-w-2xl px-6 pt-12">
         {/* Result header */}
@@ -34,23 +100,44 @@ export default function Resolution() {
           transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           className="mb-8 text-center"
         >
-          <div className="mb-4 text-6xl">{isCorrect ? '🏆' : '❌'}</div>
+          <div className="mb-4 text-6xl">{meta.icon}</div>
           <h2
-            className={`text-4xl font-bold mb-2 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}
-            style={{
-              textShadow: isCorrect
-                ? '0 0 30px rgba(0,200,0,0.4)'
-                : '0 0 30px rgba(200,0,0,0.4)',
-            }}
+            className={`text-4xl font-bold mb-2 ${tone.text}`}
+            style={{ textShadow: tone.glow }}
           >
-            {isCorrect ? '¡CASO RESUELTO!' : 'ACUSACIÓN INCORRECTA'}
+            {meta.title}
           </h2>
-          <p className="text-sm text-zinc-500">
-            {isCorrect
-              ? 'Tu análisis fue correcto. La justicia prevalece.'
-              : 'El verdadero culpable sigue libre. La justicia falló esta vez.'}
-          </p>
+          <p className="text-sm text-zinc-500">{meta.subtitle}</p>
         </motion.div>
+
+        {/* Partial reasoning breakdown */}
+        {ending === 'correct-partial-reasoning' && proof && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="mb-6 rounded border border-amber-900/40 bg-amber-950/10 p-4"
+          >
+            <p className="text-[10px] tracking-widest text-amber-700 mb-3">FUNDAMENTACIÓN DE TU ACUSACIÓN</p>
+            <div className="grid grid-cols-3 gap-3">
+              {(['means', 'motive', 'opportunity'] as const).map((cat) => {
+                const requiredForCat = proof[cat] ?? []
+                const suppliedId = caseProgress.accusationProof?.[cat]
+                const satisfied = requiredForCat.length === 0 || (!!suppliedId && requiredForCat.includes(suppliedId))
+                return (
+                  <div
+                    key={cat}
+                    className={`rounded border p-2 text-center text-xs ${
+                      satisfied ? 'border-green-900/40 text-green-400' : 'border-red-900/40 text-red-400'
+                    }`}
+                  >
+                    {satisfied ? '✓' : '✗'} {PROOF_LABELS[cat]}
+                  </div>
+                )
+              })}
+            </div>
+          </motion.div>
+        )}
 
         {/* Accused vs Guilty */}
         {!isCorrect && accused && guilty && (
@@ -70,7 +157,9 @@ export default function Resolution() {
               <p className="text-[10px] tracking-widest text-green-700 mb-2">EL CULPABLE REAL</p>
               <div className="text-3xl mb-1">{guilty.avatar}</div>
               <div className="text-sm font-bold text-green-300">{guilty.name}</div>
-              <div className="text-xs text-green-700 mt-1">CULPABLE</div>
+              <div className="text-xs text-green-700 mt-1">
+                {ending === 'insufficient-evidence' ? 'SIGUE LIBRE, SIN PISTAS SUFICIENTES' : 'CULPABLE'}
+              </div>
             </div>
           </motion.div>
         )}
@@ -81,7 +170,7 @@ export default function Resolution() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mb-6 flex items-center gap-4 rounded border border-green-900/40 bg-green-950/20 p-5"
+            className={`mb-6 flex items-center gap-4 rounded border ${tone.border} ${tone.bg} p-5`}
           >
             <div className="text-4xl">{guilty.avatar}</div>
             <div>

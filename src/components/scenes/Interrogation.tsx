@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, type TargetAndTransition } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { useTypewriter } from '../../hooks/useTypewriter'
 import {
@@ -10,11 +10,11 @@ import {
   getEmotionalStateIcon,
   getSuspectSuspicionLevel,
 } from '../../engine/InterrogationEngine'
-import type { Dialogue, Suspect } from '../../types'
+import type { Dialogue, EmotionalState, Suspect } from '../../types'
 import GameHUD from '../ui/GameHUD'
 
 /* ─── Emotional-state portrait animations ─── */
-const PORTRAIT_MOTION: Record<string, object> = {
+const PORTRAIT_MOTION: Record<EmotionalState, TargetAndTransition> = {
   angry: {
     x: [-3, 3, -3, 3, -2, 2, 0],
     transition: { duration: 0.5, repeat: Infinity, repeatDelay: 1.5 },
@@ -41,7 +41,7 @@ function SuspectPortrait({
 }: {
   suspect: Suspect
   emotionColor: string
-  emotionalState: string | null
+  emotionalState: EmotionalState | null
 }) {
   const anim = emotionalState ? PORTRAIT_MOTION[emotionalState] ?? {} : {}
 

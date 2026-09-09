@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion'
 import Particles from '../ui/Particles'
 import { useGameStore } from '../../store/gameStore'
+import { getDetectiveRank } from '../../engine/RankEngine'
 
 export default function MainMenu() {
   const goTo = useGameStore((s) => s.goTo)
   const stats = useGameStore((s) => s.playerStats)
+  const rank = getDetectiveRank(stats)
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-zinc-950">
@@ -109,6 +111,10 @@ export default function MainMenu() {
 
           {stats.casesCompleted > 0 && (
             <div className="rounded border border-zinc-800 bg-zinc-900/50 p-3 text-xs text-zinc-500">
+              <div className="flex justify-between mb-2 border-b border-zinc-800 pb-2">
+                <span>Rango:</span>
+                <span className="font-bold text-amber-300">🕵️ {rank}</span>
+              </div>
               <div className="flex justify-between">
                 <span>Casos resueltos:</span>
                 <span className="text-amber-400">{stats.casesCompleted}</span>

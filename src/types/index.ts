@@ -5,6 +5,7 @@ export type Scene =
   | 'crime-scene'
   | 'interrogation'
   | 'evidence-board'
+  | 'digital-forensics'
   | 'accusation'
   | 'resolution'
 
@@ -42,6 +43,8 @@ export interface Evidence {
   location: string
   isKey: boolean
   analysis: string
+  /** id of the DigitalMessage/DigitalNote that revealed this evidence, if any */
+  digitalSourceId?: string
 }
 
 export interface Hotspot {
@@ -50,6 +53,8 @@ export interface Hotspot {
   y: number
   label: string
   evidenceId: string | null
+  /** if set, clicking this hotspot discovers a DigitalDevice instead of/in addition to evidenceId */
+  deviceId?: string | null
   description: string
   icon: string
 }
@@ -59,10 +64,91 @@ export interface TimelineEvent {
   description: string
 }
 
+/** Our invented, in-universe digital ecosystem — never a real branded app. Shared across all cases. */
+export type DigitalAppId = 'chatvia' | 'anotta' | 'vozal' | 'nubeplus'
+
+export interface DigitalMessage {
+  id: string
+  sender: string
+  timestamp: string
+  text: string
+  /** this message reveals an Evidence entry when read */
+  evidenceId?: string
+}
+
+export interface DigitalThread {
+  id: string
+  appId: DigitalAppId
+  title: string
+  participants: string[]
+  messages: DigitalMessage[]
+  /** a recoverable "deleted items" thread */
+  isDeleted?: boolean
+}
+
+export interface DigitalNote {
+  id: string
+  appId: DigitalAppId
+  title: string
+  body: string
+  isDeleted?: boolean
+  evidenceId?: string
+}
+
+export interface DigitalDevice {
+  id: string
+  ownerSuspectId: string | null
+  label: string
+  lockType: 'none' | 'pin' | 'pattern'
+  unlockCode?: string
+  unlockHint?: string
+  apps: DigitalAppId[]
+  threads: DigitalThread[]
+  notes: DigitalNote[]
+}
+
+export type ProofCategory = 'means' | 'motive' | 'opportunity'
+
 export interface Solution {
   guiltyId: string
   explanation: string
   timeline: TimelineEvent[]
+  /** absent = case not yet migrated to means/motive/opportunity deduction; binary correct/incorrect still works */
+  proof?: {
+    means: string[]
+    motive: string[]
+    opportunity: string[]
+  }
+}
+
+export type EndingType =
+  | 'correct-full-case'
+  | 'correct-partial-reasoning'
+  | 'wrong-suspect-culprit-escapes'
+  | 'insufficient-evidence'
+
+export interface AccusationInput {
+  suspectId: string
+  meansEvidenceId?: string
+  motiveEvidenceId?: string
+  opportunityEvidenceId?: string
+}
+
+export interface TensionEvent {
+  id: string
+  triggerActionCount: number
+  message: string
+  effect?: {
+    lockThreadIds?: string[]
+    lockNoteIds?: string[]
+    revealHint?: string
+  }
+}
+
+export interface EvidenceConnection {
+  fromId: string
+  toId: string
+  label?: string
 }
 
 export interface Case {
@@ -81,13 +167,19 @@ export interface Case {
   evidence: Evidence[]
   hotspots: Hotspot[]
   solution: Solution
+  digitalDevices?: DigitalDevice[]
+  tensionEvents?: TensionEvent[]
+  correctConnections?: EvidenceConnection[]
 }
 
 export interface PlayerStats {
   casesCompleted: number
   correctAccusations: number
   totalEvidenceFound: number
+  flawlessCases?: number
 }
+
+export type DetectiveRank = 'Novato' | 'Investigador' | 'Detective' | 'Detective Senior' | 'Mente Maestra'
 
 export interface CaseProgress {
   caseId: string
@@ -96,6 +188,17 @@ export interface CaseProgress {
   accusedSuspectId: string | null
   solved: boolean
   correct: boolean
+  ending?: EndingType
+  accusationProof?: Partial<Record<ProofCategory, string>>
+  discoveredDeviceIds: Set<string>
+  unlockedDeviceIds: Set<string>
+  readThreadIds: Set<string>
+  readNoteIds: Set<string>
+  lockedThreadIds: Set<string>
+  lockedNoteIds: Set<string>
+  actionCount: number
+  firedTensionEventIds: Set<string>
+  playerConnections: EvidenceConnection[]
 }
 
 export interface GameState {
