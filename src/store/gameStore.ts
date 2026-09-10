@@ -42,6 +42,7 @@ interface GameStore extends GameState {
   resetCase: () => void
   showNotification: (message: string) => void
   clearNotification: () => void
+  clearAllNotifications: () => void
 }
 
 /**
@@ -307,4 +308,5 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   showNotification: (message) => set((state) => ({ notifications: [...state.notifications, message] })),
   clearNotification: () => set((state) => ({ notifications: state.notifications.slice(1) })),
+  clearAllNotifications: () => set({ notifications: [] }),
 }))

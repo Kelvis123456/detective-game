@@ -300,7 +300,7 @@ const case003: Case = {
     {
       id: 'archivador-barco',
       x: 72,
-      y: 58,
+      y: 54,
       label: 'Archivador del Capitán',
       evidenceId: 'poliza-seguro',
       description: 'Archivador oxidado con documentos personales y comerciales.',
@@ -326,8 +326,8 @@ const case003: Case = {
     },
     {
       id: 'compartimiento',
-      x: 80,
-      y: 72,
+      x: 86,
+      y: 76,
       label: 'Compartimiento Oculto',
       evidenceId: 'fotografia-contrabando',
       description: 'Panel metálico suelto en la pared de la bodega. Oculta algo.',
