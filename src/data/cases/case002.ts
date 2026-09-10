@@ -164,6 +164,14 @@ const case002: Case = {
           emotionalState: 'angry',
           revealedEvidenceIds: [],
         },
+        {
+          id: 'l-q6',
+          question: '¿Olvidó algo en el camerino esa noche?',
+          answer:
+            'No... bueno, sí. Mi chaqueta. La dejé colgada cerca del perchero. Con todo este caos no he podido volver por ella.',
+          emotionalState: 'nervous',
+          revealedEvidenceIds: [],
+        },
       ],
     },
   ],
@@ -257,6 +265,18 @@ const case002: Case = {
       analysis:
         'Guantes de nitrilo descartables. Contienen trazas de digoxina disuelta en alcohol. Quien los usó los desechó en el baño del pasillo adyacente al camerino — en la dirección por donde Lucía Méndez salió esa noche.',
     },
+    {
+      id: 'chat-farmacia',
+      name: "Hilo de ChatVía: 'Marta - Farmacia'",
+      description: 'Conversación recuperada del teléfono de Lucía Méndez con una farmacéutica conocida.',
+      type: 'digital',
+      icon: '💊',
+      location: 'Teléfono de Lucía Méndez, olvidado en una chaqueta del camerino',
+      isKey: true,
+      analysis:
+        'Lucía pidió, la misma noche del estreno, que le consiguieran digoxina sin receta "antes de que mi mamá note que faltan pastillas" — es decir, ya sabía exactamente cuántas faltaban del frasco de su madre horas antes de que cualquier análisis forense lo confirmara.',
+      digitalSourceId: 'msg-farmacia-4',
+    },
   ],
 
   hotspots: [
@@ -305,6 +325,85 @@ const case002: Case = {
       description: 'Estante con la botella de whiskey sin abrir. Algo no cuadra.',
       icon: '🍶',
     },
+    {
+      id: 'perchero',
+      x: 15,
+      y: 35,
+      label: 'Perchero de Vestuario',
+      evidenceId: null,
+      deviceId: 'phone-lucia',
+      description: 'Una chaqueta femenina cuelga del perchero, junto al tocador. Algo vibra en el bolsillo interior.',
+      icon: '🧥',
+    },
+  ],
+
+  digitalDevices: [
+    {
+      id: 'phone-lucia',
+      ownerSuspectId: 'lucia-mendez',
+      label: 'Teléfono de Lucía Méndez',
+      lockType: 'pattern',
+      unlockCode: '1912',
+      unlockHint:
+        'El registro de acceso marca que entró al camerino a las 19:12. Ella repite ese número para todo. Cuatro dígitos, sin espacios.',
+      apps: ['chatvia', 'anotta'],
+      threads: [
+        {
+          id: 'thread-farmacia',
+          appId: 'chatvia',
+          title: 'Marta - Farmacia',
+          participants: ['Lucía Méndez', 'Marta'],
+          messages: [
+            {
+              id: 'msg-farmacia-1',
+              sender: 'Lucía Méndez',
+              timestamp: 'hoy, 21:40',
+              text: 'Marta, necesito un favor urgente. ¿Puedes conseguirme digoxina esta noche? Sin receta si hace falta.',
+            },
+            {
+              id: 'msg-farmacia-2',
+              sender: 'Marta',
+              timestamp: 'hoy, 21:43',
+              text: 'Lucía, eso no puedo dártelo así como así, necesito ver la receta de tu mamá.',
+            },
+            {
+              id: 'msg-farmacia-3',
+              sender: 'Lucía Méndez',
+              timestamp: 'hoy, 21:45',
+              text: 'Por favor. Se le rompió el frasco, no puede quedarse sin su medicina ni una noche. Te lo compenso, lo que sea.',
+            },
+            {
+              id: 'msg-farmacia-4',
+              sender: 'Marta',
+              timestamp: 'hoy, 21:52',
+              text: 'Está bien, por los viejos tiempos. Te dejo medio frasco en la farmacia, pasa antes de que cierre. Pero esto no puede repetirse.',
+              evidenceId: 'chat-farmacia',
+            },
+          ],
+        },
+      ],
+      notes: [
+        {
+          id: 'nota-borrador-lucia',
+          appId: 'anotta',
+          title: 'Sin título',
+          isDeleted: true,
+          body:
+            'Eduardo, sé cómo se ve esto pero puedo explicarlo todo. Los números cuadran si me dejas mostrarte el balance completo. No hables con tu abogado todavía, dame un día más—\n\n(el borrador nunca se envió)',
+        },
+      ],
+    },
+  ],
+
+  tensionEvents: [
+    {
+      id: 'tension-002-hint',
+      triggerActionCount: 6,
+      message: 'Sientes que hay algo más en el camerino que no has revisado.',
+      effect: {
+        revealHint: 'La chaqueta olvidada cerca del perchero podría no ser solo ropa — revisa si tiene algo dentro.',
+      },
+    },
   ],
 
   correctConnections: [
@@ -313,6 +412,7 @@ const case002: Case = {
     { fromId: 'estados-cuenta', toId: 'lucia-mendez' },
     { fromId: 'registro-acceso', toId: 'lucia-mendez' },
     { fromId: 'guantes-papelera', toId: 'lucia-mendez' },
+    { fromId: 'chat-farmacia', toId: 'lucia-mendez' },
     { fromId: 'nota-musical', toId: 'carmen-blanco' },
   ],
 
@@ -331,7 +431,7 @@ const case002: Case = {
       { time: '20:15', description: 'El asistente de producción encuentra el cuerpo.' },
     ],
     proof: {
-      means: ['frasco-digoxina', 'guantes-papelera'],
+      means: ['frasco-digoxina', 'guantes-papelera', 'chat-farmacia'],
       motive: ['correo-confrontacion', 'estados-cuenta'],
       opportunity: ['registro-acceso'],
     },

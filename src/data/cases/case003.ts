@@ -70,6 +70,14 @@ const case003: Case = {
           emotionalState: 'angry',
           revealedEvidenceIds: ['fotografia-contrabando'],
         },
+        {
+          id: 'd-q6',
+          question: '¿Qué pasó con su teléfono esa noche?',
+          answer:
+            'Se me cayó cuando salía del barco, cerca de la pasarela. No tuve tiempo de buscarlo, necesitaba llegar al hotel cuanto antes.',
+          emotionalState: 'nervous',
+          revealedEvidenceIds: [],
+        },
       ],
     },
     {
@@ -257,6 +265,18 @@ const case003: Case = {
       analysis:
         'Fotografía polaroid mostrando a Navarro y Fuentes sonriendo junto a cajas sin marcar en una bodega portuaria diferente. Fecha escrita al reverso: hace 8 meses. Confirma la asociación criminal entre ambos y el motive de Navarro para silenciar a Fuentes.',
     },
+    {
+      id: 'chat-alibi-comprado',
+      name: "Hilo de ChatVía: 'Conserje Hotel Malecón'",
+      description: 'Conversación recuperada del teléfono de Diego Navarro con el conserje del hotel.',
+      type: 'digital',
+      icon: '🏨',
+      location: 'Teléfono de Diego Navarro, encontrado en el muelle exterior',
+      isKey: true,
+      analysis:
+        'La madrugada del crimen, minutos después de las 3:22 AM, Navarro pagó al conserje para modificar el registro de entrada del hotel. El horario "oficial" de las 3:15 AM que sostiene su coartada fue fabricado esa misma noche, después de la muerte de Fuentes.',
+      digitalSourceId: 'msg-conserje-4',
+    },
   ],
 
   hotspots: [
@@ -305,6 +325,91 @@ const case003: Case = {
       description: 'Panel metálico suelto en la pared de la bodega. Oculta algo.',
       icon: '🚪',
     },
+    {
+      id: 'muelle-exterior',
+      x: 68,
+      y: 78,
+      label: 'Muelle Exterior',
+      evidenceId: null,
+      deviceId: 'phone-navarro',
+      description: 'Junto a la pasarela de salida del barco, un teléfono con la pantalla rota quedó tirado entre las sogas.',
+      icon: '📱',
+    },
+  ],
+
+  digitalDevices: [
+    {
+      id: 'phone-navarro',
+      ownerSuspectId: 'diego-navarro',
+      label: 'Teléfono de Diego Navarro',
+      lockType: 'pin',
+      unlockCode: '2404',
+      unlockHint:
+        'La póliza de seguro se emitió "hace exactamente 14 días" antes del crimen — el 8 de mayo. Cuenta 14 días atrás. Día y mes, sin espacios.',
+      apps: ['chatvia', 'vozal'],
+      threads: [
+        {
+          id: 'thread-conserje',
+          appId: 'chatvia',
+          title: 'Conserje Hotel Malecón',
+          participants: ['Diego Navarro', 'Conserje'],
+          isDeleted: true,
+          messages: [
+            {
+              id: 'msg-conserje-1',
+              sender: 'Diego Navarro',
+              timestamp: 'hoy, 03:25',
+              text: 'Necesito que mi entrada de esta noche quede registrada antes de las 3. Es importante.',
+            },
+            {
+              id: 'msg-conserje-2',
+              sender: 'Conserje',
+              timestamp: 'hoy, 03:27',
+              text: 'Señor Navarro, ya pasó el corte de auditoría del turno. Puedo intentar moverlo, pero no es gratis.',
+            },
+            {
+              id: 'msg-conserje-3',
+              sender: 'Diego Navarro',
+              timestamp: 'hoy, 03:29',
+              text: 'Lo que pida. Transferencia doble mañana a primera hora. Necesito esto arreglado ya.',
+            },
+            {
+              id: 'msg-conserje-4',
+              sender: 'Conserje',
+              timestamp: 'hoy, 03:41',
+              text: 'Hecho. Quedó a las 3:15 — fue lo más temprano que pude mover sin que salte una alerta. No pregunte más por esto, y no vuelva a escribirme aquí.',
+              evidenceId: 'chat-alibi-comprado',
+            },
+          ],
+        },
+        {
+          id: 'thread-buzon',
+          appId: 'vozal',
+          title: 'Buzón de Voz: Puerto Norte',
+          participants: ['Diego Navarro', 'Puerto Norte'],
+          messages: [
+            {
+              id: 'msg-buzon-1',
+              sender: 'Puerto Norte',
+              timestamp: 'hace 2 días, 23:10',
+              text: '[Transcripción automática] "Diego, la carga del jueves no puede volver a retrasarse. Si Fuentes sigue con dudas, resuélvelo tú. Ya sabes cómo termina esto si no llega a tiempo."',
+            },
+          ],
+        },
+      ],
+      notes: [],
+    },
+  ],
+
+  tensionEvents: [
+    {
+      id: 'tension-003-hint',
+      triggerActionCount: 6,
+      message: 'Algo no cuadra en la coartada de Navarro — quizás dejó algo atrás.',
+      effect: {
+        revealHint: 'Revisa el muelle exterior, cerca de la pasarela de salida del barco.',
+      },
+    },
   ],
 
   correctConnections: [
@@ -313,6 +418,7 @@ const case003: Case = {
     { fromId: 'fotos-vigilancia', toId: 'diego-navarro' },
     { fromId: 'mensaje-borrado', toId: 'diego-navarro' },
     { fromId: 'fotografia-contrabando', toId: 'diego-navarro' },
+    { fromId: 'chat-alibi-comprado', toId: 'diego-navarro' },
     { fromId: 'credencial-agente', toId: 'isabel-reyes' },
     { fromId: 'deuda-escrita', toId: 'rafael-moreno' },
   ],
@@ -333,7 +439,7 @@ const case003: Case = {
     proof: {
       means: ['huella-pasamanos'],
       motive: ['poliza-seguro', 'fotografia-contrabando'],
-      opportunity: ['fotos-vigilancia'],
+      opportunity: ['fotos-vigilancia', 'chat-alibi-comprado'],
     },
   },
 }
