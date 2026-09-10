@@ -4,6 +4,8 @@ import { useGameStore } from '../../store/gameStore'
 import type { Hotspot, Evidence, DigitalDevice } from '../../types'
 import GameHUD from '../ui/GameHUD'
 import { SceneWindow, SceneCenterpiece } from './crimeSceneDecor'
+import { PortraitAvatar } from '../ui/PortraitAvatar'
+import { audioEngine } from '../../audio/AudioEngine'
 
 export default function CrimeScene() {
   const selectedCase = useGameStore((s) => s.selectedCase)
@@ -23,6 +25,7 @@ export default function CrimeScene() {
   if (!selectedCase || !caseProgress) return null
 
   const handleHotspotClick = (hotspot: Hotspot) => {
+    audioEngine.playSfx('hotspot')
     setActiveHotspot(hotspot.id)
     if (hotspot.evidenceId) {
       const evidence = selectedCase.evidence.find((e) => e.id === hotspot.evidenceId)
@@ -401,7 +404,7 @@ export default function CrimeScene() {
                     onClick={() => startInterview(suspect)}
                     className="flex w-full items-center gap-3 rounded border border-zinc-800 bg-zinc-900/50 p-2.5 hover:border-zinc-700 hover:bg-zinc-800/50 transition-all text-left"
                   >
-                    <span className="text-xl flex-shrink-0">{suspect.avatar}</span>
+                    <PortraitAvatar seed={suspect.id} size={28} className="flex-shrink-0 rounded-full" />
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-medium text-zinc-300 truncate">{suspect.name}</div>
                       <div className="text-[10px] text-zinc-400">{suspect.occupation}</div>

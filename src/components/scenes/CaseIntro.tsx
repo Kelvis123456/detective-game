@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
+import { PortraitAvatar } from '../ui/PortraitAvatar'
 
 export default function CaseIntro() {
   const selectedCase = useGameStore((s) => s.selectedCase)
@@ -157,13 +158,13 @@ function SuspectsOverview({
           >
             {/* Portrait mini */}
             <div
-              className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded text-3xl"
+              className="flex-shrink-0 flex h-14 w-14 items-center justify-center overflow-hidden rounded"
               style={{
                 background: `radial-gradient(circle at 40% 35%, ${color}30 0%, #0a0a0f 100%)`,
                 border: `1px solid ${color}30`,
               }}
             >
-              {s.avatar}
+              <PortraitAvatar seed={s.id} size={52} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-bold text-zinc-100">{s.name}</div>

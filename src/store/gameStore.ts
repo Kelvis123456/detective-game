@@ -6,6 +6,7 @@ import type {
   Case,
   Suspect,
   CaseProgress,
+  EndingType,
 } from '../types'
 import {
   createCaseProgress,
@@ -23,6 +24,7 @@ import {
   getEvidenceIdsInNote,
 } from '../engine/DigitalForensicsEngine'
 import { addConnection, removeConnection, normalizeConnection } from '../engine/EvidenceEngine'
+import { audioEngine } from '../audio/AudioEngine'
 
 interface GameStore extends GameState {
   goTo: (scene: Scene) => void
@@ -60,7 +62,15 @@ function advanceWithTension(
     next = applyTensionEvent(next, event)
     message = event.effect?.revealHint ?? event.message
   }
+  if (message) audioEngine.playSfx('tension')
   return { progress: next, message }
+}
+
+const RESOLUTION_SFX: Record<EndingType, 'resolution-win' | 'resolution-partial' | 'resolution-lose' | 'resolution-neutral'> = {
+  'correct-full-case': 'resolution-win',
+  'correct-partial-reasoning': 'resolution-partial',
+  'wrong-suspect-culprit-escapes': 'resolution-lose',
+  'insufficient-evidence': 'resolution-neutral',
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -91,6 +101,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const collected = collectEvidence(caseProgress, evidenceId)
     const { progress, message } = advanceWithTension(collected, selectedCase)
+    audioEngine.playSfx('evidence')
 
     set((state) => ({
       caseProgress: progress,
@@ -117,6 +128,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     const advanced = advanceWithTension(progress, selectedCase)
+    if (newEvidenceIds.length > 0) audioEngine.playSfx('evidence')
 
     set((state) => ({
       caseProgress: advanced.progress,
@@ -134,6 +146,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   discoverDevice: (deviceId) => {
     const { caseProgress } = get()
     if (!caseProgress || caseProgress.discoveredDeviceIds.has(deviceId)) return
+    audioEngine.playSfx('device-found')
     set((state) => {
       const discoveredDeviceIds = new Set(state.caseProgress!.discoveredDeviceIds)
       discoveredDeviceIds.add(deviceId)
@@ -148,6 +161,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!device) return false
 
     const ok = isUnlockCodeCorrect(device, attempt)
+    audioEngine.playSfx(ok ? 'unlock-success' : 'unlock-fail')
     if (ok && !caseProgress.unlockedDeviceIds.has(deviceId)) {
       set((state) => {
         const unlockedDeviceIds = new Set(state.caseProgress!.unlockedDeviceIds)
@@ -178,6 +192,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     const advanced = advanceWithTension(progress, selectedCase)
+    if (newEvidenceIds.length > 0) audioEngine.playSfx('evidence')
 
     set((state) => ({
       caseProgress: advanced.progress,
@@ -212,6 +227,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     const advanced = advanceWithTension(progress, selectedCase)
+    if (newEvidenceIds.length > 0) audioEngine.playSfx('evidence')
 
     set((state) => ({
       caseProgress: advanced.progress,
@@ -256,6 +272,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         opportunity: input.opportunityEvidenceId,
       },
     }
+
+    audioEngine.playSfx('accuse')
+    setTimeout(() => audioEngine.playSfx(RESOLUTION_SFX[evaluation.ending]), 550)
 
     set((state) => ({
       caseProgress: updated,

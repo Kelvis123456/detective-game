@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import Particles from '../ui/Particles'
 import { useGameStore } from '../../store/gameStore'
 import { getDetectiveRank } from '../../engine/RankEngine'
+import MuteToggle from '../ui/MuteToggle'
 
 export default function MainMenu() {
   const goTo = useGameStore((s) => s.goTo)
@@ -11,6 +12,7 @@ export default function MainMenu() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-zinc-950">
       <Particles count={50} />
+      <MuteToggle className="fixed right-4 top-4 z-20" />
 
       {/* Vignette overlay */}
       <div

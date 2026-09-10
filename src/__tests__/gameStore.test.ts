@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { useGameStore } from '../store/gameStore'
 import { getVisibleThreads } from '../engine/DigitalForensicsEngine'
+import { audioEngine } from '../audio/AudioEngine'
 import case001 from '../data/cases/case001'
 import type { Case, GameState } from '../types'
 
@@ -228,6 +229,90 @@ describe('gameStore', () => {
       expect(state.caseProgress?.correct).toBe(true)
       expect(state.caseProgress?.ending).toBe('correct-partial-reasoning')
       expect(state.playerStats.flawlessCases).toBe(0)
+    })
+  })
+
+  describe('audio side effects', () => {
+    let sfxSpy: ReturnType<typeof vi.spyOn>
+
+    beforeEach(() => {
+      useGameStore.getState().selectCase(case001)
+      sfxSpy = vi.spyOn(audioEngine, 'playSfx').mockImplementation(() => {})
+    })
+
+    afterEach(() => {
+      sfxSpy.mockRestore()
+      vi.useRealTimers()
+    })
+
+    it('collectEvidence plays the evidence chime', () => {
+      useGameStore.getState().collectEvidence('fragmento-cristal')
+      expect(sfxSpy).toHaveBeenCalledWith('evidence')
+    })
+
+    it('collectEvidence does not re-play the chime for an already-collected item', () => {
+      useGameStore.getState().collectEvidence('fragmento-cristal')
+      sfxSpy.mockClear()
+      useGameStore.getState().collectEvidence('fragmento-cristal')
+      expect(sfxSpy).not.toHaveBeenCalled()
+    })
+
+    it('askQuestion only plays the chime when it actually reveals new evidence', () => {
+      useGameStore.getState().askQuestion('valentina-cruz', 'v-q1', [])
+      expect(sfxSpy).not.toHaveBeenCalledWith('evidence')
+      useGameStore.getState().askQuestion('valentina-cruz', 'v-q2', ['ficha-evaluacion'])
+      expect(sfxSpy).toHaveBeenCalledWith('evidence')
+    })
+
+    it('discoverDevice plays a distinct device-found sound', () => {
+      useGameStore.getState().discoverDevice('phone-delgado')
+      expect(sfxSpy).toHaveBeenCalledWith('device-found')
+    })
+
+    it('unlockDevice plays unlock-success on the right code and unlock-fail on the wrong one', () => {
+      useGameStore.getState().unlockDevice('phone-delgado', '0000')
+      expect(sfxSpy).toHaveBeenCalledWith('unlock-fail')
+      sfxSpy.mockClear()
+      useGameStore.getState().unlockDevice('phone-delgado', '1103')
+      expect(sfxSpy).toHaveBeenCalledWith('unlock-success')
+    })
+
+    it('a fired tension event plays the tension sting', () => {
+      const caseWithTension: Case = {
+        ...case001,
+        tensionEvents: [{ id: 't', triggerActionCount: 1, message: 'hint', effect: { revealHint: 'hint' } }],
+      }
+      useGameStore.getState().selectCase(caseWithTension)
+      useGameStore.getState().collectEvidence('fragmento-cristal')
+      expect(sfxSpy).toHaveBeenCalledWith('tension')
+    })
+
+    it('submitAccusation plays the accuse thud immediately and the matching resolution sting shortly after', () => {
+      vi.useFakeTimers()
+      useGameStore.getState().submitAccusation({ suspectId: 'marco-delgado' })
+      expect(sfxSpy).toHaveBeenCalledWith('accuse')
+      expect(sfxSpy).not.toHaveBeenCalledWith('resolution-partial')
+      vi.advanceTimersByTime(600)
+      expect(sfxSpy).toHaveBeenCalledWith('resolution-partial')
+    })
+
+    it('submitAccusation plays resolution-lose for a wrong accusation with meaningful progress made', () => {
+      vi.useFakeTimers()
+      // Push progress above the 25% "insufficient-evidence" floor so this
+      // actually exercises wrong-suspect-culprit-escapes -> resolution-lose.
+      for (const id of ['fragmento-cristal', 'ficha-evaluacion', 'recibo-materiales', 'camara-seguridad', 'guante-trabajo', 'nota-amenaza']) {
+        useGameStore.getState().collectEvidence(id)
+      }
+      useGameStore.getState().submitAccusation({ suspectId: 'valentina-cruz' })
+      vi.advanceTimersByTime(600)
+      expect(sfxSpy).toHaveBeenCalledWith('resolution-lose')
+    })
+
+    it('submitAccusation plays resolution-neutral for an accusation with almost no progress made', () => {
+      vi.useFakeTimers()
+      useGameStore.getState().submitAccusation({ suspectId: 'valentina-cruz' })
+      vi.advanceTimersByTime(600)
+      expect(sfxSpy).toHaveBeenCalledWith('resolution-neutral')
     })
   })
 

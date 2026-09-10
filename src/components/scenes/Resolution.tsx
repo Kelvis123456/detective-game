@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getConnectionAccuracy, isConnectionCorrect } from '../../engine/EvidenceEngine'
+import { PortraitAvatar } from '../ui/PortraitAvatar'
 import type { EndingType } from '../../types'
 
 const ENDING_META: Record<
@@ -151,13 +152,17 @@ export default function Resolution() {
           >
             <div className="rounded border border-red-900/40 bg-red-950/20 p-4 text-center">
               <p className="text-[10px] tracking-widest text-red-700 mb-2">TU ACUSADO</p>
-              <div className="text-3xl mb-1">{accused.avatar}</div>
+              <div className="mb-1 flex justify-center">
+                <PortraitAvatar seed={accused.id} size={48} className="rounded-full" />
+              </div>
               <div className="text-sm font-bold text-red-300">{accused.name}</div>
               <div className="text-xs text-red-700 mt-1">INOCENTE</div>
             </div>
             <div className="rounded border border-amber-900/40 bg-amber-950/20 p-4 text-center">
               <p className="text-[10px] tracking-widest text-amber-600 mb-2">EL CULPABLE REAL</p>
-              <div className="text-3xl mb-1">{guilty.avatar}</div>
+              <div className="mb-1 flex justify-center">
+                <PortraitAvatar seed={guilty.id} size={48} className="rounded-full" />
+              </div>
               <div className="text-sm font-bold text-amber-300">{guilty.name}</div>
               <div className="text-xs text-amber-600 mt-1">
                 {ending === 'insufficient-evidence' ? 'SIGUE LIBRE, SIN PISTAS SUFICIENTES' : 'LIBRE — SE TE ESCAPÓ'}
@@ -174,7 +179,7 @@ export default function Resolution() {
             transition={{ delay: 0.3 }}
             className={`mb-6 flex items-center gap-4 rounded border ${tone.border} ${tone.bg} p-5`}
           >
-            <div className="text-4xl">{guilty.avatar}</div>
+            <PortraitAvatar seed={guilty.id} size={64} className="rounded-full flex-shrink-0" />
             <div>
               <p className="text-[10px] tracking-widest text-green-700 mb-0.5">CULPABLE CONFIRMADO</p>
               <div className="text-xl font-bold text-green-300">{guilty.name}</div>

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getCollectedEvidence } from '../../engine/CaseEngine'
 import { groupEvidenceByType, getEvidenceTypeLabel } from '../../engine/EvidenceEngine'
+import { PortraitAvatar } from '../ui/PortraitAvatar'
 import type { Evidence, EvidenceType, ProofCategory, Suspect } from '../../types'
 
 const PROOF_CATEGORIES: { id: ProofCategory; label: string; hint: string; icon: string }[] = [
@@ -238,13 +239,13 @@ export default function Accusation() {
                 >
                   <div className="flex items-center gap-4 p-4">
                     <div
-                      className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-3xl"
+                      className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
                       style={{
                         border: isConfirm ? '2px solid rgba(220,38,38,0.5)' : '1px solid #3f3f46',
                         backgroundColor: isConfirm ? 'rgba(127,29,29,0.3)' : '#18181b',
                       }}
                     >
-                      {suspect.avatar}
+                      <PortraitAvatar seed={suspect.id} size={52} />
                     </div>
 
                     <div className="flex-1 min-w-0">

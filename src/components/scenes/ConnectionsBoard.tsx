@@ -2,6 +2,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getEvidenceTypeColor } from '../../engine/EvidenceEngine'
+import { PortraitAvatar } from '../ui/PortraitAvatar'
 import type { EvidenceConnection } from '../../types'
 
 interface Line {
@@ -153,7 +154,7 @@ export default function ConnectionsBoard() {
                     boxShadow: isTarget ? '0 0 14px rgba(180,83,9,0.35)' : undefined,
                   }}
                 >
-                  <span className="text-2xl">{suspect.avatar}</span>
+                  <PortraitAvatar seed={suspect.id} size={36} className="rounded-full" />
                   <span className="max-w-24 truncate text-[10px] text-zinc-400">{suspect.name}</span>
                 </button>
               )

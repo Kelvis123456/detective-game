@@ -12,6 +12,7 @@ import {
 } from '../../engine/InterrogationEngine'
 import type { Dialogue, EmotionalState, Suspect } from '../../types'
 import GameHUD from '../ui/GameHUD'
+import { PortraitAvatar } from '../ui/PortraitAvatar'
 
 /* ─── Emotional-state portrait animations ─── */
 const PORTRAIT_MOTION: Record<EmotionalState, TargetAndTransition> = {
@@ -114,11 +115,9 @@ function SuspectPortrait({
             borderRadius: '50%',
             background: `radial-gradient(circle at 38% 32%, ${emotionColor}55 0%, ${emotionColor}22 55%, transparent 100%)`,
             border: `2px solid ${emotionColor}40`,
-            fontSize: '48px',
-            lineHeight: 1,
           }}
         >
-          {suspect.avatar}
+          <PortraitAvatar seed={suspect.id} size={72} className="rounded-full" />
 
           {/* Sweat drops — nervous */}
           {emotionalState === 'nervous' && (

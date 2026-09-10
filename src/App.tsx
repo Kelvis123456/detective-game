@@ -12,12 +12,25 @@ import Accusation from './components/scenes/Accusation'
 import Resolution from './components/scenes/Resolution'
 import Notification from './components/ui/Notification'
 import FilmGrain from './components/ui/FilmGrain'
-import { useAmbientNoise } from './hooks/useWebAudio'
+import { audioEngine, type AmbientScene } from './audio/AudioEngine'
+import type { Scene } from './types'
 
 const PAGE_VARIANTS = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
   exit: { opacity: 0 },
+}
+
+const AMBIENT_BY_SCENE: Record<Scene, AmbientScene> = {
+  'main-menu': 'menu',
+  'case-selection': 'menu',
+  'case-intro': 'investigation',
+  'crime-scene': 'investigation',
+  interrogation: 'investigation',
+  'evidence-board': 'investigation',
+  'digital-forensics': 'investigation',
+  accusation: 'tension',
+  resolution: 'none',
 }
 
 export default function App() {
@@ -30,10 +43,9 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [scene])
 
-  useAmbientNoise(
-    scene !== 'main-menu' && scene !== 'case-selection',
-    scene === 'accusation' ? 'tension' : 'office'
-  )
+  useEffect(() => {
+    audioEngine.playAmbient(AMBIENT_BY_SCENE[scene])
+  }, [scene])
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">

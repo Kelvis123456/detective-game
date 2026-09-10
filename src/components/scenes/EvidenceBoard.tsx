@@ -5,6 +5,7 @@ import type { Evidence } from '../../types'
 import { getEvidenceTypeLabel, getEvidenceTypeColor } from '../../engine/EvidenceEngine'
 import GameHUD from '../ui/GameHUD'
 import ConnectionsBoard from './ConnectionsBoard'
+import { PortraitAvatar } from '../ui/PortraitAvatar'
 
 type BoardMode = 'grid' | 'connections'
 
@@ -207,7 +208,7 @@ export default function EvidenceBoard() {
                     return (
                       <div key={suspect.id} className="mb-3">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm">{suspect.avatar}</span>
+                          <PortraitAvatar seed={suspect.id} size={18} className="rounded-full" />
                           <span className="text-xs text-zinc-400">{suspect.name}</span>
                           <span className="ml-auto text-[10px] text-zinc-400">
                             {interviewed}/{total}

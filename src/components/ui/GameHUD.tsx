@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getProgressPercent } from '../../engine/CaseEngine'
+import MuteToggle from './MuteToggle'
 import type { Scene } from '../../types'
 
 type ActiveTab = 'scene' | 'evidence' | 'digital' | 'accuse'
@@ -64,6 +65,7 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
               <span>{tab.label}</span>
             </button>
           ))}
+          <MuteToggle className="ml-1 self-center" />
         </div>
 
         {/* Stats */}
