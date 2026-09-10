@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import type { Hotspot, Evidence, DigitalDevice } from '../../types'
 import GameHUD from '../ui/GameHUD'
+import { SceneWindow, SceneCenterpiece } from './crimeSceneDecor'
 
 export default function CrimeScene() {
   const selectedCase = useGameStore((s) => s.selectedCase)
@@ -16,6 +17,8 @@ export default function CrimeScene() {
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null)
   const [activeEvidence, setActiveEvidence] = useState<Evidence | null>(null)
   const [activeDevice, setActiveDevice] = useState<DigitalDevice | null>(null)
+  const [activeFlavorHotspot, setActiveFlavorHotspot] = useState<Hotspot | null>(null)
+  const [viewedFlavorHotspotIds, setViewedFlavorHotspotIds] = useState<Set<string>>(new Set())
 
   if (!selectedCase || !caseProgress) return null
 
@@ -25,6 +28,7 @@ export default function CrimeScene() {
       const evidence = selectedCase.evidence.find((e) => e.id === hotspot.evidenceId)
       if (evidence) {
         setActiveDevice(null)
+        setActiveFlavorHotspot(null)
         setActiveEvidence(evidence)
         if (!caseProgress.collectedEvidenceIds.has(evidence.id)) {
           collectEvidence(evidence.id)
@@ -35,18 +39,28 @@ export default function CrimeScene() {
       const device = selectedCase.digitalDevices?.find((d) => d.id === hotspot.deviceId)
       if (device) {
         setActiveEvidence(null)
+        setActiveFlavorHotspot(null)
         setActiveDevice(device)
         if (!caseProgress.discoveredDeviceIds.has(device.id)) {
           discoverDevice(device.id)
           showNotification(`Encontraste un dispositivo: ${device.label}`)
         }
       }
+    } else {
+      setActiveEvidence(null)
+      setActiveDevice(null)
+      setActiveFlavorHotspot(hotspot)
+      setViewedFlavorHotspotIds((prev) => new Set(prev).add(hotspot.id))
     }
   }
 
   const collected = caseProgress.collectedEvidenceIds
   const isHotspotDone = (h: Hotspot) =>
-    h.evidenceId ? collected.has(h.evidenceId) : h.deviceId ? caseProgress.discoveredDeviceIds.has(h.deviceId) : false
+    h.evidenceId
+      ? collected.has(h.evidenceId)
+      : h.deviceId
+        ? caseProgress.discoveredDeviceIds.has(h.deviceId)
+        : viewedFlavorHotspotIds.has(h.id)
 
   return (
     <div className="relative flex min-h-screen flex-col bg-zinc-950 pb-16">
@@ -59,12 +73,12 @@ export default function CrimeScene() {
       >
         <button
           onClick={() => goTo('case-selection')}
-          className="text-xs tracking-widest text-zinc-600 hover:text-amber-400 transition-colors"
+          className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
           ← CASOS
         </button>
         <div className="text-center">
-          <p className="text-[10px] text-zinc-600 tracking-[0.2em]">ESCENA DEL CRIMEN</p>
+          <p className="text-[10px] text-zinc-400 tracking-[0.2em]">ESCENA DEL CRIMEN</p>
           <p className="text-sm font-medium text-amber-400">{selectedCase.title}</p>
         </div>
         <div className="w-16" />
@@ -121,7 +135,7 @@ export default function CrimeScene() {
                 className="absolute top-0 left-0 right-0 rounded-t"
                 style={{
                   height: '42%',
-                  background: 'linear-gradient(180deg, #0d0b08 0%, #1a1610 100%)',
+                  background: 'linear-gradient(180deg, #14110c 0%, #221d14 100%)',
                   borderBottom: '2px solid #2a2010',
                 }}
               />
@@ -134,43 +148,10 @@ export default function CrimeScene() {
                     'repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(200,169,110,1) 18px, rgba(200,169,110,1) 19px)',
                 }}
               />
-              {/* Window */}
-              <div
-                className="absolute"
-                style={{
-                  top: '28px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '130px',
-                  height: '95px',
-                  background: 'linear-gradient(135deg, #060f1a 0%, #0d2035 60%, #060e18 100%)',
-                  border: '4px solid #2a2010',
-                  boxShadow: '0 0 40px rgba(15,50,90,0.25), inset 0 0 25px rgba(0,0,0,0.6)',
-                }}
-              >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="absolute inset-y-0 w-px bg-zinc-700/50" style={{ left: '50%' }} />
-                  <div className="absolute inset-x-0 h-px bg-zinc-700/50" style={{ top: '50%' }} />
-                </div>
-                {[15, 33, 51, 69, 87].map((x, i) => (
-                  <div
-                    key={i}
-                    className="absolute top-0 w-px"
-                    style={{
-                      left: `${x}%`,
-                      height: '100%',
-                      background: 'rgba(120,180,255,0.25)',
-                      animation: `rain-drop ${1.2 + i * 0.25}s linear ${i * 0.18}s infinite`,
-                    }}
-                  />
-                ))}
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: 'radial-gradient(ellipse at 60% 40%, rgba(15,60,120,0.2) 0%, transparent 70%)',
-                  }}
-                />
-              </div>
+              {/* Window — distinct per case so the room reads as a real place */}
+              <SceneWindow caseId={selectedCase.id} />
+              {/* Centerpiece prop — distinct per case */}
+              <SceneCenterpiece caseId={selectedCase.id} />
               {/* Lamp glow */}
               <div
                 className="absolute"
@@ -186,7 +167,7 @@ export default function CrimeScene() {
               />
               {/* Crime tape */}
               <div
-                className="absolute bottom-0 left-0 right-0 overflow-hidden rounded-b opacity-15"
+                className="absolute bottom-0 left-0 right-0 overflow-hidden rounded-b opacity-40"
                 style={{ height: '22px' }}
               >
                 {Array.from({ length: 14 }).map((_, i) => (
@@ -249,7 +230,7 @@ export default function CrimeScene() {
                       >
                         {hasEvidence ? '✓' : hotspot.icon}
                       </div>
-                      <span className="text-[10px] tracking-wide text-zinc-500 group-hover:text-amber-300 transition-colors whitespace-nowrap font-medium drop-shadow-lg bg-zinc-950/60 px-1 rounded">
+                      <span className="max-w-[84px] text-center text-[10px] leading-tight tracking-wide text-zinc-300 group-hover:text-amber-300 transition-colors font-medium drop-shadow-lg bg-zinc-950/70 px-1 rounded">
                         {hotspot.label}
                       </span>
                     </motion.button>
@@ -294,7 +275,7 @@ export default function CrimeScene() {
                     {activeEvidence.icon}
                   </motion.span>
                   <div>
-                    <p className="text-[10px] tracking-[0.15em] text-zinc-600">EVIDENCIA</p>
+                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">EVIDENCIA</p>
                     <h4 className="font-bold text-amber-300 leading-tight">{activeEvidence.name}</h4>
                     {activeEvidence.isKey && (
                       <span className="text-[10px] text-amber-600">⭐ Evidencia clave</span>
@@ -310,7 +291,7 @@ export default function CrimeScene() {
                 </div>
                 <button
                   onClick={() => setActiveEvidence(null)}
-                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-600 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
                 >
                   ← Cerrar
                 </button>
@@ -326,7 +307,7 @@ export default function CrimeScene() {
                 <div className="mb-4 flex items-start gap-3">
                   <span className="text-3xl">📱</span>
                   <div>
-                    <p className="text-[10px] tracking-[0.15em] text-zinc-600">DISPOSITIVO ENCONTRADO</p>
+                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">DISPOSITIVO ENCONTRADO</p>
                     <h4 className="font-bold text-amber-300 leading-tight">{activeDevice.label}</h4>
                   </div>
                 </div>
@@ -342,7 +323,33 @@ export default function CrimeScene() {
                 </button>
                 <button
                   onClick={() => setActiveDevice(null)}
-                  className="mt-3 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-600 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                  className="mt-3 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                >
+                  ← Cerrar
+                </button>
+              </motion.div>
+            ) : activeFlavorHotspot ? (
+              <motion.div
+                key={activeFlavorHotspot.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                className="flex-1 p-5"
+              >
+                <div className="mb-4 flex items-start gap-3">
+                  <span className="text-3xl">{activeFlavorHotspot.icon}</span>
+                  <div>
+                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">PUNTO DE INTERÉS</p>
+                    <h4 className="font-bold text-amber-300 leading-tight">{activeFlavorHotspot.label}</h4>
+                  </div>
+                </div>
+                <div className="mb-3 rounded border border-zinc-800 bg-zinc-950/60 p-3">
+                  <p className="text-xs text-zinc-400 leading-relaxed">{activeFlavorHotspot.description}</p>
+                </div>
+                <p className="text-xs text-zinc-400 italic">Nada que recolectar aquí, pero vale la pena mirar.</p>
+                <button
+                  onClick={() => setActiveFlavorHotspot(null)}
+                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
                 >
                   ← Cerrar
                 </button>
@@ -354,7 +361,7 @@ export default function CrimeScene() {
                 animate={{ opacity: 1 }}
                 className="flex-1 p-5"
               >
-                <p className="text-[10px] tracking-[0.15em] text-zinc-600 mb-4">PUNTOS DE INTERÉS</p>
+                <p className="text-[10px] tracking-[0.15em] text-zinc-400 mb-4">PUNTOS DE INTERÉS</p>
                 <div className="space-y-2">
                   {selectedCase.hotspots.map((h, i) => (
                     <motion.div
@@ -366,7 +373,7 @@ export default function CrimeScene() {
                       onClick={() => handleHotspotClick(h)}
                     >
                       <span className="text-base">{isHotspotDone(h) ? '✅' : h.icon}</span>
-                      <span className={isHotspotDone(h) ? 'text-zinc-400 line-through' : 'text-zinc-600'}>
+                      <span className={isHotspotDone(h) ? 'text-zinc-400 line-through' : 'text-zinc-400'}>
                         {h.label}
                       </span>
                     </motion.div>
@@ -378,7 +385,7 @@ export default function CrimeScene() {
 
           {/* Suspects */}
           <div className="border-t border-zinc-800 p-4">
-            <p className="text-[10px] tracking-[0.2em] text-zinc-600 mb-3">INTERROGAR SOSPECHOSOS</p>
+            <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-3">INTERROGAR SOSPECHOSOS</p>
             <div className="space-y-2">
               {selectedCase.suspects.map((suspect, i) => {
                 const interviewed = caseProgress.interviewedSuspects[suspect.id]?.size ?? 0
@@ -397,7 +404,7 @@ export default function CrimeScene() {
                     <span className="text-xl flex-shrink-0">{suspect.avatar}</span>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-medium text-zinc-300 truncate">{suspect.name}</div>
-                      <div className="text-[10px] text-zinc-600">{suspect.occupation}</div>
+                      <div className="text-[10px] text-zinc-400">{suspect.occupation}</div>
                       {/* Progress bar */}
                       <div className="mt-1 h-0.5 rounded-full bg-zinc-800">
                         <motion.div
@@ -407,7 +414,7 @@ export default function CrimeScene() {
                         />
                       </div>
                     </div>
-                    <div className="text-[10px] text-zinc-600 flex-shrink-0">{interviewed}/{total}</div>
+                    <div className="text-[10px] text-zinc-400 flex-shrink-0">{interviewed}/{total}</div>
                   </motion.button>
                 )
               })}

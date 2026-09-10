@@ -30,7 +30,7 @@ export default function CaseSelection() {
         >
           <button
             onClick={() => goTo('main-menu')}
-            className="mb-6 text-xs tracking-widest text-zinc-600 hover:text-amber-400 transition-colors"
+            className="mb-6 text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
           >
             ← VOLVER
           </button>
@@ -99,11 +99,11 @@ function CaseCard({
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-3 mb-2">
-            <span className="text-xs text-zinc-600">CASO #{String(index + 1).padStart(3, '0')}</span>
+            <span className="text-xs text-zinc-400">CASO #{String(index + 1).padStart(3, '0')}</span>
             <span className={`rounded border px-2 py-0.5 text-xs ${diffClass}`}>
               {case_.difficulty}
             </span>
-            <span className="text-xs text-zinc-600">{case_.location}</span>
+            <span className="text-xs text-zinc-400">{case_.location}</span>
           </div>
 
           <h3 className="text-xl font-bold text-zinc-100 group-hover:text-amber-300 transition-colors">
@@ -112,7 +112,7 @@ function CaseCard({
           <p className="text-sm text-zinc-500 italic mb-3">{case_.subtitle}</p>
           <p className="text-sm leading-relaxed text-zinc-400">{case_.description}</p>
 
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-zinc-600">
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-zinc-400">
             <span>📅 {case_.date}</span>
             <span>👥 {case_.suspects.length} sospechosos</span>
             <span>🔍 {case_.evidence.length} evidencias</span>
@@ -120,7 +120,7 @@ function CaseCard({
         </div>
 
         {/* Arrow */}
-        <div className="flex-shrink-0 self-center text-zinc-700 group-hover:text-amber-500 transition-colors text-xl">
+        <div className="flex-shrink-0 self-center text-zinc-500 group-hover:text-amber-500 transition-colors text-xl">
           →
         </div>
       </div>

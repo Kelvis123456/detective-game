@@ -31,12 +31,12 @@ export default function EvidenceBoard() {
       <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/80 px-6 py-3">
         <button
           onClick={() => goTo('crime-scene')}
-          className="text-xs tracking-widest text-zinc-600 hover:text-amber-400 transition-colors"
+          className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
           ← ESCENA
         </button>
         <div className="text-center">
-          <p className="text-xs text-zinc-600 tracking-widest">TABLERO DE EVIDENCIAS</p>
+          <p className="text-xs text-zinc-400 tracking-widest">TABLERO DE EVIDENCIAS</p>
           <p className="text-sm font-medium text-amber-400">{selectedCase.title}</p>
         </div>
         <button
@@ -48,45 +48,43 @@ export default function EvidenceBoard() {
       </div>
 
       {/* Mode toggle */}
-      <div className="flex items-center gap-2 border-b border-zinc-800 bg-zinc-900/40 px-6 py-2">
-        <button
-          onClick={() => setBoardMode('grid')}
-          className={`rounded px-3 py-1 text-[11px] tracking-widest uppercase transition-colors ${
-            boardMode === 'grid'
-              ? 'bg-amber-950/60 text-amber-400 border border-amber-800/60'
-              : 'text-zinc-600 hover:text-zinc-300 border border-transparent'
-          }`}
-        >
-          📋 Corcho
-        </button>
-        <button
-          onClick={() => setBoardMode('connections')}
-          className={`rounded px-3 py-1 text-[11px] tracking-widest uppercase transition-colors ${
-            boardMode === 'connections'
-              ? 'bg-amber-950/60 text-amber-400 border border-amber-800/60'
-              : 'text-zinc-600 hover:text-zinc-300 border border-transparent'
-          }`}
-        >
-          🧵 Conexiones
-        </button>
+      <div className="flex justify-center border-b border-zinc-800 bg-zinc-900/40 px-6 py-2.5">
+        <div className="inline-flex rounded-lg bg-zinc-900 p-1">
+          <button
+            onClick={() => setBoardMode('grid')}
+            className={`rounded-md px-4 py-1.5 text-xs font-medium tracking-wide transition-colors ${
+              boardMode === 'grid' ? 'bg-amber-900/50 text-amber-300' : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            📋 Corcho
+          </button>
+          <button
+            onClick={() => setBoardMode('connections')}
+            className={`rounded-md px-4 py-1.5 text-xs font-medium tracking-wide transition-colors ${
+              boardMode === 'connections' ? 'bg-amber-900/50 text-amber-300' : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            🧵 Conexiones
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-1 flex-col md:flex-row">
+      <div
+        className="flex flex-1 flex-col md:flex-row"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 50% 50%, #1a1208 0%, #0a0a0f 100%),
+            repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(200,169,110,0.04) 39px, rgba(200,169,110,0.04) 40px),
+            repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(200,169,110,0.04) 39px, rgba(200,169,110,0.04) 40px)
+          `,
+        }}
+      >
         {boardMode === 'connections' ? (
           <ConnectionsBoard />
         ) : (
           <>
         {/* Main board */}
-        <div
-          className="flex-1 p-6 overflow-auto"
-          style={{
-            backgroundImage: `
-              radial-gradient(circle at 50% 50%, #1a1208 0%, #0a0a0f 100%),
-              repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(200,169,110,0.04) 39px, rgba(200,169,110,0.04) 40px),
-              repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(200,169,110,0.04) 39px, rgba(200,169,110,0.04) 40px)
-            `,
-          }}
-        >
+        <div className="flex-1 p-6 overflow-auto">
           <div className="mb-6">
             <h3 className="text-lg font-bold text-amber-400 mb-1">
               Evidencias Recopiladas ({collected.length}/{selectedCase.evidence.length})
@@ -95,7 +93,7 @@ export default function EvidenceBoard() {
           </div>
 
           {collected.length === 0 ? (
-            <div className="flex h-48 items-center justify-center text-zinc-700 text-sm italic">
+            <div className="flex h-48 items-center justify-center text-zinc-500 text-sm italic">
               Todavía no has recopilado ninguna evidencia. Regresa a la escena del crimen.
             </div>
           ) : (
@@ -117,7 +115,7 @@ export default function EvidenceBoard() {
           {/* Missing evidence hint */}
           {missing.length > 0 && (
             <div className="mt-8">
-              <p className="text-xs text-zinc-700 tracking-widest mb-3">
+              <p className="text-xs text-zinc-500 tracking-widest mb-3">
                 EVIDENCIA PENDIENTE ({missing.length})
               </p>
               <div className="grid grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-6">
@@ -127,7 +125,7 @@ export default function EvidenceBoard() {
                     className="flex flex-col items-center gap-1 rounded border border-zinc-800/50 bg-zinc-900/20 p-2 opacity-30"
                   >
                     <span className="text-xl grayscale">{e.icon}</span>
-                    <span className="text-[9px] text-zinc-700 text-center">???</span>
+                    <span className="text-[9px] text-zinc-500 text-center">???</span>
                   </div>
                 ))}
               </div>
@@ -167,12 +165,12 @@ export default function EvidenceBoard() {
                 )}
 
                 <div className="mb-3 rounded border border-zinc-800 bg-zinc-950/50 p-3">
-                  <p className="text-[10px] text-zinc-600 mb-1">DESCRIPCIÓN</p>
+                  <p className="text-[10px] text-zinc-400 mb-1">DESCRIPCIÓN</p>
                   <p className="text-xs text-zinc-400 leading-relaxed">{selectedEvidence.description}</p>
                 </div>
 
                 <div className="mb-3 rounded border border-zinc-800 bg-zinc-950/50 p-3">
-                  <p className="text-[10px] text-zinc-600 mb-1">ENCONTRADO EN</p>
+                  <p className="text-[10px] text-zinc-400 mb-1">ENCONTRADO EN</p>
                   <p className="text-xs text-zinc-400">{selectedEvidence.location}</p>
                 </div>
 
@@ -195,13 +193,13 @@ export default function EvidenceBoard() {
                 animate={{ opacity: 1 }}
                 className="p-5 flex flex-col gap-4"
               >
-                <p className="text-xs text-zinc-600 italic">
+                <p className="text-xs text-zinc-400 italic">
                   Selecciona una evidencia para ver el análisis forense completo.
                 </p>
 
                 {/* Suspects summary */}
                 <div>
-                  <p className="text-[10px] tracking-widest text-zinc-700 mb-2">SOSPECHOSOS</p>
+                  <p className="text-[10px] tracking-widest text-zinc-500 mb-2">SOSPECHOSOS</p>
                   {selectedCase.suspects.map((suspect) => {
                     const interviewed = caseProgress.interviewedSuspects[suspect.id]?.size ?? 0
                     const total = suspect.dialogues.length
@@ -211,7 +209,7 @@ export default function EvidenceBoard() {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm">{suspect.avatar}</span>
                           <span className="text-xs text-zinc-400">{suspect.name}</span>
-                          <span className="ml-auto text-[10px] text-zinc-600">
+                          <span className="ml-auto text-[10px] text-zinc-400">
                             {interviewed}/{total}
                           </span>
                         </div>

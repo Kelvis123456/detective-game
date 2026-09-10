@@ -155,12 +155,12 @@ export default function Resolution() {
               <div className="text-sm font-bold text-red-300">{accused.name}</div>
               <div className="text-xs text-red-700 mt-1">INOCENTE</div>
             </div>
-            <div className="rounded border border-green-900/40 bg-green-950/20 p-4 text-center">
-              <p className="text-[10px] tracking-widest text-green-700 mb-2">EL CULPABLE REAL</p>
+            <div className="rounded border border-amber-900/40 bg-amber-950/20 p-4 text-center">
+              <p className="text-[10px] tracking-widest text-amber-600 mb-2">EL CULPABLE REAL</p>
               <div className="text-3xl mb-1">{guilty.avatar}</div>
-              <div className="text-sm font-bold text-green-300">{guilty.name}</div>
-              <div className="text-xs text-green-700 mt-1">
-                {ending === 'insufficient-evidence' ? 'SIGUE LIBRE, SIN PISTAS SUFICIENTES' : 'CULPABLE'}
+              <div className="text-sm font-bold text-amber-300">{guilty.name}</div>
+              <div className="text-xs text-amber-600 mt-1">
+                {ending === 'insufficient-evidence' ? 'SIGUE LIBRE, SIN PISTAS SUFICIENTES' : 'LIBRE — SE TE ESCAPÓ'}
               </div>
             </div>
           </motion.div>
@@ -221,7 +221,7 @@ export default function Resolution() {
                   >
                     <span>{correct ? '✓' : '✗'}</span>
                     <span className="truncate">{evidence?.name ?? conn.fromId}</span>
-                    <span className="text-zinc-600">→</span>
+                    <span className="text-zinc-400">→</span>
                     <span className="truncate">{suspect?.name ?? conn.toId}</span>
                   </div>
                 )
@@ -237,7 +237,7 @@ export default function Resolution() {
           transition={{ delay: 0.5 }}
           className="mb-6 rounded border border-zinc-800 bg-zinc-900/60 p-5"
         >
-          <p className="text-[10px] tracking-widest text-zinc-600 mb-3">RECONSTRUCCIÓN DEL CRIMEN</p>
+          <p className="text-[10px] tracking-widest text-zinc-400 mb-3">RECONSTRUCCIÓN DEL CRIMEN</p>
           <p className="text-sm text-zinc-300 leading-7">{explanation}</p>
         </motion.div>
 
@@ -248,7 +248,7 @@ export default function Resolution() {
           transition={{ delay: 0.6 }}
           className="mb-8"
         >
-          <p className="text-[10px] tracking-widest text-zinc-600 mb-4">LÍNEA DE TIEMPO</p>
+          <p className="text-[10px] tracking-widest text-zinc-400 mb-4">LÍNEA DE TIEMPO</p>
           <div className="relative pl-4">
             <div className="absolute left-0 top-0 bottom-0 w-px bg-zinc-800" />
             {timeline.map((event, i) => (

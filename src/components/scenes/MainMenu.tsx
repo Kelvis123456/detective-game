@@ -97,13 +97,13 @@ export default function MainMenu() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1, duration: 0.6 }}
-          className="flex flex-col gap-4 w-64"
+          className="flex w-72 flex-col gap-4"
         >
           <button
             onClick={() => goTo('case-selection')}
-            className="group relative overflow-hidden rounded border border-amber-700/60 bg-amber-950/40 px-8 py-3 text-amber-300 transition-all hover:border-amber-500 hover:bg-amber-900/50 hover:text-amber-100 hover:shadow-lg hover:shadow-amber-900/30"
+            className="group relative overflow-hidden rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-amber-300 transition-all hover:border-amber-500 hover:bg-amber-900/50 hover:text-amber-100 hover:shadow-lg hover:shadow-amber-900/30"
           >
-            <span className="relative z-10 text-sm tracking-widest uppercase font-medium">
+            <span className="relative z-10 whitespace-nowrap text-sm tracking-wide uppercase font-medium">
               Iniciar Investigación
             </span>
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-amber-700/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
@@ -137,7 +137,7 @@ export default function MainMenu() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.3 }}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-4 z-10 text-xs tracking-widest text-zinc-600"
+        className="absolute bottom-4 z-10 w-full px-6 text-center text-xs tracking-widest text-zinc-400 sm:whitespace-nowrap"
       >
         DETECTIVE AGENCY · CASO CERRADO O NO, LA VERDAD SIEMPRE SALE A LA LUZ
       </motion.p>

@@ -51,9 +51,9 @@ export default function CaseIntro() {
                 {selectedCase.thumbnail}
               </motion.div>
               <div>
-                <p className="text-xs tracking-[0.25em] text-zinc-600 mb-0.5">NUEVO CASO ASIGNADO</p>
+                <p className="text-xs tracking-[0.25em] text-zinc-400 mb-0.5">NUEVO CASO ASIGNADO</p>
                 <h2 className="text-2xl font-bold text-amber-400">{selectedCase.title}</h2>
-                <p className="text-xs text-zinc-600">{selectedCase.location} · {selectedCase.date}</p>
+                <p className="text-xs text-zinc-400">{selectedCase.location} · {selectedCase.date}</p>
               </div>
             </motion.div>
 
@@ -73,7 +73,7 @@ export default function CaseIntro() {
               className="mb-6 rounded bg-zinc-900/70 p-6 border border-zinc-800/80"
               style={{ boxShadow: `inset 0 0 40px rgba(0,0,0,0.4)` }}
             >
-              <p className="text-[10px] tracking-[0.2em] text-zinc-600 mb-4">// BRIEFING DEL CASO</p>
+              <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-4">// BRIEFING DEL CASO</p>
               <p className="text-sm leading-8 text-zinc-300">{selectedCase.intro}</p>
             </motion.div>
 
@@ -95,7 +95,7 @@ export default function CaseIntro() {
                   style={{ boxShadow: `0 0 0 1px ${selectedCase.color}08` }}
                 >
                   <div className="text-lg mb-1">{item.icon}</div>
-                  <div className="text-[10px] tracking-widest text-zinc-600 mb-0.5">{item.label}</div>
+                  <div className="text-[10px] tracking-widest text-zinc-400 mb-0.5">{item.label}</div>
                   <div className="text-xs font-medium text-zinc-300">{item.value}</div>
                 </div>
               ))}
@@ -141,7 +141,7 @@ function SuspectsOverview({
   return (
     <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }}>
       <h3 className="text-xl font-bold text-amber-400 mb-1">Sospechosos Identificados</h3>
-      <p className="text-sm text-zinc-600 mb-6 italic">
+      <p className="text-sm text-zinc-400 mb-6 italic">
         Todos tienen algo que ocultar. Ninguno dirá la verdad completa.
       </p>
 
@@ -169,8 +169,8 @@ function SuspectsOverview({
               <div className="font-bold text-zinc-100">{s.name}</div>
               <div className="text-xs text-amber-600 mb-1">{s.occupation}</div>
               <div className="text-sm text-zinc-500 leading-relaxed">{s.description}</div>
-              <div className="mt-2 text-xs text-zinc-700">
-                <span className="text-zinc-600">Coartada: </span>
+              <div className="mt-2 text-xs text-zinc-500">
+                <span className="text-zinc-400">Coartada: </span>
                 {s.alibi}
               </div>
             </div>

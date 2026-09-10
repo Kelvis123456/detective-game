@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getCollectedEvidence } from '../../engine/CaseEngine'
-import type { Evidence, ProofCategory, Suspect } from '../../types'
+import { groupEvidenceByType, getEvidenceTypeLabel } from '../../engine/EvidenceEngine'
+import type { Evidence, EvidenceType, ProofCategory, Suspect } from '../../types'
 
 const PROOF_CATEGORIES: { id: ProofCategory; label: string; hint: string; icon: string }[] = [
   { id: 'means', label: 'Medios', hint: '¿Con qué pudo hacerlo?', icon: '🔧' },
@@ -55,7 +56,7 @@ export default function Accusation() {
         <div className="relative z-10 flex items-center justify-between border-b border-red-900/30 bg-zinc-900/80 px-6 py-3">
           <button
             onClick={() => setAccusedSuspect(null)}
-            className="text-xs tracking-widest text-zinc-600 hover:text-amber-400 transition-colors"
+            className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
           >
             ← CAMBIAR SOSPECHOSO
           </button>
@@ -79,45 +80,54 @@ export default function Accusation() {
           </motion.div>
 
           <div className="space-y-6 mb-8">
-            {PROOF_CATEGORIES.map((cat) => (
-              <div key={cat.id} className="rounded border border-zinc-800 bg-zinc-900/60 p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-lg">{cat.icon}</span>
-                  <span className="text-sm font-bold text-amber-400">{cat.label}</span>
-                  <span className="text-xs text-zinc-600">— {cat.hint}</span>
-                </div>
-                <div className="grid gap-2">
+            {PROOF_CATEGORIES.map((cat) => {
+              const grouped = groupEvidenceByType(collectedEvidence)
+              const types = Object.keys(grouped) as EvidenceType[]
+              return (
+                <div key={cat.id} className="rounded border border-zinc-800 bg-zinc-900/60 p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">{cat.icon}</span>
+                    <span className="text-sm font-bold text-amber-400">{cat.label}</span>
+                    <span className="text-xs text-zinc-400">— {cat.hint}</span>
+                  </div>
                   <button
-                    onClick={() =>
-                      setProofChoice((prev) => ({ ...prev, [cat.id]: undefined }))
-                    }
-                    className={`rounded border px-3 py-2 text-left text-xs transition-all ${
+                    onClick={() => setProofChoice((prev) => ({ ...prev, [cat.id]: undefined }))}
+                    className={`mb-3 w-full rounded border px-3 py-2 text-left text-xs italic transition-all ${
                       !proofChoice[cat.id]
-                        ? 'border-amber-700/60 bg-amber-950/30 text-amber-300'
-                        : 'border-zinc-800 text-zinc-600 hover:border-zinc-700'
+                        ? 'border-zinc-700 bg-zinc-900/60 text-zinc-400'
+                        : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
                     }`}
                   >
                     Sin evidencia específica
                   </button>
-                  {collectedEvidence.map((e: Evidence) => (
-                    <button
-                      key={e.id}
-                      onClick={() =>
-                        setProofChoice((prev) => ({ ...prev, [cat.id]: e.id }))
-                      }
-                      className={`rounded border px-3 py-2 text-left text-xs transition-all ${
-                        proofChoice[cat.id] === e.id
-                          ? 'border-amber-700/60 bg-amber-950/30 text-amber-300'
-                          : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
-                      }`}
-                    >
-                      <span className="mr-1.5">{e.icon}</span>
-                      {e.name}
-                    </button>
-                  ))}
+                  <div className="space-y-3">
+                    {types.map((type) => (
+                      <div key={type}>
+                        <p className="mb-1.5 text-[9px] tracking-widest text-zinc-500">
+                          {getEvidenceTypeLabel(type).toUpperCase()}
+                        </p>
+                        <div className="grid gap-2">
+                          {grouped[type].map((e: Evidence) => (
+                            <button
+                              key={e.id}
+                              onClick={() => setProofChoice((prev) => ({ ...prev, [cat.id]: e.id }))}
+                              className={`rounded border px-3 py-2 text-left text-xs transition-all ${
+                                proofChoice[cat.id] === e.id
+                                  ? 'border-amber-700/60 bg-amber-950/30 text-amber-300'
+                                  : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
+                              }`}
+                            >
+                              <span className="mr-1.5">{e.icon}</span>
+                              {e.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           <button
@@ -152,7 +162,7 @@ export default function Accusation() {
       <div className="relative z-10 flex items-center justify-between border-b border-red-900/30 bg-zinc-900/80 px-6 py-3">
         <button
           onClick={() => goTo('evidence-board')}
-          className="text-xs tracking-widest text-zinc-600 hover:text-amber-400 transition-colors"
+          className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
           ← EVIDENCIAS
         </button>
@@ -185,7 +195,7 @@ export default function Accusation() {
               {collectedKey}/{totalKey}
             </span>
             {collectedKey < totalKey && (
-              <span className="text-zinc-600">— considera volver a la escena</span>
+              <span className="text-zinc-400">— considera volver a la escena</span>
             )}
           </div>
         </motion.div>
@@ -240,10 +250,10 @@ export default function Accusation() {
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-zinc-100 text-lg">{suspect.name}</div>
                       <div className="text-xs text-zinc-500 mb-2">{suspect.occupation}</div>
-                      <div className="text-xs text-zinc-600 leading-relaxed line-clamp-2">
+                      <div className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
                         {suspect.description}
                       </div>
-                      <div className="mt-2 text-[10px] text-zinc-700">
+                      <div className="mt-2 text-[10px] text-zinc-500">
                         Preguntas respondidas: {interviewed}/{total}
                       </div>
                     </div>
@@ -260,7 +270,7 @@ export default function Accusation() {
                           <span className="text-[10px] text-red-600">Clic para continuar</span>
                         </motion.div>
                       ) : (
-                        <div className="text-zinc-700 text-xl">→</div>
+                        <div className="text-zinc-500 text-xl">→</div>
                       )}
                     </div>
                   </div>
@@ -274,7 +284,7 @@ export default function Accusation() {
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       onClick={() => setConfirmId(null)}
-                      className="w-full text-center py-1.5 text-xs text-zinc-700 hover:text-zinc-500 transition-colors"
+                      className="w-full text-center py-1.5 text-xs text-zinc-500 hover:text-zinc-500 transition-colors"
                     >
                       Cancelar
                     </motion.button>

@@ -38,12 +38,12 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
         />
       </div>
 
-      <div className="flex items-center justify-between px-4 py-2">
+      <div className="flex items-center justify-center gap-2 px-4 py-2 md:justify-between">
         {/* Case info */}
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="hidden min-w-0 items-center gap-2 md:flex">
           <span className="text-lg flex-shrink-0">{selectedCase.thumbnail}</span>
           <div className="min-w-0">
-            <div className="text-[9px] text-zinc-600 tracking-widest uppercase">Caso activo</div>
+            <div className="text-[9px] text-zinc-500 tracking-widest uppercase">Caso activo</div>
             <div className="text-xs font-medium text-amber-400 truncate">{selectedCase.title}</div>
           </div>
         </div>
@@ -57,7 +57,7 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
               className={`flex flex-col items-center px-4 py-1 rounded transition-all text-[10px] tracking-wider ${
                 activeTab === tab.id
                   ? 'bg-amber-950/60 text-amber-400 border border-amber-800/60'
-                  : 'text-zinc-600 hover:text-zinc-300'
+                  : 'text-zinc-400 hover:text-zinc-300'
               }`}
             >
               <span className="text-base leading-none mb-0.5">{tab.icon}</span>
@@ -67,8 +67,8 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
         </div>
 
         {/* Stats */}
-        <div className="text-right min-w-0">
-          <div className="text-[9px] text-zinc-600 uppercase tracking-widest">
+        <div className="hidden flex-shrink-0 whitespace-nowrap text-right md:block">
+          <div className="text-[9px] text-zinc-500 uppercase tracking-widest">
             {evidenceCount} evidencias · {progress}%
           </div>
           <div className="text-xs text-zinc-500">{selectedCase.difficulty}</div>

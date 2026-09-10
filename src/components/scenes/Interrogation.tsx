@@ -252,30 +252,32 @@ export default function Interrogation() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/80 px-6 py-3"
+        className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/80 px-4 py-3 sm:px-6"
       >
         <button
           onClick={() => goTo('crime-scene')}
-          className="text-xs tracking-widest text-zinc-600 hover:text-amber-400 transition-colors"
+          className="whitespace-nowrap text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
           ← ESCENA
         </button>
-        <p className="text-[10px] tracking-[0.2em] text-zinc-500">SALA DE INTERROGATORIO</p>
+        <p className="hidden whitespace-nowrap text-[10px] tracking-[0.2em] text-zinc-500 sm:block">
+          SALA DE INTERROGATORIO
+        </p>
         <button
           onClick={() => goTo('evidence-board')}
-          className="text-xs tracking-widest text-zinc-600 hover:text-amber-400 transition-colors"
+          className="whitespace-nowrap text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
           EVIDENCIAS →
         </button>
       </motion.div>
 
-      <div className="flex flex-1 flex-col md:flex-row">
+      <div className="flex flex-1 flex-col-reverse md:flex-row">
         {/* Left: Suspect portrait + info */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="w-full md:w-64 md:flex-shrink-0 border-b md:border-b-0 md:border-r border-zinc-800 bg-zinc-900/30 p-5 flex flex-col items-center"
+          className="w-full md:w-64 md:flex-shrink-0 border-t md:border-t-0 md:border-r border-zinc-800 bg-zinc-900/30 p-5 flex flex-col items-center"
         >
           <SuspectPortrait
             suspect={selectedSuspect}
@@ -284,7 +286,7 @@ export default function Interrogation() {
           />
 
           <p className="text-sm font-bold text-zinc-100 mb-0.5 text-center">{selectedSuspect.name}</p>
-          <p className="text-[10px] text-zinc-600 mb-3 text-center">{selectedSuspect.occupation}</p>
+          <p className="text-[10px] text-zinc-400 mb-3 text-center">{selectedSuspect.occupation}</p>
 
           {/* Emotional state badge */}
           <AnimatePresence mode="wait">
@@ -312,7 +314,7 @@ export default function Interrogation() {
           {/* Suspicion meter */}
           {asked.length > 0 && (
             <div className="w-full mb-3">
-              <div className="flex justify-between text-[10px] text-zinc-600 mb-1">
+              <div className="flex justify-between text-[10px] text-zinc-400 mb-1">
                 <span>Sospecha</span>
                 <span
                   style={{
@@ -324,7 +326,7 @@ export default function Interrogation() {
                   {suspicionLevel}%
                 </span>
               </div>
-              <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${suspicionLevel}%` }}
@@ -349,17 +351,17 @@ export default function Interrogation() {
 
           {/* Alibi */}
           <div className="w-full rounded border border-zinc-800 bg-zinc-950/60 p-3 text-xs mb-3">
-            <p className="text-[9px] tracking-[0.15em] text-zinc-600 mb-1">COARTADA</p>
+            <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">COARTADA</p>
             <p className="text-zinc-400 leading-relaxed">{selectedSuspect.alibi}</p>
           </div>
 
           {/* Already asked */}
           {asked.length > 0 && (
             <div className="w-full">
-              <p className="text-[9px] tracking-[0.15em] text-zinc-700 mb-2">YA PREGUNTADO</p>
+              <p className="text-[9px] tracking-[0.15em] text-zinc-500 mb-2">YA PREGUNTADO</p>
               <div className="space-y-1">
                 {asked.map((d) => (
-                  <div key={d.id} className="flex items-center gap-1.5 text-[10px] text-zinc-700">
+                  <div key={d.id} className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                     <span style={{ color: getEmotionalStateColor(d.emotionalState) }}>
                       {getEmotionalStateIcon(d.emotionalState)}
                     </span>
@@ -382,7 +384,7 @@ export default function Interrogation() {
           }}
         >
           {/* Answer display */}
-          <div className="flex-1 mb-5">
+          <div className="mb-5">
             <AnimatePresence mode="wait">
               {currentDialogue ? (
                 <motion.div
@@ -395,7 +397,7 @@ export default function Interrogation() {
                 >
                   {/* Detective question */}
                   <div className="mb-3 rounded border border-zinc-800 bg-zinc-900/60 p-3">
-                    <p className="text-[9px] tracking-[0.15em] text-zinc-600 mb-1">DETECTIVE:</p>
+                    <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">DETECTIVE:</p>
                     <p className="text-sm text-zinc-300 italic">"{currentDialogue.question}"</p>
                   </div>
 
@@ -415,7 +417,7 @@ export default function Interrogation() {
                       {!done && (
                         <button
                           onClick={skip}
-                          className="text-[10px] text-zinc-600 hover:text-amber-400 transition-colors border border-zinc-800 hover:border-amber-700/60 px-2 py-0.5 rounded"
+                          className="text-[10px] text-zinc-400 hover:text-amber-400 transition-colors border border-zinc-800 hover:border-amber-700/60 px-2 py-0.5 rounded"
                         >
                           Saltar ▶▶
                         </button>
@@ -459,7 +461,7 @@ export default function Interrogation() {
                   className="flex h-48 flex-col items-center justify-center gap-3"
                 >
                   <div className="text-4xl opacity-20">💬</div>
-                  <p className="text-sm text-zinc-700 italic">
+                  <p className="text-sm text-zinc-500 italic">
                     Selecciona una pregunta para comenzar...
                   </p>
                 </motion.div>
@@ -469,7 +471,7 @@ export default function Interrogation() {
 
           {/* Question list */}
           <div>
-            <p className="text-[10px] tracking-[0.2em] text-zinc-600 mb-3">
+            <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-3">
               PREGUNTAS DISPONIBLES ({available.length})
             </p>
             {available.length > 0 ? (
@@ -497,7 +499,7 @@ export default function Interrogation() {
                 className="rounded border border-zinc-800 bg-zinc-900/30 p-4 text-center"
               >
                 <p className="text-sm text-zinc-500 mb-1">✓ Interrogatorio completado</p>
-                <p className="text-xs text-zinc-700">
+                <p className="text-xs text-zinc-500">
                   Has preguntado todo lo que hay que preguntar.
                 </p>
               </motion.div>
