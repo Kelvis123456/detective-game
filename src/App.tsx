@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useGameStore } from './store/gameStore'
 import MainMenu from './components/scenes/MainMenu'
@@ -21,6 +22,13 @@ const PAGE_VARIANTS = {
 
 export default function App() {
   const scene = useGameStore((s) => s.scene)
+
+  // Every scene transition (crucially Accusation → Resolution, reached from
+  // deep in a scroll on a long proof form) must land the player at the top —
+  // otherwise the actual verdict can render entirely below the fold.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [scene])
 
   useAmbientNoise(
     scene !== 'main-menu' && scene !== 'case-selection',

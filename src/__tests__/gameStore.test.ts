@@ -6,7 +6,7 @@ import type { Case, GameState } from '../types'
 
 const INITIAL_STATE: GameState = JSON.parse(JSON.stringify(useGameStore.getState()))
 // playerStats is the only plain-serializable slice we actually need reset between tests;
-// the rest (scene/selectedCase/caseProgress/selectedSuspect/notification) is reset to its
+// the rest (scene/selectedCase/caseProgress/selectedSuspect/notifications) is reset to its
 // real initial value below without going through JSON (Sets/functions wouldn't survive it).
 
 function resetStore() {
@@ -16,7 +16,7 @@ function resetStore() {
     caseProgress: null,
     selectedSuspect: null,
     playerStats: { ...INITIAL_STATE.playerStats },
-    notification: null,
+    notifications: [],
   })
 }
 
@@ -65,6 +65,41 @@ describe('gameStore', () => {
       useGameStore.getState().collectEvidence('fragmento-cristal')
       expect(useGameStore.getState().caseProgress).toBeNull()
       expect(useGameStore.getState().playerStats.totalEvidenceFound).toBe(0)
+    })
+  })
+
+  describe('askQuestion', () => {
+    beforeEach(() => {
+      useGameStore.getState().selectCase(case001)
+    })
+
+    it('records the interview and increments totalEvidenceFound for newly revealed evidence', () => {
+      useGameStore.getState().askQuestion('valentina-cruz', 'v-q2', ['ficha-evaluacion'])
+      const state = useGameStore.getState()
+      expect(state.caseProgress?.interviewedSuspects['valentina-cruz']?.has('v-q2')).toBe(true)
+      expect(state.caseProgress?.collectedEvidenceIds.has('ficha-evaluacion')).toBe(true)
+      expect(state.playerStats.totalEvidenceFound).toBe(1)
+    })
+
+    it('does not double-count evidence already collected through another source (ficha-evaluacion via hotspot, then via dialogue)', () => {
+      useGameStore.getState().collectEvidence('ficha-evaluacion')
+      useGameStore.getState().askQuestion('valentina-cruz', 'v-q2', ['ficha-evaluacion'])
+      expect(useGameStore.getState().playerStats.totalEvidenceFound).toBe(1)
+    })
+
+    it('does not double-count when the same evidence is revealed by two different suspects\' dialogues', () => {
+      // ficha-evaluacion is revealed by both v-q2 (Valentina) and m-q1 (Marco) in case001.
+      useGameStore.getState().askQuestion('valentina-cruz', 'v-q2', ['ficha-evaluacion'])
+      useGameStore.getState().askQuestion('marco-delgado', 'm-q1', ['ficha-evaluacion'])
+      expect(useGameStore.getState().playerStats.totalEvidenceFound).toBe(1)
+    })
+
+    it('only counts the evidence ids that are actually new when a dialogue reveals several at once', () => {
+      useGameStore.getState().collectEvidence('camara-seguridad') // +1 (independent of the dialogue below)
+      useGameStore.getState().askQuestion('sofia-reyes', 's-q4', ['camara-seguridad', 'maletin-fotos'])
+      // camara-seguridad was already collected and must not be re-counted; maletin-fotos is genuinely new.
+      expect(useGameStore.getState().playerStats.totalEvidenceFound).toBe(2)
+      expect(useGameStore.getState().caseProgress?.collectedEvidenceIds.has('maletin-fotos')).toBe(true)
     })
   })
 
@@ -207,16 +242,39 @@ describe('gameStore', () => {
       useGameStore.getState().selectCase(caseWithTension)
 
       useGameStore.getState().collectEvidence('fragmento-cristal')
-      expect(useGameStore.getState().notification).toBeNull()
+      expect(useGameStore.getState().notifications).toEqual([])
 
       useGameStore.getState().collectEvidence('ficha-evaluacion')
-      expect(useGameStore.getState().notification).toBe('Revisa el teléfono.')
+      expect(useGameStore.getState().notifications).toEqual(['Revisa el teléfono.'])
       expect(useGameStore.getState().caseProgress?.firedTensionEventIds.has('tension-test')).toBe(true)
 
       useGameStore.getState().clearNotification()
       useGameStore.getState().collectEvidence('recibo-materiales')
       // Already fired once — must not fire again and re-show the hint.
-      expect(useGameStore.getState().notification).toBeNull()
+      expect(useGameStore.getState().notifications).toEqual([])
+    })
+
+    it('queues a hint notification instead of clobbering one already pending (the CrimeScene/Interrogation clobber bug)', () => {
+      const caseWithTension: Case = {
+        ...case001,
+        tensionEvents: [
+          { id: 'tension-test', triggerActionCount: 1, message: 'fallback', effect: { revealHint: 'Pista de tensión.' } },
+        ],
+      }
+      useGameStore.getState().selectCase(caseWithTension)
+
+      // Same sequence CrimeScene.handleHotspotClick runs: the store action
+      // fires the tension hint, then the scene calls showNotification for
+      // "evidence collected" right after, in the same synchronous tick.
+      useGameStore.getState().collectEvidence('fragmento-cristal')
+      useGameStore.getState().showNotification('Evidencia recopilada: Fragmento de Cristal')
+
+      // Both must survive, in the order they actually happened — neither
+      // silently overwrites the other.
+      expect(useGameStore.getState().notifications).toEqual([
+        'Pista de tensión.',
+        'Evidencia recopilada: Fragmento de Cristal',
+      ])
     })
 
     it("case001's real lock event hides the comprador thread once triggered, but the evidence stays reachable through dialogue redundancy", () => {
@@ -291,11 +349,15 @@ describe('gameStore', () => {
       expect(state.caseProgress).toBeNull()
     })
 
-    it('showNotification/clearNotification set and clear the message', () => {
+    it('showNotification appends to the queue; clearNotification dismisses the oldest', () => {
       useGameStore.getState().showNotification('hola')
-      expect(useGameStore.getState().notification).toBe('hola')
+      expect(useGameStore.getState().notifications).toEqual(['hola'])
+      useGameStore.getState().showNotification('mundo')
+      expect(useGameStore.getState().notifications).toEqual(['hola', 'mundo'])
       useGameStore.getState().clearNotification()
-      expect(useGameStore.getState().notification).toBeNull()
+      expect(useGameStore.getState().notifications).toEqual(['mundo'])
+      useGameStore.getState().clearNotification()
+      expect(useGameStore.getState().notifications).toEqual([])
     })
   })
 })

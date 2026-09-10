@@ -74,7 +74,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     totalEvidenceFound: 0,
     flawlessCases: 0,
   },
-  notification: null,
+  notifications: [],
 
   goTo: (scene) => set({ scene }),
 
@@ -94,7 +94,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     set((state) => ({
       caseProgress: progress,
-      notification: message ?? state.notification,
+      notifications: message ? [...state.notifications, message] : state.notifications,
       playerStats: {
         ...state.playerStats,
         totalEvidenceFound: state.playerStats.totalEvidenceFound + 1,
@@ -111,23 +111,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     let progress: CaseProgress = recordInterview(caseProgress, suspectId, dialogueId)
 
-    for (const eid of revealedEvidenceIds) {
-      if (!progress.collectedEvidenceIds.has(eid)) {
-        progress = collectEvidence(progress, eid)
-      }
+    const newEvidenceIds = revealedEvidenceIds.filter((eid) => !progress.collectedEvidenceIds.has(eid))
+    for (const eid of newEvidenceIds) {
+      progress = collectEvidence(progress, eid)
     }
 
     const advanced = advanceWithTension(progress, selectedCase)
 
     set((state) => ({
       caseProgress: advanced.progress,
-      notification: advanced.message ?? state.notification,
+      notifications: advanced.message ? [...state.notifications, advanced.message] : state.notifications,
       playerStats:
-        revealedEvidenceIds.length > 0
+        newEvidenceIds.length > 0
           ? {
               ...state.playerStats,
-              totalEvidenceFound:
-                state.playerStats.totalEvidenceFound + revealedEvidenceIds.length,
+              totalEvidenceFound: state.playerStats.totalEvidenceFound + newEvidenceIds.length,
             }
           : state.playerStats,
     }))
@@ -183,7 +181,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     set((state) => ({
       caseProgress: advanced.progress,
-      notification: advanced.message ?? state.notification,
+      notifications: advanced.message ? [...state.notifications, advanced.message] : state.notifications,
       playerStats:
         newEvidenceIds.length > 0
           ? {
@@ -217,7 +215,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     set((state) => ({
       caseProgress: advanced.progress,
-      notification: advanced.message ?? state.notification,
+      notifications: advanced.message ? [...state.notifications, advanced.message] : state.notifications,
       playerStats:
         newEvidenceIds.length > 0
           ? {
@@ -262,6 +260,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((state) => ({
       caseProgress: updated,
       scene: 'resolution',
+      // A toast from a hotspot click made minutes ago (a 3s auto-dismiss
+      // timer can outlive an entire proof-form scroll) has no business
+      // popping up over the verdict screen.
+      notifications: [],
       playerStats: {
         ...state.playerStats,
         casesCompleted: state.playerStats.casesCompleted + 1,
@@ -284,6 +286,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       scene: 'case-selection',
     }),
 
-  showNotification: (message) => set({ notification: message }),
-  clearNotification: () => set({ notification: null }),
+  showNotification: (message) => set((state) => ({ notifications: [...state.notifications, message] })),
+  clearNotification: () => set((state) => ({ notifications: state.notifications.slice(1) })),
 }))

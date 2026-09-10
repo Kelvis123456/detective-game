@@ -343,6 +343,15 @@ const case002: Case = {
       description: 'Una chaqueta femenina cuelga del perchero, junto al tocador. Algo vibra en el bolsillo interior.',
       icon: '🧥',
     },
+    {
+      id: 'bano-pasillo',
+      x: 50,
+      y: 80,
+      label: 'Baño del Pasillo',
+      evidenceId: 'guantes-papelera',
+      description: 'La puerta del baño compartido, justo enfrente del camerino, está entreabierta.',
+      icon: '🚪',
+    },
   ],
 
   digitalDevices: [

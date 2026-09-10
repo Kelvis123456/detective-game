@@ -70,6 +70,14 @@ const case004: Case = {
           emotionalState: 'angry',
           revealedEvidenceIds: [],
         },
+        {
+          id: 'ren-q6',
+          question: '¿Qué fue lo último que le escribió Valeria esa noche?',
+          answer:
+            'Que alguien tocaba el timbre, raro a esa hora, que ya me escribía. Nunca volvió a escribirme. Revisé el chat mil veces esa noche pensando que se le había hecho tarde con algo tonto.',
+          emotionalState: 'sad',
+          revealedEvidenceIds: ['chat-renata-valeria'],
+        },
       ],
     },
     {
@@ -125,7 +133,7 @@ const case004: Case = {
       occupation: 'Administrador de comunidad de fans',
       description:
         'Habla de Valeria con una familiaridad que nadie le pidió. Cuidadoso con cada palabra, hasta que deja de serlo.',
-      avatar: '🖥️',
+      avatar: '🎭',
       motive:
         'Obsesión no correspondida; Valeria lo bloqueó y denunció su comportamiento, lo que amenazaba con exponerlo y hacerle perder su rol como moderador.',
       alibi: 'Dice que estuvo "en casa, en línea", y que se puede verificar con su actividad.',
@@ -412,7 +420,7 @@ const case004: Case = {
       label: 'Mesa de Centro',
       evidenceId: 'copa-vino-valeria',
       description: 'Mesa de centro con la copa de vino a medio terminar.',
-      icon: '🛋️',
+      icon: '🍷',
     },
     {
       id: 'tripode',
@@ -440,7 +448,7 @@ const case004: Case = {
       label: 'Escritorio',
       evidenceId: null,
       description: 'Escritorio con premios de marca y fotos enmarcadas de campañas pasadas.',
-      icon: '🏆',
+      icon: '🖼️',
     },
   ],
 
@@ -531,9 +539,15 @@ const case004: Case = {
     { fromId: 'borrador-ismael', toId: 'ismael-duarte' },
     { fromId: 'denuncia-valeria', toId: 'ismael-duarte' },
     { fromId: 'video-eliminado-recuperado', toId: 'ismael-duarte' },
+    { fromId: 'puerta-balcon', toId: 'ismael-duarte' },
+    { fromId: 'tripode-luz', toId: 'ismael-duarte' },
+    { fromId: 'chat-renata-valeria', toId: 'ismael-duarte' },
     { fromId: 'nota-comision', toId: 'renata-cifuentes' },
+    { fromId: 'metadata-edicion', toId: 'renata-cifuentes' },
     { fromId: 'posts-indirectas', toId: 'bruno-salcedo' },
+    { fromId: 'ubicacion-taxi', toId: 'bruno-salcedo' },
     { fromId: 'correo-contrato', toId: 'karina-ossa' },
+    { fromId: 'recibo-cena', toId: 'karina-ossa' },
   ],
 
   solution: {

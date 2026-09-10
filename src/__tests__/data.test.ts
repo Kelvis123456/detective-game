@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { ALL_CASES, getCaseById } from '../data'
 
 describe('Case Data Integrity', () => {
-  it('has at least 3 cases', () => {
-    expect(ALL_CASES.length).toBeGreaterThanOrEqual(3)
+  it('has exactly the 4 shipped cases', () => {
+    expect(ALL_CASES.length).toBe(4)
   })
 
   describe.each(ALL_CASES.map((c) => [c.title, c]))('Case: %s', (_, case_) => {
@@ -158,14 +158,37 @@ describe('Case Data Integrity', () => {
       }
     })
 
+    it('every evidence id is actually obtainable — via a hotspot, a dialogue reveal, or a digital message/note', () => {
+      const hotspotGranted = new Set(
+        case_.hotspots.map((h) => h.evidenceId).filter((id): id is string => Boolean(id))
+      )
+      const dialogueGranted = new Set(
+        case_.suspects.flatMap((s) => s.dialogues.flatMap((d) => d.revealedEvidenceIds))
+      )
+      const devices = case_.digitalDevices ?? []
+      const digitalGranted = new Set([
+        ...devices.flatMap((d) => d.threads.flatMap((t) => t.messages.map((m) => m.evidenceId))),
+        ...devices.flatMap((d) => d.notes.map((n) => n.evidenceId)),
+      ].filter((id): id is string => Boolean(id)))
+
+      for (const evidence of case_.evidence) {
+        const obtainable =
+          hotspotGranted.has(evidence.id) ||
+          dialogueGranted.has(evidence.id) ||
+          digitalGranted.has(evidence.id)
+        expect(obtainable, `"${evidence.id}" (${evidence.name}) has no hotspot, dialogue, or digital source`).toBe(true)
+      }
+    })
+
     // Case-authoring rule from the tension-mechanic design: a lockThreadIds/
-    // lockNoteIds effect can never be the ONLY route to evidence the
-    // solution's proof requires — there must always be a redundant path
-    // (a dialogue reveal, or a hotspot that grants it directly), so a
-    // player who gets locked out can still build a full case.
-    it('locking a thread/note never cuts off the only path to proof-required evidence', () => {
+    // lockNoteIds effect can never be the ONLY route to key/proof-required
+    // evidence — there must always be a redundant path (a dialogue reveal,
+    // or a hotspot that grants it directly), so a player who gets locked
+    // out can still build a full case and still collect every key clue.
+    it('locking a thread/note never cuts off the only path to key or proof-required evidence', () => {
       const proof = case_.solution.proof
       const requiredIds = new Set(proof ? [...proof.means, ...proof.motive, ...proof.opportunity] : [])
+      for (const e of case_.evidence) if (e.isKey) requiredIds.add(e.id)
       if (requiredIds.size === 0) return
 
       const devices = case_.digitalDevices ?? []

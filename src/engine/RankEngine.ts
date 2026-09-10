@@ -1,17 +1,22 @@
 import type { DetectiveRank, PlayerStats } from '../types'
 
 /**
- * Detective rank derived purely from lifetime stats. Thresholds are a v1
- * heuristic, intentionally simple and tunable later without touching the
- * call sites (MainMenu/CaseSelection just render whatever this returns).
+ * Detective rank derived purely from lifetime stats.
+ *
+ * Every threshold below compares raw, monotonically non-decreasing counters
+ * (casesCompleted/correctAccusations/flawlessCases only ever go up within a
+ * session) instead of a live accuracy ratio — a ratio can drop as the
+ * denominator grows even though nothing about the player's play got worse,
+ * which let an early lucky case put someone at the top rank and then demote
+ * them after a single miss. Comparing counts keeps rank monotonic: it can
+ * only hold steady or increase as more cases are played.
  */
 export function getDetectiveRank(stats: PlayerStats): DetectiveRank {
   const { casesCompleted, correctAccusations, flawlessCases = 0 } = stats
-  const accuracy = casesCompleted > 0 ? correctAccusations / casesCompleted : 0
 
-  if (casesCompleted === 0) return 'Novato'
-  if (accuracy === 1 && flawlessCases >= 1) return 'Mente Maestra'
-  if (casesCompleted >= 5 && accuracy >= 0.75) return 'Detective Senior'
-  if (casesCompleted >= 3 && accuracy >= 0.5) return 'Detective'
-  return 'Investigador'
+  if (flawlessCases >= 3) return 'Mente Maestra'
+  if (casesCompleted >= 4 && correctAccusations >= 3) return 'Detective Senior'
+  if (casesCompleted >= 3 && correctAccusations >= 2) return 'Detective'
+  if (casesCompleted >= 1) return 'Investigador'
+  return 'Novato'
 }

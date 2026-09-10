@@ -170,7 +170,7 @@ const case001: Case = {
           answer:
             'Al señor Delgado. Salía con un maletín cuando fui hacia los baños. Pensé que era raro a esas horas, pero no le di importancia.',
           emotionalState: 'calm',
-          revealedEvidenceIds: ['camara-seguridad'],
+          revealedEvidenceIds: ['camara-seguridad', 'maletin-fotos'],
         },
       ],
     },
@@ -227,7 +227,7 @@ const case001: Case = {
       description: 'Guante quirúrgico descartable de talla grande.',
       type: 'physical',
       icon: '🧤',
-      location: 'Basurero del rincón',
+      location: 'Manos de Marco Delgado, mostradas durante el interrogatorio',
       isKey: true,
       analysis:
         'Guante desechable de nitrilo, talla L. No tiene huellas externas, pero el interior tiene trazas de polvo de gemas y resina sintética — los mismos materiales del recibo de compra. Delgado usa talla L según su perfil de compras.',
@@ -255,7 +255,7 @@ const case001: Case = {
         'El lápiz de labios coincide con el tono que usa Sofía Reyes esta noche. Confirma que estuvo cerca de la vitrina, pero no a la hora del robo. Podría ser del inicio de la gala.',
     },
     {
-      id: 'maletín-fotos',
+      id: 'maletin-fotos',
       name: 'Fotos del Maletín',
       description: 'Capturas de distintas cámaras mostrando el maletín de Delgado en la noche.',
       type: 'digital',

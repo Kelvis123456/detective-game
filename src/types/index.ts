@@ -207,5 +207,8 @@ export interface GameState {
   caseProgress: CaseProgress | null
   selectedSuspect: Suspect | null
   playerStats: PlayerStats
-  notification: string | null
+  /** FIFO queue — showNotification appends, clearNotification dismisses the oldest.
+   *  A queue (not a single overwritable slot) so a tension-mechanic message and a
+   *  "evidence collected" toast fired in the same tick don't clobber each other. */
+  notifications: string[]
 }
