@@ -436,5 +436,14 @@ describe('gameStore', () => {
       useGameStore.getState().clearNotification()
       expect(useGameStore.getState().notifications).toEqual([])
     })
+
+    it('clearAllNotifications empties the whole queue at once, not just the oldest', () => {
+      useGameStore.getState().showNotification('uno')
+      useGameStore.getState().showNotification('dos')
+      useGameStore.getState().showNotification('tres')
+      expect(useGameStore.getState().notifications).toHaveLength(3)
+      useGameStore.getState().clearAllNotifications()
+      expect(useGameStore.getState().notifications).toEqual([])
+    })
   })
 })

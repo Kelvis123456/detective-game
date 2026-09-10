@@ -35,12 +35,24 @@ const AMBIENT_BY_SCENE: Record<Scene, AmbientScene> = {
 
 export default function App() {
   const scene = useGameStore((s) => s.scene)
+  const clearAllNotifications = useGameStore((s) => s.clearAllNotifications)
 
   // Every scene transition (crucially Accusation → Resolution, reached from
   // deep in a scroll on a long proof form) must land the player at the top —
   // otherwise the actual verdict can render entirely below the fold.
   useEffect(() => {
     window.scrollTo(0, 0)
+  }, [scene])
+
+  // A toast is a comment on the screen where it fired (e.g. "found a device"
+  // on the crime scene) — carrying it into whatever screen the player taps
+  // to next has no fixed position that's safe from every layout that screen
+  // might have (the digital-forensics PIN pad, tall on a short phone, is a
+  // real example: no offset clears its keypad without the toast just landing
+  // on a different row of it instead).
+  useEffect(() => {
+    clearAllNotifications()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene])
 
   useEffect(() => {
