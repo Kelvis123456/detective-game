@@ -15,7 +15,7 @@ const ENDING_META: Record<
     tone: 'green',
   },
   'correct-partial-reasoning': {
-    icon: '✔️',
+    icon: '🔶',
     title: 'CULPABLE IDENTIFICADO',
     subtitle:
       'Acusaste a la persona correcta, pero tu caso ante el jurado quedó incompleto — te faltó fundamentar una parte de la acusación.',
@@ -28,7 +28,7 @@ const ENDING_META: Record<
     tone: 'red',
   },
   'insufficient-evidence': {
-    icon: '🌫️',
+    icon: '📁',
     title: 'CASO ARCHIVADO SIN PRUEBAS',
     subtitle:
       'Acusaste demasiado pronto, con muy poca evidencia reunida. El caso queda abierto y nadie responde por él.',
@@ -103,7 +103,7 @@ export default function Resolution() {
           transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           className="mb-8 text-center"
         >
-          <div className="mb-4 text-6xl">{meta.icon}</div>
+          <div className="mb-4 text-6xl emoji-tone">{meta.icon}</div>
           <h2
             className={`text-4xl font-bold mb-2 ${tone.text}`}
             style={{ textShadow: tone.glow }}
@@ -119,7 +119,7 @@ export default function Resolution() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="mb-6 rounded border border-amber-900/40 bg-amber-950/10 p-4"
+            className="mb-6 rounded-lg border border-amber-900/40 bg-amber-950/10 p-4"
           >
             <p className="text-[10px] tracking-widest text-amber-700 mb-3">FUNDAMENTACIÓN DE TU ACUSACIÓN</p>
             <div className="grid grid-cols-3 gap-3">
@@ -150,7 +150,7 @@ export default function Resolution() {
             transition={{ delay: 0.3 }}
             className="mb-6 grid grid-cols-2 gap-4"
           >
-            <div className="rounded border border-red-900/40 bg-red-950/20 p-4 text-center">
+            <div className="rounded-lg border border-red-900/40 bg-red-950/20 p-4 text-center">
               <p className="text-[10px] tracking-widest text-red-700 mb-2">TU ACUSADO</p>
               <div className="mb-1 flex justify-center">
                 <PortraitAvatar seed={accused.id} size={48} className="rounded-full" />
@@ -158,7 +158,7 @@ export default function Resolution() {
               <div className="text-sm font-bold text-red-300">{accused.name}</div>
               <div className="text-xs text-red-700 mt-1">INOCENTE</div>
             </div>
-            <div className="rounded border border-amber-900/40 bg-amber-950/20 p-4 text-center">
+            <div className="rounded-lg border border-amber-900/40 bg-amber-950/20 p-4 text-center">
               <p className="text-[10px] tracking-widest text-amber-600 mb-2">EL CULPABLE REAL</p>
               <div className="mb-1 flex justify-center">
                 <PortraitAvatar seed={guilty.id} size={48} className="rounded-full" />
@@ -194,7 +194,7 @@ export default function Resolution() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mb-4 rounded border border-zinc-800 bg-zinc-900/60 p-4"
+            className="mb-4 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4"
           >
             <p className="text-[10px] tracking-widest text-amber-700 mb-2">MOTIVO REAL</p>
             <p className="text-sm text-zinc-300 leading-relaxed">{guilty.motive}</p>
@@ -207,7 +207,7 @@ export default function Resolution() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
-            className="mb-6 rounded border border-zinc-800 bg-zinc-900/60 p-4"
+            className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4"
           >
             <p className="text-[10px] tracking-widest text-amber-700 mb-3">
               TU TABLERO DE CONEXIONES — {connectionAccuracy.correct}/{connectionAccuracy.total} ACIERTOS
@@ -240,7 +240,7 @@ export default function Resolution() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mb-6 rounded border border-zinc-800 bg-zinc-900/60 p-5"
+          className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900/60 p-5"
         >
           <p className="text-[10px] tracking-widest text-zinc-400 mb-3">RECONSTRUCCIÓN DEL CRIMEN</p>
           <p className="text-sm text-zinc-300 leading-7">{explanation}</p>

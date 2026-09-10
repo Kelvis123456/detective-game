@@ -242,7 +242,6 @@ describe('gameStore', () => {
 
     afterEach(() => {
       sfxSpy.mockRestore()
-      vi.useRealTimers()
     })
 
     it('collectEvidence plays the evidence chime', () => {
@@ -287,32 +286,25 @@ describe('gameStore', () => {
       expect(sfxSpy).toHaveBeenCalledWith('tension')
     })
 
-    it('submitAccusation plays the accuse thud immediately and the matching resolution sting shortly after', () => {
-      vi.useFakeTimers()
+    it('submitAccusation plays the accuse thud immediately and schedules the matching resolution sting via the audio clock (no JS timer)', () => {
       useGameStore.getState().submitAccusation({ suspectId: 'marco-delgado' })
       expect(sfxSpy).toHaveBeenCalledWith('accuse')
-      expect(sfxSpy).not.toHaveBeenCalledWith('resolution-partial')
-      vi.advanceTimersByTime(600)
-      expect(sfxSpy).toHaveBeenCalledWith('resolution-partial')
+      expect(sfxSpy).toHaveBeenCalledWith('resolution-partial', 0.55)
     })
 
     it('submitAccusation plays resolution-lose for a wrong accusation with meaningful progress made', () => {
-      vi.useFakeTimers()
       // Push progress above the 25% "insufficient-evidence" floor so this
       // actually exercises wrong-suspect-culprit-escapes -> resolution-lose.
       for (const id of ['fragmento-cristal', 'ficha-evaluacion', 'recibo-materiales', 'camara-seguridad', 'guante-trabajo', 'nota-amenaza']) {
         useGameStore.getState().collectEvidence(id)
       }
       useGameStore.getState().submitAccusation({ suspectId: 'valentina-cruz' })
-      vi.advanceTimersByTime(600)
-      expect(sfxSpy).toHaveBeenCalledWith('resolution-lose')
+      expect(sfxSpy).toHaveBeenCalledWith('resolution-lose', 0.55)
     })
 
     it('submitAccusation plays resolution-neutral for an accusation with almost no progress made', () => {
-      vi.useFakeTimers()
       useGameStore.getState().submitAccusation({ suspectId: 'valentina-cruz' })
-      vi.advanceTimersByTime(600)
-      expect(sfxSpy).toHaveBeenCalledWith('resolution-neutral')
+      expect(sfxSpy).toHaveBeenCalledWith('resolution-neutral', 0.55)
     })
   })
 

@@ -85,7 +85,7 @@ export default function Accusation() {
               const grouped = groupEvidenceByType(collectedEvidence)
               const types = Object.keys(grouped) as EvidenceType[]
               return (
-                <div key={cat.id} className="rounded border border-zinc-800 bg-zinc-900/60 p-4">
+                <div key={cat.id} className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-lg">{cat.icon}</span>
                     <span className="text-sm font-bold text-amber-400">{cat.label}</span>

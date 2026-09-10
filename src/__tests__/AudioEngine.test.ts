@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { audioEngine } from '../audio/AudioEngine'
 
 describe('audioEngine', () => {
@@ -29,5 +29,21 @@ describe('audioEngine', () => {
     expect(() => audioEngine.playSfx('resolution-win')).not.toThrow()
     expect(() => audioEngine.playAmbient('menu')).not.toThrow()
     expect(() => audioEngine.playAmbient('none')).not.toThrow()
+  })
+
+  it('playSfx accepts a delaySeconds offset without scheduling any JS timer', () => {
+    // Regression guard: this used to be a real setTimeout in gameStore,
+    // which left pending timers that fired after a test file's jsdom
+    // environment was already torn down and intermittently threw. Delayed
+    // playback must go through the AudioContext's own clock instead, so
+    // calling it must never register a real timer.
+    vi.useFakeTimers()
+    try {
+      const before = vi.getTimerCount()
+      expect(() => audioEngine.playSfx('resolution-win', 0.55)).not.toThrow()
+      expect(vi.getTimerCount()).toBe(before)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

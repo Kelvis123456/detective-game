@@ -48,3 +48,10 @@
 .animate-flicker { animation: flicker 6s infinite; }
 .animate-float { animation: float 3s ease-in-out infinite; }
 .cursor-blink { animation: typewriter-cursor 1s step-end infinite; }
+
+/* Pulls full-color emoji glyphs into the amber/noir palette instead of
+   clashing with it. Only applied where a glyph is the entire content of its
+   own element (icon slots) — CSS can't isolate an emoji character mixed
+   inline with text without wrapping every single one in its own span, which
+   isn't worth the invasiveness for small button-label accents. */
+.emoji-tone { filter: sepia(0.55) saturate(0.65) hue-rotate(-8deg) brightness(1.05); }

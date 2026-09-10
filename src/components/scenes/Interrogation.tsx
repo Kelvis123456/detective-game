@@ -349,7 +349,7 @@ export default function Interrogation() {
           )}
 
           {/* Alibi */}
-          <div className="w-full rounded border border-zinc-800 bg-zinc-950/60 p-3 text-xs mb-3">
+          <div className="w-full rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-xs mb-3">
             <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">COARTADA</p>
             <p className="text-zinc-400 leading-relaxed">{selectedSuspect.alibi}</p>
           </div>
@@ -395,14 +395,14 @@ export default function Interrogation() {
                   className="h-full"
                 >
                   {/* Detective question */}
-                  <div className="mb-3 rounded border border-zinc-800 bg-zinc-900/60 p-3">
+                  <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
                     <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">DETECTIVE:</p>
                     <p className="text-sm text-zinc-300 italic">"{currentDialogue.question}"</p>
                   </div>
 
                   {/* Suspect answer */}
                   <div
-                    className="rounded border p-4 min-h-36"
+                    className="rounded-lg border p-4 min-h-36"
                     style={{
                       borderColor: `${emotionColor}35`,
                       backgroundColor: `${emotionColor}09`,
@@ -495,7 +495,7 @@ export default function Interrogation() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="rounded border border-zinc-800 bg-zinc-900/30 p-4 text-center"
+                className="rounded-lg border border-zinc-800 bg-zinc-900/30 p-4 text-center"
               >
                 <p className="text-sm text-zinc-500 mb-1">✓ Interrogatorio completado</p>
                 <p className="text-xs text-zinc-500">

@@ -71,7 +71,7 @@ export default function CaseIntro() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.4 }}
-              className="mb-6 rounded bg-zinc-900/70 p-6 border border-zinc-800/80"
+              className="mb-6 rounded-lg bg-zinc-900/70 p-6 border border-zinc-800/80"
               style={{ boxShadow: `inset 0 0 40px rgba(0,0,0,0.4)` }}
             >
               <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-4">// BRIEFING DEL CASO</p>
@@ -92,7 +92,7 @@ export default function CaseIntro() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="rounded border border-zinc-800 bg-zinc-900/50 p-3 text-center"
+                  className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-center"
                   style={{ boxShadow: `0 0 0 1px ${selectedCase.color}08` }}
                 >
                   <div className="text-lg mb-1">{item.icon}</div>
@@ -153,7 +153,7 @@ function SuspectsOverview({
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1, duration: 0.35 }}
-            className="flex items-start gap-4 rounded border border-zinc-800 bg-zinc-900/60 p-4 hover:border-zinc-700 transition-colors"
+            className="flex items-start gap-4 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4 hover:border-zinc-700 transition-colors"
             style={{ boxShadow: `0 0 0 1px ${color}08` }}
           >
             {/* Portrait mini */}

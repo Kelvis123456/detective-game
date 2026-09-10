@@ -78,10 +78,17 @@ class AudioEngine {
 
   // ─── One-shot sound effects ──────────────────────────────────────────
 
-  playSfx(name: SfxName) {
+  /**
+   * `delaySeconds` schedules entirely through the AudioContext's own clock
+   * (oscillator/gain automation start times) rather than a JS `setTimeout` —
+   * a real timer would keep firing after the component/test that requested
+   * it is long gone, which is exactly what caused this to intermittently
+   * throw inside the test suite before this was fixed.
+   */
+  playSfx(name: SfxName, delaySeconds = 0) {
     const ctx = this.ensureContext()
     if (!ctx || !this.master) return
-    const t0 = ctx.currentTime
+    const t0 = ctx.currentTime + delaySeconds
     switch (name) {
       case 'evidence':
         this.pluckChime(ctx, t0, [880, 1318.51])

@@ -181,7 +181,7 @@ export default function DigitalForensics() {
                   <button
                     key={device.id}
                     onClick={() => openDevice(device)}
-                    className="w-full flex items-center gap-3 rounded border border-zinc-800 bg-zinc-900/60 p-4 text-left hover:border-amber-800/50 transition-colors"
+                    className="w-full flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4 text-left hover:border-amber-800/50 transition-colors"
                   >
                     <span className="text-2xl">📱</span>
                     <div className="flex-1 min-w-0">

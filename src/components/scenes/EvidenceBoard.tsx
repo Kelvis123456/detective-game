@@ -125,7 +125,7 @@ export default function EvidenceBoard() {
                     key={e.id}
                     className="flex flex-col items-center gap-1 rounded border border-zinc-800/50 bg-zinc-900/20 p-2 opacity-30"
                   >
-                    <span className="text-xl grayscale">{e.icon}</span>
+                    <span className="text-xl grayscale emoji-tone">{e.icon}</span>
                     <span className="text-[9px] text-zinc-500 text-center">???</span>
                   </div>
                 ))}
@@ -146,7 +146,7 @@ export default function EvidenceBoard() {
                 className="p-5"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-4xl">{selectedEvidence.icon}</span>
+                  <span className="text-4xl emoji-tone">{selectedEvidence.icon}</span>
                   <div>
                     <div
                       className="text-[9px] tracking-widest mb-0.5"
@@ -165,17 +165,17 @@ export default function EvidenceBoard() {
                   </div>
                 )}
 
-                <div className="mb-3 rounded border border-zinc-800 bg-zinc-950/50 p-3">
+                <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-950/50 p-3">
                   <p className="text-[10px] text-zinc-400 mb-1">DESCRIPCIÓN</p>
                   <p className="text-xs text-zinc-400 leading-relaxed">{selectedEvidence.description}</p>
                 </div>
 
-                <div className="mb-3 rounded border border-zinc-800 bg-zinc-950/50 p-3">
+                <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-950/50 p-3">
                   <p className="text-[10px] text-zinc-400 mb-1">ENCONTRADO EN</p>
                   <p className="text-xs text-zinc-400">{selectedEvidence.location}</p>
                 </div>
 
-                <div className="rounded border border-amber-900/30 bg-amber-950/20 p-3">
+                <div className="rounded-lg border border-amber-900/30 bg-amber-950/20 p-3">
                   <p className="text-[10px] text-amber-700 tracking-widest mb-1">ANÁLISIS FORENSE</p>
                   <p className="text-xs text-zinc-300 leading-relaxed">{selectedEvidence.analysis}</p>
                 </div>
@@ -284,7 +284,7 @@ function EvidenceCard({
         <div className="absolute top-2 right-2 text-[10px] text-amber-500">⭐</div>
       )}
 
-      <span className="text-2xl mt-1">{evidence.icon}</span>
+      <span className="text-2xl mt-1 emoji-tone">{evidence.icon}</span>
       <span className="text-[10px] font-medium text-zinc-300 leading-tight">{evidence.name}</span>
       <span
         className="text-[9px] rounded px-1 py-0.5"

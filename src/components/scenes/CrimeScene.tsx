@@ -218,7 +218,7 @@ export default function CrimeScene() {
                         <span className="absolute inline-flex h-12 w-12 rounded-full bg-amber-400/10 animate-ping" />
                       )}
                       <div
-                        className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full border-2 text-xl shadow-xl transition-all ${
+                        className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full border-2 text-xl shadow-xl transition-all emoji-tone ${
                           hasEvidence
                             ? 'border-green-500/60 bg-green-950/70 text-green-300'
                             : isActive
@@ -285,10 +285,10 @@ export default function CrimeScene() {
                     )}
                   </div>
                 </div>
-                <div className="mb-3 rounded border border-zinc-800 bg-zinc-950/60 p-3">
+                <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
                   <p className="text-xs text-zinc-400 leading-relaxed">{activeEvidence.description}</p>
                 </div>
-                <div className="rounded border border-amber-900/30 bg-amber-950/20 p-3">
+                <div className="rounded-lg border border-amber-900/30 bg-amber-950/20 p-3">
                   <p className="text-[10px] tracking-[0.15em] text-amber-700 mb-2">ANÁLISIS FORENSE</p>
                   <p className="text-xs text-zinc-300 leading-relaxed">{activeEvidence.analysis}</p>
                 </div>
@@ -346,7 +346,7 @@ export default function CrimeScene() {
                     <h4 className="font-bold text-amber-300 leading-tight">{activeFlavorHotspot.label}</h4>
                   </div>
                 </div>
-                <div className="mb-3 rounded border border-zinc-800 bg-zinc-950/60 p-3">
+                <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
                   <p className="text-xs text-zinc-400 leading-relaxed">{activeFlavorHotspot.description}</p>
                 </div>
                 <p className="text-xs text-zinc-400 italic">Nada que recolectar aquí, pero vale la pena mirar.</p>
@@ -375,7 +375,7 @@ export default function CrimeScene() {
                       className="flex items-center gap-2.5 text-xs p-2 rounded border border-zinc-800/50 hover:border-zinc-700 transition-colors cursor-pointer"
                       onClick={() => handleHotspotClick(h)}
                     >
-                      <span className="text-base">{isHotspotDone(h) ? '✅' : h.icon}</span>
+                      <span className="text-base emoji-tone">{isHotspotDone(h) ? '✅' : h.icon}</span>
                       <span className={isHotspotDone(h) ? 'text-zinc-400 line-through' : 'text-zinc-400'}>
                         {h.label}
                       </span>

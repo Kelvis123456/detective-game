@@ -53,7 +53,7 @@ export default function MainMenu() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="mb-6 text-6xl animate-float"
+          className="mb-6 text-6xl animate-float emoji-tone"
         >
           🕵️
         </motion.div>
@@ -112,7 +112,7 @@ export default function MainMenu() {
           </button>
 
           {stats.casesCompleted > 0 && (
-            <div className="rounded border border-zinc-800 bg-zinc-900/50 p-3 text-xs text-zinc-500">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-xs text-zinc-500">
               <div className="flex justify-between mb-2 border-b border-zinc-800 pb-2">
                 <span>Rango:</span>
                 <span className="font-bold text-amber-300">🕵️ {rank}</span>

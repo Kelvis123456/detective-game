@@ -125,7 +125,7 @@ export default function ConnectionsBoard() {
                   {evidence.isKey && (
                     <div className="absolute top-1.5 right-1.5 text-[10px] text-amber-500">⭐</div>
                   )}
-                  <span className="text-2xl mt-1">{evidence.icon}</span>
+                  <span className="text-2xl mt-1 emoji-tone">{evidence.icon}</span>
                   <span className="text-[10px] font-medium text-zinc-300 leading-tight">{evidence.name}</span>
                   {connectedTo && (
                     <span className="text-[9px] text-amber-600">🧵 conectado</span>

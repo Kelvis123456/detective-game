@@ -274,7 +274,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     audioEngine.playSfx('accuse')
-    setTimeout(() => audioEngine.playSfx(RESOLUTION_SFX[evaluation.ending]), 550)
+    audioEngine.playSfx(RESOLUTION_SFX[evaluation.ending], 0.55)
 
     set((state) => ({
       caseProgress: updated,
