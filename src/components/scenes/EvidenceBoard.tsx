@@ -43,7 +43,7 @@ export default function EvidenceBoard() {
         </button>
       </div>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
         {/* Main board */}
         <div
           className="flex-1 p-6 overflow-auto"
@@ -104,7 +104,7 @@ export default function EvidenceBoard() {
         </div>
 
         {/* Detail panel */}
-        <div className="w-72 flex-shrink-0 border-l border-zinc-800 bg-zinc-900/50">
+        <div className="w-full md:w-72 md:flex-shrink-0 border-t md:border-t-0 md:border-l border-zinc-800 bg-zinc-900/50">
           <AnimatePresence mode="wait">
             {selectedEvidence ? (
               <motion.div

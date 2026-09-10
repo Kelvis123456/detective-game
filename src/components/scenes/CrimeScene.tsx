@@ -70,13 +70,13 @@ export default function CrimeScene() {
         <div className="w-16" />
       </motion.div>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
         {/* Scene canvas */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative flex-1 overflow-hidden"
+          className="relative flex flex-col flex-1 overflow-hidden min-h-[340px]"
         >
           {/* Ambient color from case */}
           <div
@@ -97,7 +97,7 @@ export default function CrimeScene() {
 
           {/* Room art */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative" style={{ width: '680px', height: '460px' }}>
+            <div className="relative w-full" style={{ maxWidth: '680px', aspectRatio: '680 / 460' }}>
               {/* Floor */}
               <div
                 className="absolute inset-0 rounded"
@@ -259,9 +259,9 @@ export default function CrimeScene() {
             </div>
           </div>
 
-          {/* Scene description */}
-          <div className="absolute bottom-4 left-4 max-w-xs">
-            <p className="text-[11px] text-zinc-700 italic leading-relaxed">
+          {/* Scene description — flow element pinned to bottom, height-capped so it never covers hotspots */}
+          <div className="relative z-20 mt-auto px-4 py-2 bg-gradient-to-t from-zinc-950/95 to-transparent">
+            <p className="text-[11px] text-zinc-500 italic leading-relaxed line-clamp-2">
               {selectedCase.crimeSceneDescription}
             </p>
           </div>
@@ -272,7 +272,7 @@ export default function CrimeScene() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="w-72 flex-shrink-0 border-l border-zinc-800 bg-zinc-900/50 flex flex-col"
+          className="w-full md:w-72 md:flex-shrink-0 border-t md:border-t-0 md:border-l border-zinc-800 bg-zinc-900/50 flex flex-col"
         >
           <AnimatePresence mode="wait">
             {activeEvidence ? (

@@ -269,13 +269,13 @@ export default function Interrogation() {
         </button>
       </motion.div>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 flex-col md:flex-row">
         {/* Left: Suspect portrait + info */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="w-64 flex-shrink-0 border-r border-zinc-800 bg-zinc-900/30 p-5 flex flex-col items-center"
+          className="w-full md:w-64 md:flex-shrink-0 border-b md:border-b-0 md:border-r border-zinc-800 bg-zinc-900/30 p-5 flex flex-col items-center"
         >
           <SuspectPortrait
             suspect={selectedSuspect}
