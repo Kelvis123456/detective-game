@@ -117,6 +117,14 @@ const case001: Case = {
           emotionalState: 'angry',
           revealedEvidenceIds: [],
         },
+        {
+          id: 'm-q6',
+          question: 'Un comprador privado ya le pagó un adelanto por el diamante. ¿Quién es?',
+          answer:
+            'No pienso decir nombres. Pero sí, había un comprador. Un anticipo ya cobrado. El resto se paga contra entrega. Ahí termina lo que voy a decir.',
+          emotionalState: 'angry',
+          revealedEvidenceIds: ['chat-comprador'],
+        },
       ],
     },
     {
@@ -394,6 +402,15 @@ const case001: Case = {
       message: 'Algo te dice que no has terminado de revisar las pertenencias de Delgado.',
       effect: {
         revealHint: 'Sientes que se te escapa algo del teléfono olvidado en el guardarropa — quizás deberías revisarlo antes de acusar.',
+      },
+    },
+    {
+      id: 'tension-001-lock',
+      triggerActionCount: 14,
+      message: 'Ya es tarde — el hilo de Delgado con el comprador desapareció del teléfono, junto con la nota que nunca guardó.',
+      effect: {
+        lockThreadIds: ['thread-comprador'],
+        lockNoteIds: ['nota-borrador-delgado'],
       },
     },
   ],

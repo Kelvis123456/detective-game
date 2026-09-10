@@ -157,6 +157,49 @@ describe('Case Data Integrity', () => {
         }
       }
     })
+
+    // Case-authoring rule from the tension-mechanic design: a lockThreadIds/
+    // lockNoteIds effect can never be the ONLY route to evidence the
+    // solution's proof requires — there must always be a redundant path
+    // (a dialogue reveal, or a hotspot that grants it directly), so a
+    // player who gets locked out can still build a full case.
+    it('locking a thread/note never cuts off the only path to proof-required evidence', () => {
+      const proof = case_.solution.proof
+      const requiredIds = new Set(proof ? [...proof.means, ...proof.motive, ...proof.opportunity] : [])
+      if (requiredIds.size === 0) return
+
+      const devices = case_.digitalDevices ?? []
+      const lockedThreadIds = new Set(
+        (case_.tensionEvents ?? []).flatMap((e) => e.effect?.lockThreadIds ?? [])
+      )
+      const lockedNoteIds = new Set(
+        (case_.tensionEvents ?? []).flatMap((e) => e.effect?.lockNoteIds ?? [])
+      )
+
+      const lockedEvidenceIds = new Set<string>()
+      for (const device of devices) {
+        for (const thread of device.threads) {
+          if (!lockedThreadIds.has(thread.id)) continue
+          for (const m of thread.messages) if (m.evidenceId) lockedEvidenceIds.add(m.evidenceId)
+        }
+        for (const note of device.notes) {
+          if (lockedNoteIds.has(note.id) && note.evidenceId) lockedEvidenceIds.add(note.evidenceId)
+        }
+      }
+
+      const dialogueRevealed = new Set(
+        case_.suspects.flatMap((s) => s.dialogues.flatMap((d) => d.revealedEvidenceIds))
+      )
+      const hotspotRevealed = new Set(
+        case_.hotspots.map((h) => h.evidenceId).filter((id): id is string => Boolean(id))
+      )
+
+      for (const evidenceId of lockedEvidenceIds) {
+        if (!requiredIds.has(evidenceId)) continue
+        const hasRedundantPath = dialogueRevealed.has(evidenceId) || hotspotRevealed.has(evidenceId)
+        expect(hasRedundantPath).toBe(true)
+      }
+    })
   })
 
   describe('getCaseById', () => {

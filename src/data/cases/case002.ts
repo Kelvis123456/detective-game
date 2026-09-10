@@ -172,6 +172,14 @@ const case002: Case = {
           emotionalState: 'nervous',
           revealedEvidenceIds: [],
         },
+        {
+          id: 'l-q7',
+          question: 'Tenemos registros de que contactó a una farmacéutica la noche del estreno pidiendo digoxina sin receta.',
+          answer:
+            'Eso fue después, para mi madre, porque el frasco... no. No voy a decir nada más sin un abogado.',
+          emotionalState: 'angry',
+          revealedEvidenceIds: ['chat-farmacia'],
+        },
       ],
     },
   ],
@@ -402,6 +410,15 @@ const case002: Case = {
       message: 'Sientes que hay algo más en el camerino que no has revisado.',
       effect: {
         revealHint: 'La chaqueta olvidada cerca del perchero podría no ser solo ropa — revisa si tiene algo dentro.',
+      },
+    },
+    {
+      id: 'tension-002-lock',
+      triggerActionCount: 14,
+      message: 'Ya es tarde — el hilo de Lucía con la farmacia desapareció, junto con el borrador que nunca envió.',
+      effect: {
+        lockThreadIds: ['thread-farmacia'],
+        lockNoteIds: ['nota-borrador-lucia'],
       },
     },
   ],

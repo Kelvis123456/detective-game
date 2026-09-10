@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useGameStore } from '../store/gameStore'
+import { getVisibleThreads } from '../engine/DigitalForensicsEngine'
 import case001 from '../data/cases/case001'
 import type { Case, GameState } from '../types'
 
@@ -216,6 +217,32 @@ describe('gameStore', () => {
       useGameStore.getState().collectEvidence('recibo-materiales')
       // Already fired once — must not fire again and re-show the hint.
       expect(useGameStore.getState().notification).toBeNull()
+    })
+
+    it("case001's real lock event hides the comprador thread once triggered, but the evidence stays reachable through dialogue redundancy", () => {
+      useGameStore.getState().selectCase(case001)
+
+      // Ask every dialogue for every suspect — 4 + 6 + 4 = 14 actions, exactly
+      // case001's real tension-001-lock threshold.
+      for (const suspect of case001.suspects) {
+        for (const dialogue of suspect.dialogues) {
+          useGameStore.getState().askQuestion(suspect.id, dialogue.id, dialogue.revealedEvidenceIds)
+        }
+      }
+
+      const progress = useGameStore.getState().caseProgress!
+      expect(progress.actionCount).toBe(14)
+      expect(progress.firedTensionEventIds.has('tension-001-lock')).toBe(true)
+      expect(progress.lockedThreadIds.has('thread-comprador')).toBe(true)
+      expect(progress.lockedNoteIds.has('nota-borrador-delgado')).toBe(true)
+
+      const device = case001.digitalDevices!.find((d) => d.id === 'phone-delgado')!
+      const visibleThreads = getVisibleThreads(device, progress)
+      expect(visibleThreads.find((t) => t.id === 'thread-comprador')).toBeUndefined()
+
+      // The redundant dialogue path (m-q6) already secured the evidence
+      // before the lock fired, so losing the thread doesn't break the case.
+      expect(progress.collectedEvidenceIds.has('chat-comprador')).toBe(true)
     })
   })
 

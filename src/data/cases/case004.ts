@@ -171,6 +171,14 @@ const case004: Case = {
           emotionalState: 'angry',
           revealedEvidenceIds: ['borrador-ismael'],
         },
+        {
+          id: 'ism-q6',
+          question: 'Recuperamos audio de la transmisión en vivo de Valeria justo antes de su muerte.',
+          answer:
+            '¡Eso no prueba que fui yo! ¡Una voz no es una cara, pudo ser cualquiera!',
+          emotionalState: 'angry',
+          revealedEvidenceIds: ['video-eliminado-recuperado'],
+        },
       ],
     },
     {
@@ -494,6 +502,26 @@ const case004: Case = {
           evidenceId: 'video-eliminado-recuperado',
         },
       ],
+    },
+  ],
+
+  tensionEvents: [
+    {
+      id: 'tension-004-hint',
+      triggerActionCount: 6,
+      message: 'El reloj de las 48 horas sigue corriendo. Sientes que se te escapa algo del teléfono de Valeria.',
+      effect: {
+        revealHint: 'Revisa la app NubePlus del teléfono de Valeria — hay un fragmento recuperado que quizás no has visto.',
+      },
+    },
+    {
+      id: 'tension-004-lock',
+      triggerActionCount: 16,
+      message: 'Las 48 horas casi se cumplen — el fragmento recuperado de la transmisión fue purgado del respaldo, junto con la conversación con Renata.',
+      effect: {
+        lockNoteIds: ['note-video-1'],
+        lockThreadIds: ['thread-renata-valeria'],
+      },
     },
   ],
 

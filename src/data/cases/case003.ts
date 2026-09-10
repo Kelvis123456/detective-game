@@ -78,6 +78,14 @@ const case003: Case = {
           emotionalState: 'nervous',
           revealedEvidenceIds: [],
         },
+        {
+          id: 'd-q7',
+          question: 'Auditamos los registros del hotel. Hay un pago no declarado al conserje esa madrugada.',
+          answer:
+            'Yo no sé nada de eso. Si el conserje aceptó dinero, es problema suyo, no mío.',
+          emotionalState: 'angry',
+          revealedEvidenceIds: ['chat-alibi-comprado'],
+        },
       ],
     },
     {
@@ -408,6 +416,14 @@ const case003: Case = {
       message: 'Algo no cuadra en la coartada de Navarro — quizás dejó algo atrás.',
       effect: {
         revealHint: 'Revisa el muelle exterior, cerca de la pasarela de salida del barco.',
+      },
+    },
+    {
+      id: 'tension-003-lock',
+      triggerActionCount: 14,
+      message: 'Ya es tarde — el hilo con el conserje del hotel desapareció del teléfono de Navarro, junto con el buzón de voz.',
+      effect: {
+        lockThreadIds: ['thread-conserje', 'thread-buzon'],
       },
     },
   ],
