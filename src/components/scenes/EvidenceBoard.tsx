@@ -4,6 +4,9 @@ import { useGameStore } from '../../store/gameStore'
 import type { Evidence } from '../../types'
 import { getEvidenceTypeLabel, getEvidenceTypeColor } from '../../engine/EvidenceEngine'
 import GameHUD from '../ui/GameHUD'
+import ConnectionsBoard from './ConnectionsBoard'
+
+type BoardMode = 'grid' | 'connections'
 
 export default function EvidenceBoard() {
   const selectedCase = useGameStore((s) => s.selectedCase)
@@ -11,6 +14,7 @@ export default function EvidenceBoard() {
   const goTo = useGameStore((s) => s.goTo)
 
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null)
+  const [boardMode, setBoardMode] = useState<BoardMode>('grid')
 
   if (!selectedCase || !caseProgress) return null
 
@@ -43,7 +47,35 @@ export default function EvidenceBoard() {
         </button>
       </div>
 
+      {/* Mode toggle */}
+      <div className="flex items-center gap-2 border-b border-zinc-800 bg-zinc-900/40 px-6 py-2">
+        <button
+          onClick={() => setBoardMode('grid')}
+          className={`rounded px-3 py-1 text-[11px] tracking-widest uppercase transition-colors ${
+            boardMode === 'grid'
+              ? 'bg-amber-950/60 text-amber-400 border border-amber-800/60'
+              : 'text-zinc-600 hover:text-zinc-300 border border-transparent'
+          }`}
+        >
+          📋 Corcho
+        </button>
+        <button
+          onClick={() => setBoardMode('connections')}
+          className={`rounded px-3 py-1 text-[11px] tracking-widest uppercase transition-colors ${
+            boardMode === 'connections'
+              ? 'bg-amber-950/60 text-amber-400 border border-amber-800/60'
+              : 'text-zinc-600 hover:text-zinc-300 border border-transparent'
+          }`}
+        >
+          🧵 Conexiones
+        </button>
+      </div>
+
       <div className="flex flex-1 flex-col md:flex-row">
+        {boardMode === 'connections' ? (
+          <ConnectionsBoard />
+        ) : (
+          <>
         {/* Main board */}
         <div
           className="flex-1 p-6 overflow-auto"
@@ -204,6 +236,8 @@ export default function EvidenceBoard() {
             )}
           </AnimatePresence>
         </div>
+          </>
+        )}
       </div>
       <GameHUD activeTab="evidence" />
     </div>

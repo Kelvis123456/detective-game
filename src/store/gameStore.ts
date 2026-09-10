@@ -22,6 +22,7 @@ import {
   getEvidenceIdsInThread,
   getEvidenceIdsInNote,
 } from '../engine/DigitalForensicsEngine'
+import { addConnection, removeConnection, normalizeConnection } from '../engine/EvidenceEngine'
 
 interface GameStore extends GameState {
   goTo: (scene: Scene) => void
@@ -34,6 +35,8 @@ interface GameStore extends GameState {
   unlockDevice: (deviceId: string, attempt: string) => boolean
   openDigitalThread: (deviceId: string, threadId: string) => void
   openDigitalNote: (deviceId: string, noteId: string) => void
+  connectEvidence: (fromId: string, toId: string) => void
+  disconnectEvidence: (fromId: string) => void
   resetCase: () => void
   showNotification: (message: string) => void
   clearNotification: () => void
@@ -223,6 +226,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
             }
           : state.playerStats,
     }))
+  },
+
+  connectEvidence: (fromId, toId) => {
+    const { caseProgress } = get()
+    if (!caseProgress) return
+    const playerConnections = addConnection(caseProgress.playerConnections, normalizeConnection(fromId, toId))
+    set({ caseProgress: { ...caseProgress, playerConnections } })
+  },
+
+  disconnectEvidence: (fromId) => {
+    const { caseProgress } = get()
+    if (!caseProgress) return
+    const playerConnections = removeConnection(caseProgress.playerConnections, fromId)
+    set({ caseProgress: { ...caseProgress, playerConnections } })
   },
 
   submitAccusation: (input) => {

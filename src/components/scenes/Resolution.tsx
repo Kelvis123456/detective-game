@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
+import { getConnectionAccuracy, isConnectionCorrect } from '../../engine/EvidenceEngine'
 import type { EndingType } from '../../types'
 
 const ENDING_META: Record<
@@ -86,6 +87,7 @@ export default function Resolution() {
   const meta = ENDING_META[ending]
   const tone = TONE_STYLES[meta.tone]
   const { explanation, timeline, proof } = selectedCase.solution
+  const connectionAccuracy = getConnectionAccuracy(selectedCase, caseProgress.playerConnections)
 
   return (
     <div className="relative min-h-screen bg-zinc-950 pb-16">
@@ -191,6 +193,40 @@ export default function Resolution() {
           >
             <p className="text-[10px] tracking-widest text-amber-700 mb-2">MOTIVO REAL</p>
             <p className="text-sm text-zinc-300 leading-relaxed">{guilty.motive}</p>
+          </motion.div>
+        )}
+
+        {/* Connections board reveal */}
+        {caseProgress.playerConnections.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="mb-6 rounded border border-zinc-800 bg-zinc-900/60 p-4"
+          >
+            <p className="text-[10px] tracking-widest text-amber-700 mb-3">
+              TU TABLERO DE CONEXIONES — {connectionAccuracy.correct}/{connectionAccuracy.total} ACIERTOS
+            </p>
+            <div className="space-y-1.5">
+              {caseProgress.playerConnections.map((conn) => {
+                const evidence = selectedCase.evidence.find((e) => e.id === conn.fromId)
+                const suspect = selectedCase.suspects.find((s) => s.id === conn.toId)
+                const correct = isConnectionCorrect(selectedCase, conn)
+                return (
+                  <div
+                    key={conn.fromId}
+                    className={`flex items-center gap-2 rounded border p-2 text-xs ${
+                      correct ? 'border-green-900/40 text-green-400' : 'border-red-900/40 text-red-400'
+                    }`}
+                  >
+                    <span>{correct ? '✓' : '✗'}</span>
+                    <span className="truncate">{evidence?.name ?? conn.fromId}</span>
+                    <span className="text-zinc-600">→</span>
+                    <span className="truncate">{suspect?.name ?? conn.toId}</span>
+                  </div>
+                )
+              })}
+            </div>
           </motion.div>
         )}
 

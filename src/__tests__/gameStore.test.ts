@@ -246,6 +246,41 @@ describe('gameStore', () => {
     })
   })
 
+  describe('connectEvidence / disconnectEvidence', () => {
+    it('connectEvidence adds a connection to caseProgress.playerConnections', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().connectEvidence('ficha-evaluacion', 'marco-delgado')
+      expect(useGameStore.getState().caseProgress?.playerConnections).toEqual([
+        { fromId: 'ficha-evaluacion', toId: 'marco-delgado' },
+      ])
+    })
+
+    it('reconnecting the same evidence to a different suspect moves the string', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().connectEvidence('ficha-evaluacion', 'marco-delgado')
+      useGameStore.getState().connectEvidence('ficha-evaluacion', 'sofia-reyes')
+      expect(useGameStore.getState().caseProgress?.playerConnections).toEqual([
+        { fromId: 'ficha-evaluacion', toId: 'sofia-reyes' },
+      ])
+    })
+
+    it('disconnectEvidence removes only that evidence\'s connection', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().connectEvidence('ficha-evaluacion', 'marco-delgado')
+      useGameStore.getState().connectEvidence('recibo-materiales', 'marco-delgado')
+      useGameStore.getState().disconnectEvidence('ficha-evaluacion')
+      expect(useGameStore.getState().caseProgress?.playerConnections).toEqual([
+        { fromId: 'recibo-materiales', toId: 'marco-delgado' },
+      ])
+    })
+
+    it('is a no-op with no active case', () => {
+      useGameStore.getState().resetCase()
+      expect(() => useGameStore.getState().connectEvidence('a', 'b')).not.toThrow()
+      expect(() => useGameStore.getState().disconnectEvidence('a')).not.toThrow()
+    })
+  })
+
   describe('resetCase / showNotification / clearNotification', () => {
     it('resetCase clears the active case and returns to case-selection', () => {
       useGameStore.getState().selectCase(case001)
