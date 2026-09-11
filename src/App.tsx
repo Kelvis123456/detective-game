@@ -13,6 +13,7 @@ import Resolution from './components/scenes/Resolution'
 import Notification from './components/ui/Notification'
 import FilmGrain from './components/ui/FilmGrain'
 import { audioEngine, type AmbientScene } from './audio/AudioEngine'
+import { useLanguage } from './i18n/LanguageContext'
 import type { Scene } from './types'
 
 const PAGE_VARIANTS = {
@@ -36,6 +37,16 @@ const AMBIENT_BY_SCENE: Record<Scene, AmbientScene> = {
 export default function App() {
   const scene = useGameStore((s) => s.scene)
   const clearAllNotifications = useGameStore((s) => s.clearAllNotifications)
+  const retranslateCase = useGameStore((s) => s.retranslateCase)
+  const { locale } = useLanguage()
+
+  // Switching language mid-case re-points selectedCase/selectedSuspect at the
+  // equivalent object from the other locale's data -- caseProgress only ever
+  // holds ids, so nothing about actual progress is touched.
+  useEffect(() => {
+    retranslateCase(locale)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale])
 
   // Every scene transition (crucially Accusation → Resolution, reached from
   // deep in a scroll on a long proof form) must land the player at the top —

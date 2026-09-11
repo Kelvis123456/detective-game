@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getEvidenceTypeColor } from '../../engine/EvidenceEngine'
 import { PortraitAvatar } from '../ui/PortraitAvatar'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary } from '../../i18n/dictionary'
 import type { EvidenceConnection } from '../../types'
 
 interface Line {
@@ -18,6 +20,8 @@ export default function ConnectionsBoard() {
   const caseProgress = useGameStore((s) => s.caseProgress)
   const connectEvidence = useGameStore((s) => s.connectEvidence)
   const disconnectEvidence = useGameStore((s) => s.disconnectEvidence)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).connectionsBoard
 
   const [pickedId, setPickedId] = useState<string | null>(null)
   const [lines, setLines] = useState<Line[]>([])
@@ -77,27 +81,27 @@ export default function ConnectionsBoard() {
     <div className="flex-1 p-6 overflow-auto">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-lg font-bold text-amber-400 mb-1">Tablero de Conexiones</h3>
+          <h3 className="text-lg font-bold text-amber-400 mb-1">{dict.title}</h3>
           <p className="text-xs text-zinc-400">
-            Toca una evidencia y luego al sospechoso que crees que implica.
+            {dict.hint}
           </p>
         </div>
         {playerConnections.length > 0 && (
           <div className="flex-shrink-0 rounded border border-zinc-800 bg-zinc-900/60 px-3 py-1.5 text-center">
             <div className="text-sm font-bold text-amber-400">{playerConnections.length}</div>
-            <div className="text-[9px] tracking-widest text-zinc-400">HILOS PUESTOS</div>
+            <div className="text-[9px] tracking-widest text-zinc-400">{dict.threadsPlaced}</div>
           </div>
         )}
       </div>
 
       {collected.length === 0 ? (
         <div className="flex h-32 items-center justify-center text-zinc-500 text-sm italic">
-          Todavía no has recopilado evidencia para conectar.
+          {dict.noEvidence}
         </div>
       ) : (
         <>
           {/* Evidence cards */}
-          <p className="text-[10px] tracking-widest text-zinc-500 mb-2">EVIDENCIA</p>
+          <p className="text-[10px] tracking-widest text-zinc-500 mb-2">{dict.evidenceLabel}</p>
           <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {collected.map((evidence, i) => {
               const typeColor = getEvidenceTypeColor(evidence.type)
@@ -128,7 +132,7 @@ export default function ConnectionsBoard() {
                   <span className="text-2xl mt-1 emoji-tone">{evidence.icon}</span>
                   <span className="text-[10px] font-medium text-zinc-300 leading-tight">{evidence.name}</span>
                   {connectedTo && (
-                    <span className="text-[9px] text-amber-600">🧵 conectado</span>
+                    <span className="text-[9px] text-amber-600">{dict.connected}</span>
                   )}
                 </button>
               )
@@ -136,7 +140,7 @@ export default function ConnectionsBoard() {
           </div>
 
           {/* Suspects */}
-          <p className="text-[10px] tracking-widest text-zinc-500 mb-2">SOSPECHOSOS</p>
+          <p className="text-[10px] tracking-widest text-zinc-500 mb-2">{dict.suspects}</p>
           <div className="flex flex-wrap gap-3">
             {selectedCase.suspects.map((suspect) => {
               const isTarget = pickedId !== null
@@ -166,7 +170,7 @@ export default function ConnectionsBoard() {
               onClick={() => disconnectEvidence(pickedId)}
               className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-red-400 hover:border-red-900/50 transition-colors"
             >
-              Quitar hilo de esta evidencia
+              {dict.removeThread}
             </button>
           )}
         </>

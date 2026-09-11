@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import type { DigitalAppId, DigitalDevice, DigitalNote, DigitalThread } from '../../types'
 import GameHUD from '../ui/GameHUD'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary } from '../../i18n/dictionary'
 
 const APP_META: Record<DigitalAppId, { name: string; icon: string; kind: 'threads' | 'notes' }> = {
   chatvia: { name: 'ChatVía', icon: '💬', kind: 'threads' },
@@ -48,11 +50,13 @@ function PinPad({
   pinAttempt,
   pinError,
   onKey,
+  dict,
 }: {
   device: DigitalDevice
   pinAttempt: string
   pinError: boolean
   onKey: (key: string) => void
+  dict: ReturnType<typeof getDictionary>['digitalForensics']
 }) {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫']
   return (
@@ -61,7 +65,7 @@ function PinPad({
         <span className="mb-3 text-3xl">🔒</span>
         <p className="text-sm font-medium text-zinc-100">{device.label}</p>
         <p className="mb-4 text-[10px] tracking-widest text-zinc-500">
-          {device.lockType === 'pin' ? 'INGRESA EL PIN' : 'INGRESA EL PATRÓN'}
+          {device.lockType === 'pin' ? dict.enterPin : dict.enterPattern}
         </p>
         <div className="mb-1 flex gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -73,7 +77,7 @@ function PinPad({
             />
           ))}
         </div>
-        {pinError && <p className="mt-2 text-xs text-red-400">Código incorrecto</p>}
+        {pinError && <p className="mt-2 text-xs text-red-400">{dict.wrongCode}</p>}
       </div>
 
       {device.unlockHint && (
@@ -108,6 +112,8 @@ export default function DigitalForensics() {
   const unlockDevice = useGameStore((s) => s.unlockDevice)
   const openDigitalThread = useGameStore((s) => s.openDigitalThread)
   const openDigitalNote = useGameStore((s) => s.openDigitalNote)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).digitalForensics
 
   const [view, setView] = useState<ViewState>({ level: 'devices' })
   const [pinAttempt, setPinAttempt] = useState('')
@@ -154,10 +160,10 @@ export default function DigitalForensics() {
           }}
           className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
-          ← {view.level === 'devices' ? 'ESCENA' : 'ATRÁS'}
+          ← {view.level === 'devices' ? dict.toScene : dict.back}
         </button>
         <div className="text-center">
-          <p className="text-[10px] text-zinc-400 tracking-[0.2em]">FORENSIA DIGITAL</p>
+          <p className="text-[10px] text-zinc-400 tracking-[0.2em]">{dict.title}</p>
           <p className="text-sm font-medium text-amber-400">{selectedCase.title}</p>
         </div>
         <div className="w-16" />
@@ -167,13 +173,13 @@ export default function DigitalForensics() {
         <AnimatePresence mode="wait">
           {view.level === 'devices' && (
             <motion.div key="devices" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <h3 className="text-lg font-bold text-amber-400 mb-1">Dispositivos Recuperados</h3>
+              <h3 className="text-lg font-bold text-amber-400 mb-1">{dict.devicesRecovered}</h3>
               <p className="text-xs text-zinc-400 mb-6">
-                Todo lo que hay aquí puede haberse borrado — no significa que haya desaparecido.
+                {dict.devicesHint}
               </p>
               {devices.length === 0 && (
                 <p className="text-sm text-zinc-400 italic">
-                  Aún no encuentras ningún dispositivo. Revisa la escena del crimen.
+                  {dict.noDevicesYet}
                 </p>
               )}
               <div className="space-y-3">
@@ -188,8 +194,8 @@ export default function DigitalForensics() {
                       <div className="text-sm font-medium text-zinc-100">{device.label}</div>
                       <div className="text-[10px] text-zinc-400">
                         {caseProgress.unlockedDeviceIds.has(device.id) || device.lockType === 'none'
-                          ? 'Desbloqueado'
-                          : 'Bloqueado'}
+                          ? dict.unlocked
+                          : dict.locked}
                       </div>
                     </div>
                     <span className="text-zinc-500">→</span>
@@ -213,6 +219,7 @@ export default function DigitalForensics() {
                       pinAttempt={pinAttempt}
                       pinError={pinError}
                       onKey={(key) => handlePinKey(device, key)}
+                      dict={dict}
                     />
                   </PhoneFrame>
                 )
@@ -302,7 +309,7 @@ export default function DigitalForensics() {
                                 {unread && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500" />}
                               </div>
                               <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-500'}`}>
-                                {locked ? 'Purgado del respaldo' : lastMessage?.text}
+                                {locked ? dict.purged : lastMessage?.text}
                               </p>
                             </div>
                           </button>
@@ -342,14 +349,14 @@ export default function DigitalForensics() {
                                 {unread && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500" />}
                               </div>
                               <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-500'}`}>
-                                {locked ? 'Purgado del respaldo' : note.body}
+                                {locked ? dict.purged : note.body}
                               </p>
                             </div>
                           </button>
                         )
                       })}
                       {allThreads.length === 0 && allNotes.length === 0 && (
-                        <p className="py-8 text-center text-sm text-zinc-500 italic">Nada aquí.</p>
+                        <p className="py-8 text-center text-sm text-zinc-500 italic">{dict.nothingHere}</p>
                       )}
                     </div>
                   </motion.div>

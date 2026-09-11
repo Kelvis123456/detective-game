@@ -7,6 +7,8 @@
  * zero licensing risk since nothing is copied from anywhere.
  */
 
+import { useLanguage } from '../../i18n/LanguageContext'
+
 function hashString(s: string): number {
   let h = 5381
   for (let i = 0; i < s.length; i++) {
@@ -104,6 +106,7 @@ export function PortraitAvatar({
   size?: number
   className?: string
 }) {
+  const { locale } = useLanguage()
   const h = hashString(seed)
   const skin = pick(SKIN_TONES, h, 1)
   const hairColor = pick(HAIR_COLORS, h, 2)
@@ -119,7 +122,7 @@ export function PortraitAvatar({
       viewBox="0 0 100 100"
       className={className}
       role="img"
-      aria-label="Retrato del sospechoso"
+      aria-label={locale === 'en' ? 'Suspect portrait' : 'Retrato del sospechoso'}
     >
       <defs>
         <radialGradient id={gradId} cx="38%" cy="32%" r="75%">

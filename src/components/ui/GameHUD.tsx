@@ -2,23 +2,28 @@ import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getProgressPercent } from '../../engine/CaseEngine'
 import MuteToggle from './MuteToggle'
+import LanguageToggle from './LanguageToggle'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary, DIFFICULTY_LABEL } from '../../i18n/dictionary'
 import type { Scene } from '../../types'
 
 type ActiveTab = 'scene' | 'evidence' | 'digital' | 'accuse'
-
-const BASE_TABS: { id: ActiveTab; label: string; icon: string; scene: Scene }[] = [
-  { id: 'scene', label: 'Escena', icon: '🔦', scene: 'crime-scene' },
-  { id: 'evidence', label: 'Evidencias', icon: '📎', scene: 'evidence-board' },
-]
-const DIGITAL_TAB = { id: 'digital' as const, label: 'Digital', icon: '📱', scene: 'digital-forensics' as const }
-const ACCUSE_TAB = { id: 'accuse' as const, label: 'Acusar', icon: '⚖️', scene: 'accusation' as const }
 
 export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
   const selectedCase = useGameStore((s) => s.selectedCase)
   const caseProgress = useGameStore((s) => s.caseProgress)
   const goTo = useGameStore((s) => s.goTo)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale)
 
   if (!selectedCase || !caseProgress) return null
+
+  const BASE_TABS: { id: ActiveTab; label: string; icon: string; scene: Scene }[] = [
+    { id: 'scene', label: dict.hud.scene, icon: '🔦', scene: 'crime-scene' },
+    { id: 'evidence', label: dict.hud.evidence, icon: '📎', scene: 'evidence-board' },
+  ]
+  const DIGITAL_TAB = { id: 'digital' as const, label: dict.hud.digital, icon: '📱', scene: 'digital-forensics' as const }
+  const ACCUSE_TAB = { id: 'accuse' as const, label: dict.hud.accuse, icon: '⚖️', scene: 'accusation' as const }
 
   const hasDigital =
     (selectedCase.digitalDevices?.length ?? 0) > 0 && caseProgress.discoveredDeviceIds.size > 0
@@ -44,7 +49,7 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
         <div className="hidden min-w-0 items-center gap-2 md:flex">
           <span className="text-lg flex-shrink-0">{selectedCase.thumbnail}</span>
           <div className="min-w-0">
-            <div className="text-[9px] text-zinc-500 tracking-widest uppercase">Caso activo</div>
+            <div className="text-[9px] text-zinc-500 tracking-widest uppercase">{dict.hud.activeCase}</div>
             <div className="text-xs font-medium text-amber-400 truncate">{selectedCase.title}</div>
           </div>
         </div>
@@ -66,14 +71,15 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
             </button>
           ))}
           <MuteToggle className="ml-1 self-center" />
+          <LanguageToggle className="self-center" />
         </div>
 
         {/* Stats */}
         <div className="hidden flex-shrink-0 whitespace-nowrap text-right md:block">
           <div className="text-[9px] text-zinc-500 uppercase tracking-widest">
-            {evidenceCount} evidencias · {progress}%
+            {evidenceCount} {dict.hud.evidenceCountSuffix} · {progress}%
           </div>
-          <div className="text-xs text-zinc-500">{selectedCase.difficulty}</div>
+          <div className="text-xs text-zinc-500">{DIFFICULTY_LABEL[locale][selectedCase.difficulty]}</div>
         </div>
       </div>
     </div>

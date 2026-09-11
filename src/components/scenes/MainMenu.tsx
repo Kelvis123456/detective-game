@@ -3,16 +3,22 @@ import Particles from '../ui/Particles'
 import { useGameStore } from '../../store/gameStore'
 import { getDetectiveRank } from '../../engine/RankEngine'
 import MuteToggle from '../ui/MuteToggle'
+import LanguageToggle from '../ui/LanguageToggle'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary, RANK_LABEL } from '../../i18n/dictionary'
 
 export default function MainMenu() {
   const goTo = useGameStore((s) => s.goTo)
   const stats = useGameStore((s) => s.playerStats)
   const rank = getDetectiveRank(stats)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).mainMenu
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-zinc-950">
       <Particles count={50} />
       <MuteToggle className="fixed right-4 top-4 z-20" />
+      <LanguageToggle className="fixed right-12 top-4 z-20" />
 
       {/* Vignette overlay */}
       <div
@@ -91,7 +97,7 @@ export default function MainMenu() {
           transition={{ delay: 1, duration: 0.8 }}
           className="mb-12 max-w-sm text-sm leading-relaxed text-zinc-500 italic"
         >
-          "La verdad no se encuentra. Se arranca de entre las mentiras."
+          "{dict.epigraph}"
         </motion.p>
 
         {/* Buttons */}
@@ -106,7 +112,7 @@ export default function MainMenu() {
             className="group relative overflow-hidden rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-amber-300 transition-all hover:border-amber-500 hover:bg-amber-900/50 hover:text-amber-100 hover:shadow-lg hover:shadow-amber-900/30"
           >
             <span className="relative z-10 whitespace-nowrap text-sm tracking-wide uppercase font-medium">
-              Iniciar Investigación
+              {dict.start}
             </span>
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-amber-700/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
           </button>
@@ -114,19 +120,19 @@ export default function MainMenu() {
           {stats.casesCompleted > 0 && (
             <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-xs text-zinc-500">
               <div className="flex justify-between mb-2 border-b border-zinc-800 pb-2">
-                <span>Rango:</span>
-                <span className="font-bold text-amber-300">🕵️ {rank}</span>
+                <span>{dict.rank}</span>
+                <span className="font-bold text-amber-300">🕵️ {RANK_LABEL[locale][rank]}</span>
               </div>
               <div className="flex justify-between">
-                <span>Casos resueltos:</span>
+                <span>{dict.casesCompleted}</span>
                 <span className="text-amber-400">{stats.casesCompleted}</span>
               </div>
               <div className="flex justify-between mt-1">
-                <span>Acusaciones correctas:</span>
+                <span>{dict.correctAccusations}</span>
                 <span className="text-green-400">{stats.correctAccusations}</span>
               </div>
               <div className="flex justify-between mt-1">
-                <span>Evidencias recopiladas:</span>
+                <span>{dict.evidenceFound}</span>
                 <span className="text-blue-400">{stats.totalEvidenceFound}</span>
               </div>
             </div>
@@ -141,7 +147,7 @@ export default function MainMenu() {
         transition={{ delay: 1.5 }}
         className="absolute bottom-4 z-10 w-full px-6 text-center text-xs tracking-widest text-zinc-400 sm:whitespace-nowrap"
       >
-        DETECTIVE AGENCY · CASO CERRADO O NO, LA VERDAD SIEMPRE SALE A LA LUZ
+        {dict.footer}
       </motion.p>
     </div>
   )
