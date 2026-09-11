@@ -1,18 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, type TargetAndTransition } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { useTypewriter } from '../../hooks/useTypewriter'
 import {
   getAvailableDialogues,
   getAskedDialogues,
-  getEmotionalStateLabel,
   getEmotionalStateColor,
   getEmotionalStateIcon,
   getSuspectSuspicionLevel,
 } from '../../engine/InterrogationEngine'
-import type { Dialogue, EmotionalState, Suspect } from '../../types'
+import type { Dialogue, EmotionalState, Locale, Suspect } from '../../types'
 import GameHUD from '../ui/GameHUD'
 import { PortraitAvatar } from '../ui/PortraitAvatar'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary, EMOTIONAL_STATE_LABEL } from '../../i18n/dictionary'
 
 /* ─── Emotional-state portrait animations ─── */
 const PORTRAIT_MOTION: Record<EmotionalState, TargetAndTransition> = {
@@ -39,10 +40,12 @@ function SuspectPortrait({
   suspect,
   emotionColor,
   emotionalState,
+  locale,
 }: {
   suspect: Suspect
   emotionColor: string
   emotionalState: EmotionalState | null
+  locale: Locale
 }) {
   const anim = emotionalState ? PORTRAIT_MOTION[emotionalState] ?? {} : {}
 
@@ -83,7 +86,7 @@ function SuspectPortrait({
 
         {/* Corner marks */}
         <div className="absolute top-2 left-2.5 text-[8px] tracking-widest font-bold" style={{ color: `${emotionColor}70` }}>
-          SOSPECHOSO
+          {getDictionary(locale).interrogation.suspectLabel}
         </div>
         <div className="absolute top-2 right-2.5 text-[9px]" style={{ color: `${emotionColor}60` }}>
           ◆
@@ -198,7 +201,7 @@ function SuspectPortrait({
         >
           {emotionalState && (
             <p className="text-[8px] tracking-[0.15em] mb-0.5" style={{ color: `${emotionColor}80` }}>
-              {getEmotionalStateLabel(emotionalState as Parameters<typeof getEmotionalStateLabel>[0]).toUpperCase()}
+              {EMOTIONAL_STATE_LABEL[locale][emotionalState].toUpperCase()}
             </p>
           )}
           <p className="text-[11px] font-bold text-white leading-tight truncate">{suspect.name}</p>
@@ -215,8 +218,20 @@ export default function Interrogation() {
   const askQuestion = useGameStore((s) => s.askQuestion)
   const goTo = useGameStore((s) => s.goTo)
   const showNotification = useGameStore((s) => s.showNotification)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).interrogation
 
   const [currentDialogue, setCurrentDialogue] = useState<Dialogue | null>(null)
+
+  // selectedSuspect is already re-pointed at the other locale's object by
+  // gameStore.retranslateCase on a language switch -- re-derive the
+  // currently-displayed dialogue from it by id so the answer text on screen
+  // updates too, instead of staying on the stale object.
+  useEffect(() => {
+    if (!selectedSuspect) return
+    setCurrentDialogue((prev) => (prev ? (selectedSuspect.dialogues.find((d) => d.id === prev.id) ?? prev) : prev))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSuspect])
 
   const { displayed, done, skip } = useTypewriter(currentDialogue?.answer ?? '', 8)
 
@@ -236,7 +251,7 @@ export default function Interrogation() {
       const names = dialogue.revealedEvidenceIds
         .map((id) => selectedCase.evidence.find((e) => e.id === id)?.name ?? id)
         .join(', ')
-      setTimeout(() => showNotification(`Nueva evidencia: ${names}`), 500)
+      setTimeout(() => showNotification(dict.newEvidenceNotif(names)), 500)
     }
   }
 
@@ -257,16 +272,16 @@ export default function Interrogation() {
           onClick={() => goTo('crime-scene')}
           className="whitespace-nowrap text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
-          ← ESCENA
+          {dict.backToScene}
         </button>
         <p className="hidden whitespace-nowrap text-[10px] tracking-[0.2em] text-zinc-500 sm:block">
-          SALA DE INTERROGATORIO
+          {dict.title}
         </p>
         <button
           onClick={() => goTo('evidence-board')}
           className="whitespace-nowrap text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
-          EVIDENCIAS →
+          {dict.toEvidence}
         </button>
       </motion.div>
 
@@ -282,6 +297,7 @@ export default function Interrogation() {
             suspect={selectedSuspect}
             emotionColor={emotionColor}
             emotionalState={currentDialogue?.emotionalState ?? null}
+            locale={locale}
           />
 
           <p className="text-sm font-bold text-zinc-100 mb-0.5 text-center">{selectedSuspect.name}</p>
@@ -305,7 +321,7 @@ export default function Interrogation() {
                 }}
               >
                 <span>{getEmotionalStateIcon(currentDialogue.emotionalState)}</span>
-                <span>{getEmotionalStateLabel(currentDialogue.emotionalState)}</span>
+                <span>{EMOTIONAL_STATE_LABEL[locale][currentDialogue.emotionalState]}</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -314,7 +330,7 @@ export default function Interrogation() {
           {asked.length > 0 && (
             <div className="w-full mb-3">
               <div className="flex justify-between text-[10px] text-zinc-400 mb-1">
-                <span>Sospecha</span>
+                <span>{dict.suspicion}</span>
                 <span
                   style={{
                     color:
@@ -350,14 +366,14 @@ export default function Interrogation() {
 
           {/* Alibi */}
           <div className="w-full rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-xs mb-3">
-            <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">COARTADA</p>
+            <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">{dict.alibi}</p>
             <p className="text-zinc-400 leading-relaxed">{selectedSuspect.alibi}</p>
           </div>
 
           {/* Already asked */}
           {asked.length > 0 && (
             <div className="w-full">
-              <p className="text-[9px] tracking-[0.15em] text-zinc-500 mb-2">YA PREGUNTADO</p>
+              <p className="text-[9px] tracking-[0.15em] text-zinc-500 mb-2">{dict.alreadyAsked}</p>
               <div className="space-y-1">
                 {asked.map((d) => (
                   <div key={d.id} className="flex items-center gap-1.5 text-[10px] text-zinc-500">
@@ -396,7 +412,7 @@ export default function Interrogation() {
                 >
                   {/* Detective question */}
                   <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
-                    <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">DETECTIVE:</p>
+                    <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">{dict.detective}</p>
                     <p className="text-sm text-zinc-300 italic">"{currentDialogue.question}"</p>
                   </div>
 
@@ -418,7 +434,7 @@ export default function Interrogation() {
                           onClick={skip}
                           className="text-[10px] text-zinc-400 hover:text-amber-400 transition-colors border border-zinc-800 hover:border-amber-700/60 px-2 py-0.5 rounded"
                         >
-                          Saltar ▶▶
+                          {dict.skip}
                         </button>
                       )}
                     </div>
@@ -442,7 +458,7 @@ export default function Interrogation() {
                     >
                       <span>🔍</span>
                       <span>
-                        Nueva evidencia revelada:{' '}
+                        {dict.newEvidenceRevealed}{' '}
                         <strong>
                           {currentDialogue.revealedEvidenceIds
                             .map((id) => selectedCase.evidence.find((e) => e.id === id)?.name ?? id)
@@ -461,7 +477,7 @@ export default function Interrogation() {
                 >
                   <div className="text-4xl opacity-20">💬</div>
                   <p className="text-sm text-zinc-500 italic">
-                    Selecciona una pregunta para comenzar...
+                    {dict.selectQuestion}
                   </p>
                 </motion.div>
               )}
@@ -471,7 +487,7 @@ export default function Interrogation() {
           {/* Question list */}
           <div>
             <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-3">
-              PREGUNTAS DISPONIBLES ({available.length})
+              {dict.availableQuestions(available.length)}
             </p>
             {available.length > 0 ? (
               <div className="space-y-2">
@@ -497,9 +513,9 @@ export default function Interrogation() {
                 animate={{ opacity: 1 }}
                 className="rounded-lg border border-zinc-800 bg-zinc-900/30 p-4 text-center"
               >
-                <p className="text-sm text-zinc-500 mb-1">✓ Interrogatorio completado</p>
+                <p className="text-sm text-zinc-500 mb-1">{dict.interrogationComplete}</p>
                 <p className="text-xs text-zinc-500">
-                  Has preguntado todo lo que hay que preguntar.
+                  {dict.askedEverything}
                 </p>
               </motion.div>
             )}

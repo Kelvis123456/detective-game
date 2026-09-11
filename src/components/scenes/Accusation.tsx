@@ -1,27 +1,40 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getCollectedEvidence } from '../../engine/CaseEngine'
-import { groupEvidenceByType, getEvidenceTypeLabel } from '../../engine/EvidenceEngine'
+import { groupEvidenceByType } from '../../engine/EvidenceEngine'
 import { PortraitAvatar } from '../ui/PortraitAvatar'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary, EVIDENCE_TYPE_LABEL } from '../../i18n/dictionary'
 import type { Evidence, EvidenceType, ProofCategory, Suspect } from '../../types'
-
-const PROOF_CATEGORIES: { id: ProofCategory; label: string; hint: string; icon: string }[] = [
-  { id: 'means', label: 'Medios', hint: '¿Con qué pudo hacerlo?', icon: '🔧' },
-  { id: 'motive', label: 'Móvil', hint: '¿Por qué lo haría?', icon: '🎯' },
-  { id: 'opportunity', label: 'Oportunidad', hint: '¿Cuándo pudo hacerlo?', icon: '⏱️' },
-]
 
 export default function Accusation() {
   const selectedCase = useGameStore((s) => s.selectedCase)
   const caseProgress = useGameStore((s) => s.caseProgress)
   const submitAccusation = useGameStore((s) => s.submitAccusation)
   const goTo = useGameStore((s) => s.goTo)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).accusation
+
+  const PROOF_CATEGORIES: { id: ProofCategory; label: string; hint: string; icon: string }[] = [
+    { id: 'means', label: dict.means, hint: dict.meansHint, icon: '🔧' },
+    { id: 'motive', label: dict.motive, hint: dict.motiveHint, icon: '🎯' },
+    { id: 'opportunity', label: dict.opportunity, hint: dict.opportunityHint, icon: '⏱️' },
+  ]
 
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [accusedSuspect, setAccusedSuspect] = useState<Suspect | null>(null)
   const [proofChoice, setProofChoice] = useState<Partial<Record<ProofCategory, string>>>({})
+
+  // Re-sync the suspect mid-accusation by id when selectedCase changes (a
+  // language switch re-points it at the other locale's object -- see
+  // gameStore.retranslateCase / CrimeScene's identical fix).
+  useEffect(() => {
+    if (!selectedCase) return
+    setAccusedSuspect((prev) => (prev ? (selectedCase.suspects.find((s) => s.id === prev.id) ?? prev) : prev))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCase])
 
   if (!selectedCase || !caseProgress) return null
 
@@ -59,9 +72,9 @@ export default function Accusation() {
             onClick={() => setAccusedSuspect(null)}
             className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
           >
-            ← CAMBIAR SOSPECHOSO
+            {dict.backChange}
           </button>
-          <p className="text-xs tracking-widest text-red-400">⚖️ FUNDAMENTA TU ACUSACIÓN</p>
+          <p className="text-xs tracking-widest text-red-400">{dict.buildYourCase}</p>
           <div />
         </div>
 
@@ -72,11 +85,10 @@ export default function Accusation() {
             className="text-center mb-8"
           >
             <h2 className="text-2xl font-bold text-red-400 mb-2">
-              Acusas a {accusedSuspect.name}
+              {dict.accusing(accusedSuspect.name)}
             </h2>
             <p className="text-sm text-zinc-500">
-              Señala la evidencia que sustenta medios, móvil y oportunidad. Puedes presentar la
-              acusación sin completar las tres — pero un caso completo pesa más ante el jurado.
+              {dict.buildHint}
             </p>
           </motion.div>
 
@@ -99,13 +111,13 @@ export default function Accusation() {
                         : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
                     }`}
                   >
-                    Sin evidencia específica
+                    {dict.noSpecificEvidence}
                   </button>
                   <div className="space-y-3">
                     {types.map((type) => (
                       <div key={type}>
                         <p className="mb-1.5 text-[9px] tracking-widest text-zinc-500">
-                          {getEvidenceTypeLabel(type).toUpperCase()}
+                          {EVIDENCE_TYPE_LABEL[locale][type].toUpperCase()}
                         </p>
                         <div className="grid gap-2">
                           {grouped[type].map((e: Evidence) => (
@@ -142,7 +154,7 @@ export default function Accusation() {
             }
             className="w-full rounded border border-red-700 bg-red-950/40 px-6 py-3 text-sm tracking-widest uppercase text-red-300 hover:bg-red-900/50 hover:text-red-100 transition-all"
           >
-            Presentar Acusación
+            {dict.submitAccusation}
           </button>
         </div>
       </div>
@@ -165,9 +177,9 @@ export default function Accusation() {
           onClick={() => goTo('evidence-board')}
           className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
-          ← EVIDENCIAS
+          {dict.backToEvidence}
         </button>
-        <p className="text-xs tracking-widest text-red-400">⚖️ REALIZAR ACUSACIÓN</p>
+        <p className="text-xs tracking-widest text-red-400">{dict.makeAccusation}</p>
         <div />
       </div>
 
@@ -181,22 +193,22 @@ export default function Accusation() {
             className="text-3xl font-bold text-red-400 mb-2"
             style={{ textShadow: '0 0 30px rgba(139,26,26,0.6)' }}
           >
-            ¿Quién es el culpable?
+            {dict.whoIsGuilty}
           </h2>
           <p className="text-sm text-zinc-500 mb-6">
-            Esta decisión cerrará el caso. Asegúrate de tener evidencia suficiente.
+            {dict.decisionHint}
           </p>
 
           {/* Key evidence status */}
           <div className="inline-flex items-center gap-3 rounded border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-xs">
-            <span className="text-zinc-500">Evidencias clave encontradas:</span>
+            <span className="text-zinc-500">{dict.keyEvidenceFound}</span>
             <span
               className={`font-bold ${collectedKey === totalKey ? 'text-green-400' : 'text-amber-400'}`}
             >
               {collectedKey}/{totalKey}
             </span>
             {collectedKey < totalKey && (
-              <span className="text-zinc-400">— considera volver a la escena</span>
+              <span className="text-zinc-400">{dict.considerReturning}</span>
             )}
           </div>
         </motion.div>
@@ -255,7 +267,7 @@ export default function Accusation() {
                         {suspect.description}
                       </div>
                       <div className="mt-2 text-[10px] text-zinc-500">
-                        Preguntas respondidas: {interviewed}/{total}
+                        {dict.questionsAnswered(interviewed, total)}
                       </div>
                     </div>
 
@@ -266,9 +278,9 @@ export default function Accusation() {
                           animate={{ scale: 1 }}
                           className="rounded border border-red-700 bg-red-950/50 px-3 py-1.5 text-xs text-red-300"
                         >
-                          ¿Confirmar?
+                          {dict.confirm}
                           <br />
-                          <span className="text-[10px] text-red-600">Clic para continuar</span>
+                          <span className="text-[10px] text-red-600">{dict.clickToContinue}</span>
                         </motion.div>
                       ) : (
                         <div className="text-zinc-500 text-xl">→</div>
@@ -287,7 +299,7 @@ export default function Accusation() {
                       onClick={() => setConfirmId(null)}
                       className="w-full text-center py-1.5 text-xs text-zinc-500 hover:text-zinc-500 transition-colors"
                     >
-                      Cancelar
+                      {dict.cancel}
                     </motion.button>
                   )}
                 </AnimatePresence>

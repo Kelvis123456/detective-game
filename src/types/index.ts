@@ -1,3 +1,5 @@
+export type Locale = 'es' | 'en'
+
 export type Scene =
   | 'main-menu'
   | 'case-selection'

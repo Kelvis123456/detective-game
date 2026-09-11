@@ -1,0 +1,418 @@
+import type { Difficulty, DetectiveRank, EmotionalState, EvidenceType, Locale, EndingType } from '../types'
+
+/**
+ * Identifier-valued unions (Difficulty, DetectiveRank, EmotionalState,
+ * EvidenceType) keep their existing Spanish literal values as the actual
+ * stored/compared data everywhere in the engine and case files — changing
+ * them would ripple into every case file and test that pattern-matches on
+ * them. These maps translate them to display text only, at render time.
+ */
+export const DIFFICULTY_LABEL: Record<Locale, Record<Difficulty, string>> = {
+  es: { Fácil: 'Fácil', Medio: 'Medio', Difícil: 'Difícil' },
+  en: { Fácil: 'Easy', Medio: 'Medium', Difícil: 'Hard' },
+}
+
+export const RANK_LABEL: Record<Locale, Record<DetectiveRank, string>> = {
+  es: {
+    Novato: 'Novato',
+    Investigador: 'Investigador',
+    Detective: 'Detective',
+    'Detective Senior': 'Detective Senior',
+    'Mente Maestra': 'Mente Maestra',
+  },
+  en: {
+    Novato: 'Rookie',
+    Investigador: 'Investigator',
+    Detective: 'Detective',
+    'Detective Senior': 'Senior Detective',
+    'Mente Maestra': 'Mastermind',
+  },
+}
+
+export const EMOTIONAL_STATE_LABEL: Record<Locale, Record<EmotionalState, string>> = {
+  es: { calm: 'Tranquilo/a', nervous: 'Nervioso/a', angry: 'Enojado/a', sad: 'Triste', evasive: 'Evasivo/a' },
+  en: { calm: 'Calm', nervous: 'Nervous', angry: 'Angry', sad: 'Sad', evasive: 'Evasive' },
+}
+
+export const EVIDENCE_TYPE_LABEL: Record<Locale, Record<EvidenceType, string>> = {
+  es: { physical: 'Evidencia Física', testimony: 'Testimonio', document: 'Documento', digital: 'Digital' },
+  en: { physical: 'Physical Evidence', testimony: 'Testimony', document: 'Document', digital: 'Digital' },
+}
+
+interface EndingMetaText {
+  title: string
+  subtitle: string
+}
+
+export const ENDING_TEXT: Record<Locale, Record<EndingType, EndingMetaText>> = {
+  es: {
+    'correct-full-case': {
+      title: '¡CASO RESUELTO!',
+      subtitle: 'Tu análisis fue impecable: sospechoso, medios, móvil y oportunidad, todo demostrado.',
+    },
+    'correct-partial-reasoning': {
+      title: 'CULPABLE IDENTIFICADO',
+      subtitle:
+        'Acusaste a la persona correcta, pero tu caso ante el jurado quedó incompleto — te faltó fundamentar una parte de la acusación.',
+    },
+    'wrong-suspect-culprit-escapes': {
+      title: 'ACUSACIÓN INCORRECTA',
+      subtitle: 'El verdadero culpable sigue libre. La justicia falló esta vez.',
+    },
+    'insufficient-evidence': {
+      title: 'CASO ARCHIVADO SIN PRUEBAS',
+      subtitle:
+        'Acusaste demasiado pronto, con muy poca evidencia reunida. El caso queda abierto y nadie responde por él.',
+    },
+  },
+  en: {
+    'correct-full-case': {
+      title: 'CASE SOLVED!',
+      subtitle: 'Your case was airtight: suspect, means, motive and opportunity, all proven.',
+    },
+    'correct-partial-reasoning': {
+      title: 'CULPRIT IDENTIFIED',
+      subtitle:
+        "You accused the right person, but your case before the jury was incomplete — part of the accusation was never backed up.",
+    },
+    'wrong-suspect-culprit-escapes': {
+      title: 'WRONG ACCUSATION',
+      subtitle: 'The real culprit is still out there. Justice failed this time.',
+    },
+    'insufficient-evidence': {
+      title: 'CASE CLOSED, NO PROOF',
+      subtitle: 'You accused too soon, with too little evidence gathered. The case stays open and no one answers for it.',
+    },
+  },
+}
+
+function dict(locale: Locale) {
+  return DICTIONARY[locale]
+}
+
+const DICTIONARY = {
+  es: {
+    hud: {
+      scene: 'Escena',
+      evidence: 'Evidencias',
+      digital: 'Digital',
+      accuse: 'Acusar',
+      activeCase: 'Caso activo',
+      evidenceCountSuffix: 'evidencias',
+    },
+    mainMenu: {
+      start: 'Iniciar Investigación',
+      epigraph: 'La verdad no se encuentra. Se arranca de entre las mentiras.',
+      rank: 'Rango:',
+      casesCompleted: 'Casos resueltos:',
+      correctAccusations: 'Acusaciones correctas:',
+      evidenceFound: 'Evidencias recopiladas:',
+      footer: 'DETECTIVE AGENCY · CASO CERRADO O NO, LA VERDAD SIEMPRE SALE A LA LUZ',
+    },
+    caseSelection: {
+      back: '← VOLVER',
+      title: 'EXPEDIENTES ACTIVOS',
+      subtitle: 'Selecciona un caso para comenzar tu investigación',
+      currentRank: '🕵️ RANGO ACTUAL:',
+      caseNumber: (n: string) => `CASO #${n}`,
+      suspectsSuffix: 'sospechosos',
+      evidenceSuffix: 'evidencias',
+    },
+    caseIntro: {
+      newCase: 'NUEVO CASO ASIGNADO',
+      briefing: '// BRIEFING DEL CASO',
+      location: 'Lugar',
+      date: 'Fecha',
+      difficulty: 'Dificultad',
+      viewSuspects: 'Ver Sospechosos →',
+      goToScene: 'Ir a la Escena',
+      suspectsIdentified: 'Sospechosos Identificados',
+      suspectsHint: 'Todos tienen algo que ocultar. Ninguno dirá la verdad completa.',
+      alibi: 'Coartada: ',
+      goToCrimeScene: 'Ir a la Escena del Crimen →',
+    },
+    crimeScene: {
+      backToCases: '← CASOS',
+      title: 'ESCENA DEL CRIMEN',
+      evidenceCollectedNotif: (name: string) => `Evidencia recopilada: ${name}`,
+      deviceFoundNotif: (label: string) => `Encontraste un dispositivo: ${label}`,
+      evidenceLabel: 'EVIDENCIA',
+      keyEvidence: '⭐ Evidencia clave',
+      forensicAnalysis: 'ANÁLISIS FORENSE',
+      closeBtn: '← Cerrar',
+      deviceFound: 'DISPOSITIVO ENCONTRADO',
+      deviceHint:
+        'Este dispositivo puede contener mensajes, notas y archivos borrados. Ábrelo en la sección de Forensia Digital para investigarlo a fondo.',
+      openDigitalForensics: 'Abrir Forensia Digital →',
+      pointOfInterest: 'PUNTO DE INTERÉS',
+      nothingToCollect: 'Nada que recolectar aquí, pero vale la pena mirar.',
+      pointsOfInterest: 'PUNTOS DE INTERÉS',
+      interrogate: 'INTERROGAR SOSPECHOSOS',
+    },
+    interrogation: {
+      backToScene: '← ESCENA',
+      title: 'SALA DE INTERROGATORIO',
+      toEvidence: 'EVIDENCIAS →',
+      suspicion: 'Sospecha',
+      alibi: 'COARTADA',
+      alreadyAsked: 'YA PREGUNTADO',
+      detective: 'DETECTIVE:',
+      skip: 'Saltar ▶▶',
+      newEvidenceRevealed: 'Nueva evidencia revelada:',
+      newEvidenceNotif: (names: string) => `Nueva evidencia: ${names}`,
+      selectQuestion: 'Selecciona una pregunta para comenzar...',
+      availableQuestions: (n: number) => `PREGUNTAS DISPONIBLES (${n})`,
+      interrogationComplete: '✓ Interrogatorio completado',
+      askedEverything: 'Has preguntado todo lo que hay que preguntar.',
+      suspectLabel: 'SOSPECHOSO',
+    },
+    evidenceBoard: {
+      backToScene: '← ESCENA',
+      title: 'TABLERO DE EVIDENCIAS',
+      accuse: '⚖️ Acusar',
+      corkboard: '📋 Corcho',
+      connections: '🧵 Conexiones',
+      collected: (c: number, t: number) => `Evidencias Recopiladas (${c}/${t})`,
+      noneCollected: 'Todavía no has recopilado ninguna evidencia. Regresa a la escena del crimen.',
+      pending: (n: number) => `EVIDENCIA PENDIENTE (${n})`,
+      keyEvidenceOfCase: 'Evidencia clave del caso',
+      description: 'DESCRIPCIÓN',
+      foundIn: 'ENCONTRADO EN',
+      forensicAnalysis: 'ANÁLISIS FORENSE',
+      close: 'Cerrar',
+      selectHint: 'Selecciona una evidencia para ver el análisis forense completo.',
+      suspects: 'SOSPECHOSOS',
+      makeAccusation: 'Realizar Acusación',
+    },
+    connectionsBoard: {
+      title: 'Tablero de Conexiones',
+      hint: 'Toca una evidencia y luego al sospechoso que crees que implica.',
+      threadsPlaced: 'HILOS PUESTOS',
+      noEvidence: 'Todavía no has recopilado evidencia para conectar.',
+      evidenceLabel: 'EVIDENCIA',
+      connected: '🧵 conectado',
+      suspects: 'SOSPECHOSOS',
+      removeThread: 'Quitar hilo de esta evidencia',
+    },
+    digitalForensics: {
+      toScene: 'ESCENA',
+      back: 'ATRÁS',
+      title: 'FORENSIA DIGITAL',
+      devicesRecovered: 'Dispositivos Recuperados',
+      devicesHint: 'Todo lo que hay aquí puede haberse borrado — no significa que haya desaparecido.',
+      noDevicesYet: 'Aún no encuentras ningún dispositivo. Revisa la escena del crimen.',
+      unlocked: 'Desbloqueado',
+      locked: 'Bloqueado',
+      enterPin: 'INGRESA EL PIN',
+      enterPattern: 'INGRESA EL PATRÓN',
+      wrongCode: 'Código incorrecto',
+      purged: 'Purgado del respaldo',
+      nothingHere: 'Nada aquí.',
+    },
+    accusation: {
+      backChange: '← CAMBIAR SOSPECHOSO',
+      buildYourCase: '⚖️ FUNDAMENTA TU ACUSACIÓN',
+      accusing: (name: string) => `Acusas a ${name}`,
+      buildHint:
+        'Señala la evidencia que sustenta medios, móvil y oportunidad. Puedes presentar la acusación sin completar las tres — pero un caso completo pesa más ante el jurado.',
+      noSpecificEvidence: 'Sin evidencia específica',
+      submitAccusation: 'Presentar Acusación',
+      backToEvidence: '← EVIDENCIAS',
+      makeAccusation: '⚖️ REALIZAR ACUSACIÓN',
+      whoIsGuilty: '¿Quién es el culpable?',
+      decisionHint: 'Esta decisión cerrará el caso. Asegúrate de tener evidencia suficiente.',
+      keyEvidenceFound: 'Evidencias clave encontradas:',
+      considerReturning: '— considera volver a la escena',
+      questionsAnswered: (i: number, t: number) => `Preguntas respondidas: ${i}/${t}`,
+      confirm: '¿Confirmar?',
+      clickToContinue: 'Clic para continuar',
+      cancel: 'Cancelar',
+      means: 'Medios',
+      meansHint: '¿Con qué pudo hacerlo?',
+      motive: 'Móvil',
+      motiveHint: '¿Por qué lo haría?',
+      opportunity: 'Oportunidad',
+      opportunityHint: '¿Cuándo pudo hacerlo?',
+    },
+    resolution: {
+      yourAccused: 'TU ACUSADO',
+      innocent: 'INOCENTE',
+      realCulprit: 'EL CULPABLE REAL',
+      stillFreeNoClues: 'SIGUE LIBRE, SIN PISTAS SUFICIENTES',
+      stillFreeEscaped: 'LIBRE — SE TE ESCAPÓ',
+      culpritConfirmed: 'CULPABLE CONFIRMADO',
+      realMotive: 'MOTIVO REAL',
+      yourConnectionsBoard: (c: number, t: number) => `TU TABLERO DE CONEXIONES — ${c}/${t} ACIERTOS`,
+      reasoningBreakdown: 'FUNDAMENTACIÓN DE TU ACUSACIÓN',
+      crimeReconstruction: 'RECONSTRUCCIÓN DEL CRIMEN',
+      timeline: 'LÍNEA DE TIEMPO',
+      anotherCase: 'Otro Caso',
+      mainMenuBtn: 'Menú Principal',
+    },
+  },
+  en: {
+    hud: {
+      scene: 'Scene',
+      evidence: 'Evidence',
+      digital: 'Digital',
+      accuse: 'Accuse',
+      activeCase: 'Active case',
+      evidenceCountSuffix: 'evidence',
+    },
+    mainMenu: {
+      start: 'Start Investigation',
+      epigraph: "Truth isn't found. It's torn out from between the lies.",
+      rank: 'Rank:',
+      casesCompleted: 'Cases solved:',
+      correctAccusations: 'Correct accusations:',
+      evidenceFound: 'Evidence collected:',
+      footer: 'DETECTIVE AGENCY · CASE CLOSED OR NOT, THE TRUTH ALWAYS COMES OUT',
+    },
+    caseSelection: {
+      back: '← BACK',
+      title: 'ACTIVE FILES',
+      subtitle: 'Select a case to begin your investigation',
+      currentRank: '🕵️ CURRENT RANK:',
+      caseNumber: (n: string) => `CASE #${n}`,
+      suspectsSuffix: 'suspects',
+      evidenceSuffix: 'evidence',
+    },
+    caseIntro: {
+      newCase: 'NEW CASE ASSIGNED',
+      briefing: '// CASE BRIEFING',
+      location: 'Location',
+      date: 'Date',
+      difficulty: 'Difficulty',
+      viewSuspects: 'View Suspects →',
+      goToScene: 'Go to the Scene',
+      suspectsIdentified: 'Suspects Identified',
+      suspectsHint: "Everyone has something to hide. None of them will tell the whole truth.",
+      alibi: 'Alibi: ',
+      goToCrimeScene: 'Go to the Crime Scene →',
+    },
+    crimeScene: {
+      backToCases: '← CASES',
+      title: 'CRIME SCENE',
+      evidenceCollectedNotif: (name: string) => `Evidence collected: ${name}`,
+      deviceFoundNotif: (label: string) => `You found a device: ${label}`,
+      evidenceLabel: 'EVIDENCE',
+      keyEvidence: '⭐ Key evidence',
+      forensicAnalysis: 'FORENSIC ANALYSIS',
+      closeBtn: '← Close',
+      deviceFound: 'DEVICE FOUND',
+      deviceHint:
+        'This device may hold messages, notes and deleted files. Open it in the Digital Forensics section to dig deeper.',
+      openDigitalForensics: 'Open Digital Forensics →',
+      pointOfInterest: 'POINT OF INTEREST',
+      nothingToCollect: "Nothing to collect here, but worth a look.",
+      pointsOfInterest: 'POINTS OF INTEREST',
+      interrogate: 'INTERROGATE SUSPECTS',
+    },
+    interrogation: {
+      backToScene: '← SCENE',
+      title: 'INTERROGATION ROOM',
+      toEvidence: 'EVIDENCE →',
+      suspicion: 'Suspicion',
+      alibi: 'ALIBI',
+      alreadyAsked: 'ALREADY ASKED',
+      detective: 'DETECTIVE:',
+      skip: 'Skip ▶▶',
+      newEvidenceRevealed: 'New evidence revealed:',
+      newEvidenceNotif: (names: string) => `New evidence: ${names}`,
+      selectQuestion: 'Select a question to begin...',
+      availableQuestions: (n: number) => `AVAILABLE QUESTIONS (${n})`,
+      interrogationComplete: '✓ Interrogation complete',
+      askedEverything: "You've asked everything there is to ask.",
+      suspectLabel: 'SUSPECT',
+    },
+    evidenceBoard: {
+      backToScene: '← SCENE',
+      title: 'EVIDENCE BOARD',
+      accuse: '⚖️ Accuse',
+      corkboard: '📋 Corkboard',
+      connections: '🧵 Connections',
+      collected: (c: number, t: number) => `Evidence Collected (${c}/${t})`,
+      noneCollected: "You haven't collected any evidence yet. Go back to the crime scene.",
+      pending: (n: number) => `EVIDENCE PENDING (${n})`,
+      keyEvidenceOfCase: 'Key evidence for this case',
+      description: 'DESCRIPTION',
+      foundIn: 'FOUND IN',
+      forensicAnalysis: 'FORENSIC ANALYSIS',
+      close: 'Close',
+      selectHint: 'Select a piece of evidence to see the full forensic analysis.',
+      suspects: 'SUSPECTS',
+      makeAccusation: 'Make Accusation',
+    },
+    connectionsBoard: {
+      title: 'Connections Board',
+      hint: 'Tap a piece of evidence, then the suspect you think it implicates.',
+      threadsPlaced: 'THREADS PLACED',
+      noEvidence: "You haven't collected any evidence to connect yet.",
+      evidenceLabel: 'EVIDENCE',
+      connected: '🧵 connected',
+      suspects: 'SUSPECTS',
+      removeThread: 'Remove thread from this evidence',
+    },
+    digitalForensics: {
+      toScene: 'SCENE',
+      back: 'BACK',
+      title: 'DIGITAL FORENSICS',
+      devicesRecovered: 'Recovered Devices',
+      devicesHint: "Everything here may have been deleted — that doesn't mean it's gone.",
+      noDevicesYet: "You haven't found any devices yet. Check the crime scene.",
+      unlocked: 'Unlocked',
+      locked: 'Locked',
+      enterPin: 'ENTER PIN',
+      enterPattern: 'ENTER PATTERN',
+      wrongCode: 'Wrong code',
+      purged: 'Purged from the backup',
+      nothingHere: 'Nothing here.',
+    },
+    accusation: {
+      backChange: '← CHANGE SUSPECT',
+      buildYourCase: '⚖️ BUILD YOUR CASE',
+      accusing: (name: string) => `You're accusing ${name}`,
+      buildHint:
+        "Point to the evidence that backs up means, motive and opportunity. You can submit the accusation without completing all three — but a complete case weighs more with the jury.",
+      noSpecificEvidence: 'No specific evidence',
+      submitAccusation: 'Submit Accusation',
+      backToEvidence: '← EVIDENCE',
+      makeAccusation: '⚖️ MAKE ACCUSATION',
+      whoIsGuilty: 'Who is guilty?',
+      decisionHint: 'This decision will close the case. Make sure you have enough evidence.',
+      keyEvidenceFound: 'Key evidence found:',
+      considerReturning: '— consider going back to the scene',
+      questionsAnswered: (i: number, t: number) => `Questions answered: ${i}/${t}`,
+      confirm: 'Confirm?',
+      clickToContinue: 'Click to continue',
+      cancel: 'Cancel',
+      means: 'Means',
+      meansHint: 'What could they have used?',
+      motive: 'Motive',
+      motiveHint: 'Why would they do it?',
+      opportunity: 'Opportunity',
+      opportunityHint: 'When could they have done it?',
+    },
+    resolution: {
+      yourAccused: 'YOUR ACCUSED',
+      innocent: 'INNOCENT',
+      realCulprit: 'THE REAL CULPRIT',
+      stillFreeNoClues: 'STILL FREE, NOT ENOUGH LEADS',
+      stillFreeEscaped: 'FREE — THEY GOT AWAY',
+      culpritConfirmed: 'CULPRIT CONFIRMED',
+      realMotive: 'REAL MOTIVE',
+      yourConnectionsBoard: (c: number, t: number) => `YOUR CONNECTIONS BOARD — ${c}/${t} CORRECT`,
+      reasoningBreakdown: 'YOUR ACCUSATION, BROKEN DOWN',
+      crimeReconstruction: 'RECONSTRUCTION OF THE CRIME',
+      timeline: 'TIMELINE',
+      anotherCase: 'Another Case',
+      mainMenuBtn: 'Main Menu',
+    },
+  },
+} satisfies Record<Locale, unknown>
+
+export function getDictionary(locale: Locale) {
+  return dict(locale)
+}
+
+export type Dictionary = ReturnType<typeof getDictionary>

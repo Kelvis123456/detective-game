@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import type { Evidence } from '../../types'
-import { getEvidenceTypeLabel, getEvidenceTypeColor } from '../../engine/EvidenceEngine'
+import { getEvidenceTypeColor } from '../../engine/EvidenceEngine'
 import GameHUD from '../ui/GameHUD'
 import ConnectionsBoard from './ConnectionsBoard'
 import { PortraitAvatar } from '../ui/PortraitAvatar'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary, EVIDENCE_TYPE_LABEL } from '../../i18n/dictionary'
+import type { Locale } from '../../types'
 
 type BoardMode = 'grid' | 'connections'
 
@@ -13,9 +16,20 @@ export default function EvidenceBoard() {
   const selectedCase = useGameStore((s) => s.selectedCase)
   const caseProgress = useGameStore((s) => s.caseProgress)
   const goTo = useGameStore((s) => s.goTo)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).evidenceBoard
 
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null)
   const [boardMode, setBoardMode] = useState<BoardMode>('grid')
+
+  // Re-sync the open evidence panel by id when selectedCase changes (a
+  // language switch re-points it at the other locale's object -- see
+  // gameStore.retranslateCase / CrimeScene's identical fix).
+  useEffect(() => {
+    if (!selectedCase) return
+    setSelectedEvidence((prev) => (prev ? (selectedCase.evidence.find((e) => e.id === prev.id) ?? prev) : prev))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCase])
 
   if (!selectedCase || !caseProgress) return null
 
@@ -34,17 +48,17 @@ export default function EvidenceBoard() {
           onClick={() => goTo('crime-scene')}
           className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
-          ← ESCENA
+          {dict.backToScene}
         </button>
         <div className="text-center">
-          <p className="text-xs text-zinc-400 tracking-widest">TABLERO DE EVIDENCIAS</p>
+          <p className="text-xs text-zinc-400 tracking-widest">{dict.title}</p>
           <p className="text-sm font-medium text-amber-400">{selectedCase.title}</p>
         </div>
         <button
           onClick={() => goTo('accusation')}
           className="rounded border border-red-900/60 px-3 py-1.5 text-xs text-red-400 hover:bg-red-950/30 transition-all"
         >
-          ⚖️ Acusar
+          {dict.accuse}
         </button>
       </div>
 
@@ -57,7 +71,7 @@ export default function EvidenceBoard() {
               boardMode === 'grid' ? 'bg-amber-900/50 text-amber-300' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            📋 Corcho
+            {dict.corkboard}
           </button>
           <button
             onClick={() => setBoardMode('connections')}
@@ -65,7 +79,7 @@ export default function EvidenceBoard() {
               boardMode === 'connections' ? 'bg-amber-900/50 text-amber-300' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            🧵 Conexiones
+            {dict.connections}
           </button>
         </div>
       </div>
@@ -88,14 +102,14 @@ export default function EvidenceBoard() {
         <div className="flex-1 p-6 overflow-auto">
           <div className="mb-6">
             <h3 className="text-lg font-bold text-amber-400 mb-1">
-              Evidencias Recopiladas ({collected.length}/{selectedCase.evidence.length})
+              {dict.collected(collected.length, selectedCase.evidence.length)}
             </h3>
             <div className="h-px bg-gradient-to-r from-amber-800/40 to-transparent" />
           </div>
 
           {collected.length === 0 ? (
             <div className="flex h-48 items-center justify-center text-zinc-500 text-sm italic">
-              Todavía no has recopilado ninguna evidencia. Regresa a la escena del crimen.
+              {dict.noneCollected}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -108,6 +122,7 @@ export default function EvidenceBoard() {
                   onClick={() =>
                     setSelectedEvidence(selectedEvidence?.id === evidence.id ? null : evidence)
                   }
+                  locale={locale}
                 />
               ))}
             </div>
@@ -117,7 +132,7 @@ export default function EvidenceBoard() {
           {missing.length > 0 && (
             <div className="mt-8">
               <p className="text-xs text-zinc-500 tracking-widest mb-3">
-                EVIDENCIA PENDIENTE ({missing.length})
+                {dict.pending(missing.length)}
               </p>
               <div className="grid grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-6">
                 {missing.map((e) => (
@@ -152,7 +167,7 @@ export default function EvidenceBoard() {
                       className="text-[9px] tracking-widest mb-0.5"
                       style={{ color: getEvidenceTypeColor(selectedEvidence.type) }}
                     >
-                      {getEvidenceTypeLabel(selectedEvidence.type).toUpperCase()}
+                      {EVIDENCE_TYPE_LABEL[locale][selectedEvidence.type].toUpperCase()}
                     </div>
                     <h4 className="font-bold text-zinc-100 leading-tight">{selectedEvidence.name}</h4>
                   </div>
@@ -161,22 +176,22 @@ export default function EvidenceBoard() {
                 {selectedEvidence.isKey && (
                   <div className="mb-3 flex items-center gap-1.5 text-xs text-amber-500">
                     <span>⭐</span>
-                    <span>Evidencia clave del caso</span>
+                    <span>{dict.keyEvidenceOfCase}</span>
                   </div>
                 )}
 
                 <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-950/50 p-3">
-                  <p className="text-[10px] text-zinc-400 mb-1">DESCRIPCIÓN</p>
+                  <p className="text-[10px] text-zinc-400 mb-1">{dict.description}</p>
                   <p className="text-xs text-zinc-400 leading-relaxed">{selectedEvidence.description}</p>
                 </div>
 
                 <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-950/50 p-3">
-                  <p className="text-[10px] text-zinc-400 mb-1">ENCONTRADO EN</p>
+                  <p className="text-[10px] text-zinc-400 mb-1">{dict.foundIn}</p>
                   <p className="text-xs text-zinc-400">{selectedEvidence.location}</p>
                 </div>
 
                 <div className="rounded-lg border border-amber-900/30 bg-amber-950/20 p-3">
-                  <p className="text-[10px] text-amber-700 tracking-widest mb-1">ANÁLISIS FORENSE</p>
+                  <p className="text-[10px] text-amber-700 tracking-widest mb-1">{dict.forensicAnalysis}</p>
                   <p className="text-xs text-zinc-300 leading-relaxed">{selectedEvidence.analysis}</p>
                 </div>
 
@@ -184,7 +199,7 @@ export default function EvidenceBoard() {
                   onClick={() => setSelectedEvidence(null)}
                   className="mt-4 w-full rounded border border-zinc-700 py-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
                 >
-                  Cerrar
+                  {dict.close}
                 </button>
               </motion.div>
             ) : (
@@ -195,12 +210,12 @@ export default function EvidenceBoard() {
                 className="p-5 flex flex-col gap-4"
               >
                 <p className="text-xs text-zinc-400 italic">
-                  Selecciona una evidencia para ver el análisis forense completo.
+                  {dict.selectHint}
                 </p>
 
                 {/* Suspects summary */}
                 <div>
-                  <p className="text-[10px] tracking-widest text-zinc-500 mb-2">SOSPECHOSOS</p>
+                  <p className="text-[10px] tracking-widest text-zinc-500 mb-2">{dict.suspects}</p>
                   {selectedCase.suspects.map((suspect) => {
                     const interviewed = caseProgress.interviewedSuspects[suspect.id]?.size ?? 0
                     const total = suspect.dialogues.length
@@ -229,7 +244,7 @@ export default function EvidenceBoard() {
                   onClick={() => goTo('accusation')}
                   className="mt-auto w-full rounded border border-red-900/60 bg-red-950/20 py-2 text-xs tracking-widest uppercase text-red-400 hover:bg-red-950/40 transition-all"
                 >
-                  Realizar Acusación
+                  {dict.makeAccusation}
                 </button>
               </motion.div>
             )}
@@ -248,11 +263,13 @@ function EvidenceCard({
   index,
   isSelected,
   onClick,
+  locale,
 }: {
   evidence: Evidence
   index: number
   isSelected: boolean
   onClick: () => void
+  locale: Locale
 }) {
   const typeColor = getEvidenceTypeColor(evidence.type)
 
@@ -290,7 +307,7 @@ function EvidenceCard({
         className="text-[9px] rounded px-1 py-0.5"
         style={{ color: typeColor, backgroundColor: `${typeColor}15` }}
       >
-        {getEvidenceTypeLabel(evidence.type)}
+        {EVIDENCE_TYPE_LABEL[locale][evidence.type]}
       </span>
     </motion.button>
   )

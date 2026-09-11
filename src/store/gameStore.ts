@@ -25,6 +25,8 @@ import {
 } from '../engine/DigitalForensicsEngine'
 import { addConnection, removeConnection, normalizeConnection } from '../engine/EvidenceEngine'
 import { audioEngine } from '../audio/AudioEngine'
+import { getCaseById } from '../data'
+import type { Locale } from '../types'
 
 interface GameStore extends GameState {
   goTo: (scene: Scene) => void
@@ -43,6 +45,11 @@ interface GameStore extends GameState {
   showNotification: (message: string) => void
   clearNotification: () => void
   clearAllNotifications: () => void
+  /** Re-points selectedCase/selectedSuspect at the equivalent object from the
+   *  other locale's case list, by id. caseProgress (which only ever holds
+   *  ids and Sets) is untouched, so switching languages mid-case doesn't
+   *  lose or reset any progress -- only the displayed text changes. */
+  retranslateCase: (locale: Locale) => void
 }
 
 /**
@@ -309,4 +316,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   showNotification: (message) => set((state) => ({ notifications: [...state.notifications, message] })),
   clearNotification: () => set((state) => ({ notifications: state.notifications.slice(1) })),
   clearAllNotifications: () => set({ notifications: [] }),
+
+  retranslateCase: (locale) => {
+    const { selectedCase, selectedSuspect } = get()
+    if (!selectedCase) return
+    const nextCase = getCaseById(selectedCase.id, locale)
+    if (!nextCase) return
+    const nextSuspect = selectedSuspect
+      ? (nextCase.suspects.find((s) => s.id === selectedSuspect.id) ?? null)
+      : null
+    set({ selectedCase: nextCase, selectedSuspect: nextSuspect })
+  },
 }))

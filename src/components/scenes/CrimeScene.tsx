@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import type { Hotspot, Evidence, DigitalDevice } from '../../types'
@@ -6,6 +6,8 @@ import GameHUD from '../ui/GameHUD'
 import { SceneWindow, SceneCenterpiece } from './crimeSceneDecor'
 import { PortraitAvatar } from '../ui/PortraitAvatar'
 import { audioEngine } from '../../audio/AudioEngine'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary } from '../../i18n/dictionary'
 
 export default function CrimeScene() {
   const selectedCase = useGameStore((s) => s.selectedCase)
@@ -15,12 +17,31 @@ export default function CrimeScene() {
   const goTo = useGameStore((s) => s.goTo)
   const showNotification = useGameStore((s) => s.showNotification)
   const startInterview = useGameStore((s) => s.startInterview)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).crimeScene
 
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null)
   const [activeEvidence, setActiveEvidence] = useState<Evidence | null>(null)
   const [activeDevice, setActiveDevice] = useState<DigitalDevice | null>(null)
   const [activeFlavorHotspot, setActiveFlavorHotspot] = useState<Hotspot | null>(null)
   const [viewedFlavorHotspotIds, setViewedFlavorHotspotIds] = useState<Set<string>>(new Set())
+
+  // Switching language mid-scene re-points selectedCase at the equivalent
+  // object from the other locale (see gameStore.retranslateCase) -- but any
+  // evidence/device/hotspot already open in a detail panel here is a plain
+  // object reference captured at click time, so it wouldn't pick up the new
+  // language on its own. Re-look-up by id whenever selectedCase changes.
+  useEffect(() => {
+    if (!selectedCase) return
+    setActiveEvidence((prev) => (prev ? (selectedCase.evidence.find((e) => e.id === prev.id) ?? prev) : prev))
+    setActiveDevice((prev) =>
+      prev ? (selectedCase.digitalDevices?.find((d) => d.id === prev.id) ?? prev) : prev
+    )
+    setActiveFlavorHotspot((prev) =>
+      prev ? (selectedCase.hotspots.find((h) => h.id === prev.id) ?? prev) : prev
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCase])
 
   if (!selectedCase || !caseProgress) return null
 
@@ -35,7 +56,7 @@ export default function CrimeScene() {
         setActiveEvidence(evidence)
         if (!caseProgress.collectedEvidenceIds.has(evidence.id)) {
           collectEvidence(evidence.id)
-          showNotification(`Evidencia recopilada: ${evidence.name}`)
+          showNotification(dict.evidenceCollectedNotif(evidence.name))
         }
       }
     } else if (hotspot.deviceId) {
@@ -46,7 +67,7 @@ export default function CrimeScene() {
         setActiveDevice(device)
         if (!caseProgress.discoveredDeviceIds.has(device.id)) {
           discoverDevice(device.id)
-          showNotification(`Encontraste un dispositivo: ${device.label}`)
+          showNotification(dict.deviceFoundNotif(device.label))
         }
       }
     } else {
@@ -78,10 +99,10 @@ export default function CrimeScene() {
           onClick={() => goTo('case-selection')}
           className="text-xs tracking-widest text-zinc-400 hover:text-amber-400 transition-colors"
         >
-          ← CASOS
+          {dict.backToCases}
         </button>
         <div className="text-center">
-          <p className="text-[10px] text-zinc-400 tracking-[0.2em]">ESCENA DEL CRIMEN</p>
+          <p className="text-[10px] text-zinc-400 tracking-[0.2em]">{dict.title}</p>
           <p className="text-sm font-medium text-amber-400">{selectedCase.title}</p>
         </div>
         <div className="w-16" />
@@ -278,10 +299,10 @@ export default function CrimeScene() {
                     {activeEvidence.icon}
                   </motion.span>
                   <div>
-                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">EVIDENCIA</p>
+                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">{dict.evidenceLabel}</p>
                     <h4 className="font-bold text-amber-300 leading-tight">{activeEvidence.name}</h4>
                     {activeEvidence.isKey && (
-                      <span className="text-[10px] text-amber-600">⭐ Evidencia clave</span>
+                      <span className="text-[10px] text-amber-600">{dict.keyEvidence}</span>
                     )}
                   </div>
                 </div>
@@ -289,14 +310,14 @@ export default function CrimeScene() {
                   <p className="text-xs text-zinc-400 leading-relaxed">{activeEvidence.description}</p>
                 </div>
                 <div className="rounded-lg border border-amber-900/30 bg-amber-950/20 p-3">
-                  <p className="text-[10px] tracking-[0.15em] text-amber-700 mb-2">ANÁLISIS FORENSE</p>
+                  <p className="text-[10px] tracking-[0.15em] text-amber-700 mb-2">{dict.forensicAnalysis}</p>
                   <p className="text-xs text-zinc-300 leading-relaxed">{activeEvidence.analysis}</p>
                 </div>
                 <button
                   onClick={() => setActiveEvidence(null)}
                   className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
                 >
-                  ← Cerrar
+                  {dict.closeBtn}
                 </button>
               </motion.div>
             ) : activeDevice ? (
@@ -310,25 +331,24 @@ export default function CrimeScene() {
                 <div className="mb-4 flex items-start gap-3">
                   <span className="text-3xl">📱</span>
                   <div>
-                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">DISPOSITIVO ENCONTRADO</p>
+                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">{dict.deviceFound}</p>
                     <h4 className="font-bold text-amber-300 leading-tight">{activeDevice.label}</h4>
                   </div>
                 </div>
                 <p className="mb-4 text-xs text-zinc-400 leading-relaxed">
-                  Este dispositivo puede contener mensajes, notas y archivos borrados. Ábrelo en la
-                  sección de Forensia Digital para investigarlo a fondo.
+                  {dict.deviceHint}
                 </p>
                 <button
                   onClick={() => goTo('digital-forensics')}
                   className="w-full rounded border border-amber-700/60 bg-amber-950/40 py-2.5 text-xs tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-all"
                 >
-                  Abrir Forensia Digital →
+                  {dict.openDigitalForensics}
                 </button>
                 <button
                   onClick={() => setActiveDevice(null)}
                   className="mt-3 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
                 >
-                  ← Cerrar
+                  {dict.closeBtn}
                 </button>
               </motion.div>
             ) : activeFlavorHotspot ? (
@@ -342,14 +362,14 @@ export default function CrimeScene() {
                 <div className="mb-4 flex items-start gap-3">
                   <span className="text-3xl">{activeFlavorHotspot.icon}</span>
                   <div>
-                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">PUNTO DE INTERÉS</p>
+                    <p className="text-[10px] tracking-[0.15em] text-zinc-400">{dict.pointOfInterest}</p>
                     <h4 className="font-bold text-amber-300 leading-tight">{activeFlavorHotspot.label}</h4>
                   </div>
                 </div>
                 <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
                   <p className="text-xs text-zinc-400 leading-relaxed">{activeFlavorHotspot.description}</p>
                 </div>
-                <p className="text-xs text-zinc-400 italic">Nada que recolectar aquí, pero vale la pena mirar.</p>
+                <p className="text-xs text-zinc-400 italic">{dict.nothingToCollect}</p>
                 <button
                   onClick={() => setActiveFlavorHotspot(null)}
                   className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
@@ -364,7 +384,7 @@ export default function CrimeScene() {
                 animate={{ opacity: 1 }}
                 className="flex-1 p-5"
               >
-                <p className="text-[10px] tracking-[0.15em] text-zinc-400 mb-4">PUNTOS DE INTERÉS</p>
+                <p className="text-[10px] tracking-[0.15em] text-zinc-400 mb-4">{dict.pointsOfInterest}</p>
                 <div className="space-y-2">
                   {selectedCase.hotspots.map((h, i) => (
                     <motion.div
@@ -388,7 +408,7 @@ export default function CrimeScene() {
 
           {/* Suspects */}
           <div className="border-t border-zinc-800 p-4">
-            <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-3">INTERROGAR SOSPECHOSOS</p>
+            <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-3">{dict.interrogate}</p>
             <div className="space-y-2">
               {selectedCase.suspects.map((suspect, i) => {
                 const interviewed = caseProgress.interviewedSuspects[suspect.id]?.size ?? 0

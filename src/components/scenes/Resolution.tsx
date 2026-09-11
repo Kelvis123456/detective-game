@@ -2,38 +2,15 @@ import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { getConnectionAccuracy, isConnectionCorrect } from '../../engine/EvidenceEngine'
 import { PortraitAvatar } from '../ui/PortraitAvatar'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary, ENDING_TEXT } from '../../i18n/dictionary'
 import type { EndingType } from '../../types'
 
-const ENDING_META: Record<
-  EndingType,
-  { icon: string; title: string; subtitle: string; tone: 'green' | 'amber' | 'red' | 'zinc' }
-> = {
-  'correct-full-case': {
-    icon: '🏆',
-    title: '¡CASO RESUELTO!',
-    subtitle: 'Tu análisis fue impecable: sospechoso, medios, móvil y oportunidad, todo demostrado.',
-    tone: 'green',
-  },
-  'correct-partial-reasoning': {
-    icon: '🔶',
-    title: 'CULPABLE IDENTIFICADO',
-    subtitle:
-      'Acusaste a la persona correcta, pero tu caso ante el jurado quedó incompleto — te faltó fundamentar una parte de la acusación.',
-    tone: 'amber',
-  },
-  'wrong-suspect-culprit-escapes': {
-    icon: '❌',
-    title: 'ACUSACIÓN INCORRECTA',
-    subtitle: 'El verdadero culpable sigue libre. La justicia falló esta vez.',
-    tone: 'red',
-  },
-  'insufficient-evidence': {
-    icon: '📁',
-    title: 'CASO ARCHIVADO SIN PRUEBAS',
-    subtitle:
-      'Acusaste demasiado pronto, con muy poca evidencia reunida. El caso queda abierto y nadie responde por él.',
-    tone: 'zinc',
-  },
+const ENDING_ICON_TONE: Record<EndingType, { icon: string; tone: 'green' | 'amber' | 'red' | 'zinc' }> = {
+  'correct-full-case': { icon: '🏆', tone: 'green' },
+  'correct-partial-reasoning': { icon: '🔶', tone: 'amber' },
+  'wrong-suspect-culprit-escapes': { icon: '❌', tone: 'red' },
+  'insufficient-evidence': { icon: '📁', tone: 'zinc' },
 }
 
 const TONE_STYLES: Record<
@@ -70,13 +47,18 @@ const TONE_STYLES: Record<
   },
 }
 
-const PROOF_LABELS = { means: 'Medios', motive: 'Móvil', opportunity: 'Oportunidad' } as const
-
 export default function Resolution() {
   const selectedCase = useGameStore((s) => s.selectedCase)
   const caseProgress = useGameStore((s) => s.caseProgress)
   const resetCase = useGameStore((s) => s.resetCase)
   const goTo = useGameStore((s) => s.goTo)
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).resolution
+  const PROOF_LABELS = {
+    means: getDictionary(locale).accusation.means,
+    motive: getDictionary(locale).accusation.motive,
+    opportunity: getDictionary(locale).accusation.opportunity,
+  } as const
 
   if (!selectedCase || !caseProgress || !caseProgress.accusedSuspectId) return null
 
@@ -85,7 +67,7 @@ export default function Resolution() {
   const ending: EndingType =
     caseProgress.ending ?? (caseProgress.correct ? 'correct-full-case' : 'wrong-suspect-culprit-escapes')
   const isCorrect = caseProgress.correct
-  const meta = ENDING_META[ending]
+  const meta = { ...ENDING_ICON_TONE[ending], ...ENDING_TEXT[locale][ending] }
   const tone = TONE_STYLES[meta.tone]
   const { explanation, timeline, proof } = selectedCase.solution
   const connectionAccuracy = getConnectionAccuracy(selectedCase, caseProgress.playerConnections)
@@ -121,7 +103,7 @@ export default function Resolution() {
             transition={{ delay: 0.25 }}
             className="mb-6 rounded-lg border border-amber-900/40 bg-amber-950/10 p-4"
           >
-            <p className="text-[10px] tracking-widest text-amber-700 mb-3">FUNDAMENTACIÓN DE TU ACUSACIÓN</p>
+            <p className="text-[10px] tracking-widest text-amber-700 mb-3">{dict.reasoningBreakdown}</p>
             <div className="grid grid-cols-3 gap-3">
               {(['means', 'motive', 'opportunity'] as const).map((cat) => {
                 const requiredForCat = proof[cat] ?? []
@@ -151,21 +133,21 @@ export default function Resolution() {
             className="mb-6 grid grid-cols-2 gap-4"
           >
             <div className="rounded-lg border border-red-900/40 bg-red-950/20 p-4 text-center">
-              <p className="text-[10px] tracking-widest text-red-700 mb-2">TU ACUSADO</p>
+              <p className="text-[10px] tracking-widest text-red-700 mb-2">{dict.yourAccused}</p>
               <div className="mb-1 flex justify-center">
                 <PortraitAvatar seed={accused.id} size={48} className="rounded-full" />
               </div>
               <div className="text-sm font-bold text-red-300">{accused.name}</div>
-              <div className="text-xs text-red-700 mt-1">INOCENTE</div>
+              <div className="text-xs text-red-700 mt-1">{dict.innocent}</div>
             </div>
             <div className="rounded-lg border border-amber-900/40 bg-amber-950/20 p-4 text-center">
-              <p className="text-[10px] tracking-widest text-amber-600 mb-2">EL CULPABLE REAL</p>
+              <p className="text-[10px] tracking-widest text-amber-600 mb-2">{dict.realCulprit}</p>
               <div className="mb-1 flex justify-center">
                 <PortraitAvatar seed={guilty.id} size={48} className="rounded-full" />
               </div>
               <div className="text-sm font-bold text-amber-300">{guilty.name}</div>
               <div className="text-xs text-amber-600 mt-1">
-                {ending === 'insufficient-evidence' ? 'SIGUE LIBRE, SIN PISTAS SUFICIENTES' : 'LIBRE — SE TE ESCAPÓ'}
+                {ending === 'insufficient-evidence' ? dict.stillFreeNoClues : dict.stillFreeEscaped}
               </div>
             </div>
           </motion.div>
@@ -181,7 +163,7 @@ export default function Resolution() {
           >
             <PortraitAvatar seed={guilty.id} size={64} className="rounded-full flex-shrink-0" />
             <div>
-              <p className="text-[10px] tracking-widest text-green-700 mb-0.5">CULPABLE CONFIRMADO</p>
+              <p className="text-[10px] tracking-widest text-green-700 mb-0.5">{dict.culpritConfirmed}</p>
               <div className="text-xl font-bold text-green-300">{guilty.name}</div>
               <div className="text-xs text-zinc-400">{guilty.occupation}</div>
             </div>
@@ -196,7 +178,7 @@ export default function Resolution() {
             transition={{ delay: 0.4 }}
             className="mb-4 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4"
           >
-            <p className="text-[10px] tracking-widest text-amber-700 mb-2">MOTIVO REAL</p>
+            <p className="text-[10px] tracking-widest text-amber-700 mb-2">{dict.realMotive}</p>
             <p className="text-sm text-zinc-300 leading-relaxed">{guilty.motive}</p>
           </motion.div>
         )}
@@ -210,7 +192,7 @@ export default function Resolution() {
             className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4"
           >
             <p className="text-[10px] tracking-widest text-amber-700 mb-3">
-              TU TABLERO DE CONEXIONES — {connectionAccuracy.correct}/{connectionAccuracy.total} ACIERTOS
+              {dict.yourConnectionsBoard(connectionAccuracy.correct, connectionAccuracy.total)}
             </p>
             <div className="space-y-1.5">
               {caseProgress.playerConnections.map((conn) => {
@@ -242,7 +224,7 @@ export default function Resolution() {
           transition={{ delay: 0.5 }}
           className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900/60 p-5"
         >
-          <p className="text-[10px] tracking-widest text-zinc-400 mb-3">RECONSTRUCCIÓN DEL CRIMEN</p>
+          <p className="text-[10px] tracking-widest text-zinc-400 mb-3">{dict.crimeReconstruction}</p>
           <p className="text-sm text-zinc-300 leading-7">{explanation}</p>
         </motion.div>
 
@@ -253,7 +235,7 @@ export default function Resolution() {
           transition={{ delay: 0.6 }}
           className="mb-8"
         >
-          <p className="text-[10px] tracking-widest text-zinc-400 mb-4">LÍNEA DE TIEMPO</p>
+          <p className="text-[10px] tracking-widest text-zinc-400 mb-4">{dict.timeline}</p>
           <div className="relative pl-4">
             <div className="absolute left-0 top-0 bottom-0 w-px bg-zinc-800" />
             {timeline.map((event, i) => (
@@ -283,13 +265,13 @@ export default function Resolution() {
             onClick={resetCase}
             className="flex-1 rounded border border-amber-700/60 bg-amber-950/40 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-all"
           >
-            Otro Caso
+            {dict.anotherCase}
           </button>
           <button
             onClick={() => goTo('main-menu')}
             className="flex-1 rounded border border-zinc-700 py-3 text-sm tracking-widest uppercase text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 transition-all"
           >
-            Menú Principal
+            {dict.mainMenuBtn}
           </button>
         </motion.div>
       </div>

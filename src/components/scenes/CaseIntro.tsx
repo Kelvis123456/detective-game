@@ -2,11 +2,15 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { PortraitAvatar } from '../ui/PortraitAvatar'
+import { useLanguage } from '../../i18n/LanguageContext'
+import { getDictionary, DIFFICULTY_LABEL } from '../../i18n/dictionary'
 
 export default function CaseIntro() {
   const selectedCase = useGameStore((s) => s.selectedCase)
   const goTo = useGameStore((s) => s.goTo)
   const [phase, setPhase] = useState<'intro' | 'suspects'>('intro')
+  const { locale } = useLanguage()
+  const dict = getDictionary(locale).caseIntro
 
   if (!selectedCase) return null
 
@@ -52,7 +56,7 @@ export default function CaseIntro() {
                 {selectedCase.thumbnail}
               </motion.div>
               <div>
-                <p className="text-xs tracking-[0.25em] text-zinc-400 mb-0.5">NUEVO CASO ASIGNADO</p>
+                <p className="text-xs tracking-[0.25em] text-zinc-400 mb-0.5">{dict.newCase}</p>
                 <h2 className="text-2xl font-bold text-amber-400">{selectedCase.title}</h2>
                 <p className="text-xs text-zinc-400">{selectedCase.location} · {selectedCase.date}</p>
               </div>
@@ -74,7 +78,7 @@ export default function CaseIntro() {
               className="mb-6 rounded-lg bg-zinc-900/70 p-6 border border-zinc-800/80"
               style={{ boxShadow: `inset 0 0 40px rgba(0,0,0,0.4)` }}
             >
-              <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-4">// BRIEFING DEL CASO</p>
+              <p className="text-[10px] tracking-[0.2em] text-zinc-400 mb-4">{dict.briefing}</p>
               <p className="text-sm leading-8 text-zinc-300">{selectedCase.intro}</p>
             </motion.div>
 
@@ -86,9 +90,9 @@ export default function CaseIntro() {
               className="grid grid-cols-3 gap-3 mb-6"
             >
               {[
-                { label: 'Lugar', value: selectedCase.location, icon: '📍' },
-                { label: 'Fecha', value: selectedCase.date, icon: '📅' },
-                { label: 'Dificultad', value: selectedCase.difficulty, icon: '⚠️' },
+                { label: dict.location, value: selectedCase.location, icon: '📍' },
+                { label: dict.date, value: selectedCase.date, icon: '📅' },
+                { label: dict.difficulty, value: DIFFICULTY_LABEL[locale][selectedCase.difficulty], icon: '⚠️' },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -112,18 +116,18 @@ export default function CaseIntro() {
                 onClick={() => setPhase('suspects')}
                 className="flex-1 rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 hover:text-amber-100 transition-all"
               >
-                Ver Sospechosos →
+                {dict.viewSuspects}
               </button>
               <button
                 onClick={() => goTo('crime-scene')}
                 className="flex-1 rounded border border-zinc-700 bg-zinc-900/50 px-6 py-3 text-sm tracking-widest uppercase text-zinc-300 hover:border-zinc-600 hover:text-zinc-100 transition-all"
               >
-                Ir a la Escena
+                {dict.goToScene}
               </button>
             </motion.div>
           </>
         ) : (
-          <SuspectsOverview suspects={selectedCase.suspects} color={selectedCase.color} onContinue={() => goTo('crime-scene')} />
+          <SuspectsOverview suspects={selectedCase.suspects} color={selectedCase.color} onContinue={() => goTo('crime-scene')} dict={dict} />
         )}
       </motion.div>
     </div>
@@ -134,16 +138,18 @@ function SuspectsOverview({
   suspects,
   color,
   onContinue,
+  dict,
 }: {
   suspects: { id: string; name: string; occupation: string; avatar: string; description: string; alibi: string }[]
   color: string
   onContinue: () => void
+  dict: ReturnType<typeof getDictionary>['caseIntro']
 }) {
   return (
     <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }}>
-      <h3 className="text-xl font-bold text-amber-400 mb-1">Sospechosos Identificados</h3>
+      <h3 className="text-xl font-bold text-amber-400 mb-1">{dict.suspectsIdentified}</h3>
       <p className="text-sm text-zinc-400 mb-6 italic">
-        Todos tienen algo que ocultar. Ninguno dirá la verdad completa.
+        {dict.suspectsHint}
       </p>
 
       <div className="space-y-3 mb-8">
@@ -171,7 +177,7 @@ function SuspectsOverview({
               <div className="text-xs text-amber-600 mb-1">{s.occupation}</div>
               <div className="text-sm text-zinc-500 leading-relaxed">{s.description}</div>
               <div className="mt-2 text-xs text-zinc-500">
-                <span className="text-zinc-400">Coartada: </span>
+                <span className="text-zinc-400">{dict.alibi}</span>
                 {s.alibi}
               </div>
             </div>
@@ -183,7 +189,7 @@ function SuspectsOverview({
         onClick={onContinue}
         className="w-full rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 hover:text-amber-100 transition-all"
       >
-        Ir a la Escena del Crimen →
+        {dict.goToCrimeScene}
       </button>
     </motion.div>
   )
