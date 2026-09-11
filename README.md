@@ -41,3 +41,7 @@ Covers all five engines, the Zustand store, data integrity across all four cases
 npm install
 npm run dev
 ```
+
+## Why the QA suite is tagged the way it is
+
+`src/__tests__/qa.test.ts` isn't just more coverage — each test is labeled `[BUG]`, `[GUARD]`, or `[EDGE]` depending on whether it's pinning down a confirmed bad behavior, confirming a defense that already works, or documenting an edge case whose "correct" behavior is genuinely debatable. I added that convention after a completeness audit turned up real reachability/redundancy/scoring bugs (see the `bf5db10` commit) — evidence data for a mystery game is exactly the kind of content that can go subtly wrong (a locked phone thread nobody can recover, a piece of key evidence the case's accusation logic never checks for) without anything crashing or looking obviously broken. The tags make it clear at a glance whether a red test on this file means "found a new bug" or "this case's edge behavior needs a product decision," instead of every failure looking the same.
