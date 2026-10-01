@@ -23,13 +23,15 @@ function makeNoiseTile(): string | null {
   return canvas.toDataURL()
 }
 
+// Sin mix-blend-overlay: a 3% de opacidad no se distingue, y la mezcla a pantalla
+// completa costaba ~15fps al recomponerse en cada paso de la animación.
 export default function FilmGrain({ opacity = 0.035 }: { opacity?: number }) {
   const tile = useMemo(makeNoiseTile, [])
   if (!tile) return null
   return (
     <div
       aria-hidden="true"
-      className="film-grain pointer-events-none fixed -inset-[128px] z-50 mix-blend-overlay"
+      className="film-grain pointer-events-none fixed -inset-[128px] z-50"
       style={{ opacity, backgroundImage: `url(${tile})` }}
     />
   )
