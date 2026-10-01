@@ -513,7 +513,7 @@ export default function Interrogation() {
                     whileHover={{ x: 4 }}
                     onClick={() => handleAsk(dialogue)}
                     disabled={!done && currentDialogue !== null}
-                    className="w-full rounded border border-zinc-800 bg-zinc-900/50 p-3 text-left text-sm text-zinc-400 hover:border-amber-700/50 hover:bg-zinc-800/50 hover:text-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="w-full rounded border border-zinc-800 bg-zinc-900/50 p-3 text-left text-sm text-zinc-400 hover:border-amber-700/50 hover:bg-zinc-800/50 hover:text-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                   >
                     <span className="text-amber-600 mr-2">›</span>
                     {dialogue.question}

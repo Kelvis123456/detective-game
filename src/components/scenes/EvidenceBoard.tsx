@@ -56,7 +56,7 @@ export default function EvidenceBoard() {
         </div>
         <button
           onClick={() => goTo('accusation')}
-          className="rounded border border-red-900/60 px-3 py-1.5 text-xs text-red-400 hover:bg-red-950/30 transition-all"
+          className="rounded border border-red-900/60 px-3 py-1.5 text-xs text-red-400 hover:bg-red-950/30 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
         >
           {dict.accuse}
         </button>
@@ -231,7 +231,7 @@ export default function EvidenceBoard() {
                         </div>
                         <div className="h-1 rounded-full bg-zinc-800">
                           <div
-                            className="h-full rounded-full bg-amber-700 transition-all"
+                            className="h-full rounded-full bg-amber-700 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -242,7 +242,7 @@ export default function EvidenceBoard() {
 
                 <button
                   onClick={() => goTo('accusation')}
-                  className="mt-auto w-full rounded border border-red-900/60 bg-red-950/20 py-2 text-xs tracking-widest uppercase text-red-400 hover:bg-red-950/40 transition-all"
+                  className="mt-auto w-full rounded border border-red-900/60 bg-red-950/20 py-2 text-xs tracking-widest uppercase text-red-400 hover:bg-red-950/40 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
                   {dict.makeAccusation}
                 </button>

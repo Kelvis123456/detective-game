@@ -240,7 +240,7 @@ export default function CrimeScene() {
                         <span className="absolute inline-flex h-12 w-12 rounded-full bg-amber-400/10 animate-ping" />
                       )}
                       <div
-                        className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full border-2 text-xl shadow-xl transition-all emoji-tone ${
+                        className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full border-2 text-xl shadow-xl transition-[color,background-color,border-color,opacity,box-shadow,transform] emoji-tone ${
                           hasEvidence
                             ? 'border-green-500/60 bg-green-950/70 text-green-300'
                             : isActive
@@ -321,7 +321,7 @@ export default function CrimeScene() {
                 </div>
                 <button
                   onClick={() => setActiveEvidence(null)}
-                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
                   {dict.closeBtn}
                 </button>
@@ -346,13 +346,13 @@ export default function CrimeScene() {
                 </p>
                 <button
                   onClick={() => goTo('digital-forensics')}
-                  className="w-full rounded border border-amber-700/60 bg-amber-950/40 py-2.5 text-xs tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-all"
+                  className="w-full rounded border border-amber-700/60 bg-amber-950/40 py-2.5 text-xs tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
                   {dict.openDigitalForensics}
                 </button>
                 <button
                   onClick={() => setActiveDevice(null)}
-                  className="mt-3 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                  className="mt-3 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
                   {dict.closeBtn}
                 </button>
@@ -378,7 +378,7 @@ export default function CrimeScene() {
                 <p className="text-xs text-zinc-400 italic">{dict.nothingToCollect}</p>
                 <button
                   onClick={() => setActiveFlavorHotspot(null)}
-                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
                   {dict.closeBtn}
                 </button>
@@ -430,7 +430,7 @@ export default function CrimeScene() {
                     transition={{ delay: 0.3 + i * 0.08 }}
                     whileHover={{ x: 3 }}
                     onClick={() => startInterview(suspect)}
-                    className="flex w-full items-center gap-3 rounded border border-zinc-800 bg-zinc-900/50 p-2.5 hover:border-zinc-700 hover:bg-zinc-800/50 transition-all text-left"
+                    className="flex w-full items-center gap-3 rounded border border-zinc-800 bg-zinc-900/50 p-2.5 hover:border-zinc-700 hover:bg-zinc-800/50 transition-[color,background-color,border-color,opacity,box-shadow,transform] text-left"
                   >
                     <PortraitAvatar seed={suspect.id} size={28} className="flex-shrink-0 rounded-full" />
                     <div className="flex-1 min-w-0">

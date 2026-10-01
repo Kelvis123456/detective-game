@@ -115,7 +115,7 @@ export default function ConnectionsBoard() {
                     nodeRefs.current[`ev-${evidence.id}`] = el
                   }}
                   onClick={() => handleEvidenceClick(evidence.id)}
-                  className="relative flex flex-col items-center gap-1.5 rounded bg-zinc-900 p-3 text-center shadow-lg transition-all"
+                  className="relative flex flex-col items-center gap-1.5 rounded bg-zinc-900 p-3 text-center shadow-lg transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                   style={{
                     border: isPicked ? `1px solid ${typeColor}` : '1px solid #27272a',
                     boxShadow: isPicked ? `0 0 16px ${typeColor}50` : '0 4px 10px rgba(0,0,0,0.4)',
@@ -152,7 +152,7 @@ export default function ConnectionsBoard() {
                   }}
                   onClick={() => handleSuspectClick(suspect.id)}
                   disabled={!isTarget}
-                  className="flex min-w-28 flex-col items-center gap-1 rounded border p-3 transition-all disabled:opacity-60"
+                  className="flex min-w-28 flex-col items-center gap-1 rounded border p-3 transition-[color,background-color,border-color,opacity,box-shadow,transform] disabled:opacity-60"
                   style={{
                     borderColor: isTarget ? '#b45309' : '#27272a',
                     boxShadow: isTarget ? '0 0 14px rgba(180,83,9,0.35)' : undefined,

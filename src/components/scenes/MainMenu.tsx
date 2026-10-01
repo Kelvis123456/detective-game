@@ -121,7 +121,7 @@ export default function MainMenu() {
         >
           <button
             onClick={() => goTo('case-selection')}
-            className="group relative overflow-hidden rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-amber-300 transition-all hover:border-amber-500 hover:bg-amber-900/50 hover:text-amber-100 hover:shadow-lg hover:shadow-amber-900/30"
+            className="group relative overflow-hidden rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-amber-300 transition-[color,background-color,border-color,opacity,box-shadow,transform] hover:border-amber-500 hover:bg-amber-900/50 hover:text-amber-100 hover:shadow-lg hover:shadow-amber-900/30"
           >
             <span className="relative z-10 whitespace-nowrap text-sm tracking-wide uppercase font-medium">
               {dict.start}

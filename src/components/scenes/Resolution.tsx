@@ -265,13 +265,13 @@ export default function Resolution() {
         >
           <button
             onClick={resetCase}
-            className="flex-1 rounded border border-amber-700/60 bg-amber-950/40 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-all"
+            className="flex-1 rounded border border-amber-700/60 bg-amber-950/40 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
           >
             {dict.anotherCase}
           </button>
           <button
             onClick={() => goTo('main-menu')}
-            className="flex-1 rounded border border-zinc-700 py-3 text-sm tracking-widest uppercase text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 transition-all"
+            className="flex-1 rounded border border-zinc-700 py-3 text-sm tracking-widest uppercase text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
           >
             {dict.mainMenuBtn}
           </button>

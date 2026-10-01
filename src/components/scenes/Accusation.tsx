@@ -105,7 +105,7 @@ export default function Accusation() {
                   </div>
                   <button
                     onClick={() => setProofChoice((prev) => ({ ...prev, [cat.id]: undefined }))}
-                    className={`mb-3 w-full rounded border px-3 py-2 text-left text-xs italic transition-all ${
+                    className={`mb-3 w-full rounded border px-3 py-2 text-left text-xs italic transition-[color,background-color,border-color,opacity,box-shadow,transform] ${
                       !proofChoice[cat.id]
                         ? 'border-zinc-700 bg-zinc-900/60 text-zinc-400'
                         : 'border-zinc-800 text-zinc-400 hover:border-zinc-700'
@@ -124,7 +124,7 @@ export default function Accusation() {
                             <button
                               key={e.id}
                               onClick={() => setProofChoice((prev) => ({ ...prev, [cat.id]: e.id }))}
-                              className={`rounded border px-3 py-2 text-left text-xs transition-all ${
+                              className={`rounded border px-3 py-2 text-left text-xs transition-[color,background-color,border-color,opacity,box-shadow,transform] ${
                                 proofChoice[cat.id] === e.id
                                   ? 'border-amber-700/60 bg-amber-950/30 text-amber-300'
                                   : 'border-zinc-800 text-zinc-400 hover:border-zinc-700'
@@ -152,7 +152,7 @@ export default function Accusation() {
                 opportunityEvidenceId: proofChoice.opportunity,
               })
             }
-            className="w-full rounded border border-red-700 bg-red-950/40 px-6 py-3 text-sm tracking-widest uppercase text-red-300 hover:bg-red-900/50 hover:text-red-100 transition-all"
+            className="w-full rounded border border-red-700 bg-red-950/40 px-6 py-3 text-sm tracking-widest uppercase text-red-300 hover:bg-red-900/50 hover:text-red-100 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
           >
             {dict.submitAccusation}
           </button>
@@ -234,7 +234,7 @@ export default function Accusation() {
                   onClick={() => handleSelect(suspect)}
                   onMouseEnter={() => setHoveredId(suspect.id)}
                   onMouseLeave={() => setHoveredId(null)}
-                  className="w-full rounded border text-left transition-all"
+                  className="w-full rounded border text-left transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                   style={{
                     borderColor: isConfirm
                       ? 'rgba(220,38,38,0.6)'

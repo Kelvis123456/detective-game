@@ -63,7 +63,7 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
             <button
               key={tab.id}
               onClick={() => goTo(tab.scene)}
-              className={`flex flex-col items-center px-4 py-1 rounded transition-all text-[10px] tracking-wider ${
+              className={`flex flex-col items-center px-4 py-1 rounded transition-[color,background-color,border-color,opacity,box-shadow,transform] text-[10px] tracking-wider ${
                 activeTab === tab.id
                   ? 'bg-amber-950/60 text-amber-400 border border-amber-800/60'
                   : 'text-zinc-400 hover:text-zinc-300'
