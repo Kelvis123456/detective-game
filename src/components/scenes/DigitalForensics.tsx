@@ -75,7 +75,7 @@ function PinPad({
       <div className="mb-6 flex flex-col items-center pt-4">
         <span className="mb-3 text-3xl">🔒</span>
         <p className="text-sm font-medium text-zinc-100">{device.label}</p>
-        <p className="mb-4 text-[10px] tracking-widest text-zinc-500">
+        <p className="mb-4 text-[10px] tracking-widest text-zinc-400">
           {device.lockType === 'pin' ? dict.enterPin : dict.enterPattern}
         </p>
         <div className="mb-1 flex gap-3">
@@ -219,7 +219,7 @@ export default function DigitalForensics() {
                           : dict.locked}
                       </div>
                     </div>
-                    <span className="text-zinc-500">→</span>
+                    <span className="text-zinc-400">→</span>
                   </button>
                 ))}
               </div>
@@ -249,7 +249,7 @@ export default function DigitalForensics() {
               return (
                 <PhoneFrame>
                   <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <p className="mb-5 text-center text-[10px] tracking-widest text-zinc-500">
+                    <p className="mb-5 text-center text-[10px] tracking-widest text-zinc-400">
                       {device.label.toUpperCase()}
                     </p>
                     <div className="grid grid-cols-3 gap-4">
@@ -322,14 +322,14 @@ export default function DigitalForensics() {
                               <div className="flex items-center justify-between gap-2">
                                 <span
                                   className={`truncate text-sm ${
-                                    locked ? 'text-zinc-500 line-through' : 'text-zinc-100'
+                                    locked ? 'text-zinc-400 line-through' : 'text-zinc-100'
                                   }`}
                                 >
                                   {thread.title}
                                 </span>
                                 {unread && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500" />}
                               </div>
-                              <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-500'}`}>
+                              <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-400'}`}>
                                 {locked ? dict.purged : lastMessage?.text}
                               </p>
                             </div>
@@ -362,14 +362,14 @@ export default function DigitalForensics() {
                               <div className="flex items-center justify-between gap-2">
                                 <span
                                   className={`truncate text-sm ${
-                                    locked ? 'text-zinc-500 line-through' : 'text-zinc-100'
+                                    locked ? 'text-zinc-400 line-through' : 'text-zinc-100'
                                   }`}
                                 >
                                   {note.title}
                                 </span>
                                 {unread && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500" />}
                               </div>
-                              <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-500'}`}>
+                              <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-400'}`}>
                                 {locked ? dict.purged : note.body}
                               </p>
                             </div>
@@ -377,7 +377,7 @@ export default function DigitalForensics() {
                         )
                       })}
                       {allThreads.length === 0 && allNotes.length === 0 && (
-                        <p className="py-8 text-center text-sm text-zinc-500 italic">{dict.nothingHere}</p>
+                        <p className="py-8 text-center text-sm text-zinc-400 italic">{dict.nothingHere}</p>
                       )}
                     </div>
                   </motion.div>
@@ -428,7 +428,7 @@ function ThreadView({ device, threadId }: { device: DigitalDevice | undefined; t
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className="mb-3 border-b border-zinc-800 pb-3">
         <p className="text-sm font-bold text-zinc-100">{thread.title}</p>
-        <p className="text-[9px] text-zinc-500">{thread.participants.join(' · ')}</p>
+        <p className="text-[10px] text-zinc-400">{thread.participants.join(' · ')}</p>
       </div>
       <div className="space-y-2">
         {thread.messages.map((m) => {
@@ -443,7 +443,7 @@ function ThreadView({ device, threadId }: { device: DigitalDevice | undefined; t
                 <p className={`text-[13px] leading-snug whitespace-pre-line ${isOwn ? 'text-amber-50' : 'text-zinc-200'}`}>
                   {m.text}
                 </p>
-                <p className={`mt-1 text-[9px] ${isOwn ? 'text-amber-400/60' : 'text-zinc-500'}`}>{m.timestamp}</p>
+                <p className={`mt-1 text-[10px] ${isOwn ? 'text-amber-400/60' : 'text-zinc-400'}`}>{m.timestamp}</p>
               </div>
             </div>
           )

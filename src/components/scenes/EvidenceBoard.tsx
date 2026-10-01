@@ -108,7 +108,7 @@ export default function EvidenceBoard() {
           </div>
 
           {collected.length === 0 ? (
-            <div className="flex h-48 items-center justify-center text-zinc-500 text-sm italic">
+            <div className="flex h-48 items-center justify-center text-zinc-400 text-sm italic">
               {dict.noneCollected}
             </div>
           ) : (
@@ -131,7 +131,7 @@ export default function EvidenceBoard() {
           {/* Missing evidence hint */}
           {missing.length > 0 && (
             <div className="mt-8">
-              <p className="text-xs text-zinc-500 tracking-widest mb-3">
+              <p className="text-xs text-zinc-400 tracking-widest mb-3">
                 {dict.pending(missing.length)}
               </p>
               <div className="grid grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-6">
@@ -141,7 +141,7 @@ export default function EvidenceBoard() {
                     className="flex flex-col items-center gap-1 rounded border border-zinc-800/50 bg-zinc-900/20 p-2 opacity-30"
                   >
                     <span className="text-xl grayscale emoji-tone">{e.icon}</span>
-                    <span className="text-[9px] text-zinc-500 text-center">???</span>
+                    <span className="text-[10px] text-zinc-400 text-center">???</span>
                   </div>
                 ))}
               </div>
@@ -164,7 +164,7 @@ export default function EvidenceBoard() {
                   <span className="text-4xl emoji-tone">{selectedEvidence.icon}</span>
                   <div>
                     <div
-                      className="text-[9px] tracking-widest mb-0.5"
+                      className="text-[10px] tracking-widest mb-0.5"
                       style={{ color: getEvidenceTypeColor(selectedEvidence.type) }}
                     >
                       {EVIDENCE_TYPE_LABEL[locale][selectedEvidence.type].toUpperCase()}
@@ -191,13 +191,13 @@ export default function EvidenceBoard() {
                 </div>
 
                 <div className="rounded-lg border border-amber-900/30 bg-amber-950/20 p-3">
-                  <p className="text-[10px] text-amber-700 tracking-widest mb-1">{dict.forensicAnalysis}</p>
+                  <p className="text-[10px] text-amber-600 tracking-widest mb-1">{dict.forensicAnalysis}</p>
                   <p className="text-xs text-zinc-300 leading-relaxed">{selectedEvidence.analysis}</p>
                 </div>
 
                 <button
                   onClick={() => setSelectedEvidence(null)}
-                  className="mt-4 w-full rounded border border-zinc-700 py-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="mt-4 w-full rounded border border-zinc-700 py-1.5 text-xs text-zinc-400 hover:text-zinc-300 transition-colors"
                 >
                   {dict.close}
                 </button>
@@ -215,7 +215,7 @@ export default function EvidenceBoard() {
 
                 {/* Suspects summary */}
                 <div>
-                  <p className="text-[10px] tracking-widest text-zinc-500 mb-2">{dict.suspects}</p>
+                  <p className="text-[10px] tracking-widest text-zinc-400 mb-2">{dict.suspects}</p>
                   {selectedCase.suspects.map((suspect) => {
                     const interviewed = caseProgress.interviewedSuspects[suspect.id]?.size ?? 0
                     const total = suspect.dialogues.length
@@ -304,7 +304,7 @@ function EvidenceCard({
       <span className="text-2xl mt-1 emoji-tone">{evidence.icon}</span>
       <span className="text-[10px] font-medium text-zinc-300 leading-tight">{evidence.name}</span>
       <span
-        className="text-[9px] rounded px-1 py-0.5"
+        className="text-[10px] rounded px-1 py-0.5"
         style={{ color: typeColor, backgroundColor: `${typeColor}15` }}
       >
         {EVIDENCE_TYPE_LABEL[locale][evidence.type]}

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { EASE_OUT } from '../../lib/motion'
 import { useGameStore } from '../../store/gameStore'
 import { getProgressPercent } from '../../engine/CaseEngine'
 import MuteToggle from './MuteToggle'
@@ -33,14 +34,16 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
   const evidenceCount = caseProgress.collectedEvidenceIds.size
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-sm">
+    // pb con safe-area: en iPhone las pestañas quedaban encima de la barra de inicio
+    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-800 bg-zinc-950/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
       {/* Progress bar */}
       <div className="h-0.5 bg-zinc-800">
+        {/* scaleX en vez de width: no recalcula el layout en cada frame */}
         <motion.div
-          className="h-full bg-amber-600"
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="h-full origin-left bg-amber-600"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: progress / 100 }}
+          transition={{ duration: 0.6, ease: EASE_OUT }}
         />
       </div>
 
@@ -49,7 +52,7 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
         <div className="hidden min-w-0 items-center gap-2 md:flex">
           <span className="text-lg flex-shrink-0">{selectedCase.thumbnail}</span>
           <div className="min-w-0">
-            <div className="text-[9px] text-zinc-500 tracking-widest uppercase">{dict.hud.activeCase}</div>
+            <div className="text-[10px] text-zinc-400 tracking-widest uppercase">{dict.hud.activeCase}</div>
             <div className="text-xs font-medium text-amber-400 truncate">{selectedCase.title}</div>
           </div>
         </div>
@@ -76,10 +79,10 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
 
         {/* Stats */}
         <div className="hidden flex-shrink-0 whitespace-nowrap text-right md:block">
-          <div className="text-[9px] text-zinc-500 uppercase tracking-widest">
+          <div className="text-[10px] text-zinc-400 uppercase tracking-widest">
             {evidenceCount} {dict.hud.evidenceCountSuffix} · {progress}%
           </div>
-          <div className="text-xs text-zinc-500">{DIFFICULTY_LABEL[locale][selectedCase.difficulty]}</div>
+          <div className="text-xs text-zinc-400">{DIFFICULTY_LABEL[locale][selectedCase.difficulty]}</div>
         </div>
       </div>
     </div>

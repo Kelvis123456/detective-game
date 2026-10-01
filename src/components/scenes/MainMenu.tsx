@@ -107,7 +107,7 @@ export default function MainMenu() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.8 }}
-          className="mb-12 max-w-sm text-sm leading-relaxed text-zinc-500 italic"
+          className="mb-12 max-w-sm text-sm leading-relaxed text-zinc-400 italic"
         >
           "{dict.epigraph}"
         </motion.p>
@@ -130,7 +130,7 @@ export default function MainMenu() {
           </button>
 
           {stats.casesCompleted > 0 && (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-xs text-zinc-500">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-xs text-zinc-400">
               <div className="flex justify-between mb-2 border-b border-zinc-800 pb-2">
                 <span>{dict.rank}</span>
                 <span className="font-bold text-amber-300">🕵️ {RANK_LABEL[locale][rank]}</span>
@@ -155,7 +155,8 @@ export default function MainMenu() {
       {/* Footer */}
       <motion.p
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.3 }}
+        // a 0.3 de opacidad el texto quedaba en 1.65:1; zinc-500 pleno da 4.1+ y sigue discreto
+        animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
         className="absolute bottom-4 z-10 w-full px-6 text-center text-xs tracking-widest text-zinc-400 sm:whitespace-nowrap"
       >

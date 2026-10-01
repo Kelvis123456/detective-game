@@ -44,10 +44,10 @@ export default function CaseSelection() {
             {dict.title}
           </h2>
           <div className="mx-auto mt-3 h-px w-32 bg-gradient-to-r from-transparent via-amber-700 to-transparent" />
-          <p className="mt-4 text-sm text-zinc-500">
+          <p className="mt-4 text-sm text-zinc-400">
             {dict.subtitle}
           </p>
-          <span className="mt-3 inline-block rounded border border-zinc-800 bg-zinc-900/60 px-3 py-1 text-[10px] tracking-widest text-zinc-500">
+          <span className="mt-3 inline-block rounded border border-zinc-800 bg-zinc-900/60 px-3 py-1 text-[10px] tracking-widest text-zinc-400">
             {dict.currentRank} <span className="text-amber-400">{RANK_LABEL[locale][rank].toUpperCase()}</span>
           </span>
         </motion.div>
@@ -139,7 +139,7 @@ function CaseCard({
         </div>
 
         {/* Arrow */}
-        <div aria-hidden="true" className="hidden sm:block flex-shrink-0 self-center text-zinc-500 group-hover:text-amber-500 transition-colors text-xl">
+        <div aria-hidden="true" className="hidden sm:block flex-shrink-0 self-center text-zinc-400 group-hover:text-amber-500 transition-colors text-xl">
           →
         </div>
       </div>

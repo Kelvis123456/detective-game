@@ -175,8 +175,8 @@ function SuspectsOverview({
             <div className="flex-1 min-w-0">
               <div className="font-bold text-zinc-100">{s.name}</div>
               <div className="text-xs text-amber-600 mb-1">{s.occupation}</div>
-              <div className="text-sm text-zinc-500 leading-relaxed">{s.description}</div>
-              <div className="mt-2 text-xs text-zinc-500">
+              <div className="text-sm text-zinc-400 leading-relaxed">{s.description}</div>
+              <div className="mt-2 text-xs text-zinc-400">
                 <span className="text-zinc-400">{dict.alibi}</span>
                 {s.alibi}
               </div>
