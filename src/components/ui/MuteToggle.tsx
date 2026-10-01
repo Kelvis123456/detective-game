@@ -19,7 +19,7 @@ export default function MuteToggle({ className = '' }: { className?: string }) {
       title={
         locale === 'en' ? (muted ? 'Unmute' : 'Mute') : muted ? 'Activar sonido' : 'Silenciar'
       }
-      className={`relative after:absolute after:-inset-2 after:content-[''] flex h-7 w-7 flex-shrink-0 items-center justify-center rounded text-sm text-zinc-400 hover:text-amber-400 transition-colors ${className}`}
+      className={`flex h-11 w-11 -m-2 flex-shrink-0 items-center justify-center rounded text-sm text-zinc-400 hover:text-amber-400 transition-colors ${className}`}
     >
       <span aria-hidden="true">{muted ? '🔇' : '🔊'}</span>
     </button>
