@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, type TargetAndTransition } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import { useTypewriter } from '../../hooks/useTypewriter'
@@ -222,6 +222,13 @@ export default function Interrogation() {
   const dict = getDictionary(locale).interrogation
 
   const [currentDialogue, setCurrentDialogue] = useState<Dialogue | null>(null)
+  // Solo la evidencia que esta respuesta trajo de verdad: la que ya habías encontrado en
+  // la escena se anunciaba como "nueva" aunque el contador no cambiaba.
+  const [newlyRevealed, setNewlyRevealed] = useState<string[]>([])
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // el aviso se programa con 500 ms de retraso: si se cambia de pantalla antes, no debe
+  // aparecer encima de la siguiente (pasaba sobre el teclado del PIN)
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current) }, [])
 
   // selectedSuspect is already re-pointed at the other locale's object by
   // gameStore.retranslateCase on a language switch -- re-derive the
@@ -244,14 +251,17 @@ export default function Interrogation() {
 
   const handleAsk = (dialogue: Dialogue) => {
     if (currentDialogue && !done) return
+    const fresh = dialogue.revealedEvidenceIds.filter((id) => !caseProgress.collectedEvidenceIds.has(id))
     setCurrentDialogue(dialogue)
+    setNewlyRevealed(fresh)
     askQuestion(selectedSuspect.id, dialogue.id, dialogue.revealedEvidenceIds)
 
-    if (dialogue.revealedEvidenceIds.length > 0) {
-      const names = dialogue.revealedEvidenceIds
+    if (fresh.length > 0) {
+      const names = fresh
         .map((id) => selectedCase.evidence.find((e) => e.id === id)?.name ?? id)
         .join(', ')
-      setTimeout(() => showNotification(dict.newEvidenceNotif(names)), 500)
+      if (toastTimer.current) clearTimeout(toastTimer.current)
+      toastTimer.current = setTimeout(() => showNotification(dict.newEvidenceNotif(names)), 500)
     }
   }
 
@@ -448,7 +458,7 @@ export default function Interrogation() {
                   </div>
 
                   {/* Revealed evidence */}
-                  {done && currentDialogue.revealedEvidenceIds.length > 0 && (
+                  {done && newlyRevealed.length > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -460,7 +470,7 @@ export default function Interrogation() {
                       <span>
                         {dict.newEvidenceRevealed}{' '}
                         <strong>
-                          {currentDialogue.revealedEvidenceIds
+                          {newlyRevealed
                             .map((id) => selectedCase.evidence.find((e) => e.id === id)?.name ?? id)
                             .join(', ')}
                         </strong>

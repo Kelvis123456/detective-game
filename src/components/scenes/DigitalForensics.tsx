@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import type { DigitalAppId, DigitalDevice, DigitalNote, DigitalThread } from '../../types'
@@ -59,6 +59,17 @@ function PinPad({
   dict: ReturnType<typeof getDictionary>['digitalForensics']
 }) {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫']
+  // también con el teclado físico (antes solo se podía tocar/clickear cada número)
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (/^[0-9]$/.test(e.key)) onKey(e.key)
+      else if (e.key === 'Backspace') onKey('⌫')
+      else return
+      e.preventDefault()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onKey])
   return (
     <motion.div key="lock" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className="mb-6 flex flex-col items-center pt-4">
@@ -72,12 +83,16 @@ function PinPad({
             <span
               key={i}
               className={`h-3 w-3 rounded-full border transition-colors ${
-                i < pinAttempt.length ? 'border-amber-400 bg-amber-400' : 'border-zinc-600 bg-transparent'
-              } ${pinError ? '!border-red-500 !bg-red-500' : ''}`}
+                pinError
+                  ? 'border-red-500 bg-red-500'
+                  : i < pinAttempt.length
+                    ? 'border-amber-400 bg-amber-400'
+                    : 'border-zinc-600 bg-transparent'
+              }`}
             />
           ))}
         </div>
-        {pinError && <p className="mt-2 text-xs text-red-400">{dict.wrongCode}</p>}
+        <p role="alert" className="mt-2 min-h-4 text-xs text-red-400">{pinError ? dict.wrongCode : ''}</p>
       </div>
 
       {device.unlockHint && (
@@ -118,6 +133,8 @@ export default function DigitalForensics() {
   const [view, setView] = useState<ViewState>({ level: 'devices' })
   const [pinAttempt, setPinAttempt] = useState('')
   const [pinError, setPinError] = useState(false)
+  const pinResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (pinResetTimer.current) clearTimeout(pinResetTimer.current) }, [])
 
   if (!selectedCase || !caseProgress) return null
 
@@ -132,18 +149,22 @@ export default function DigitalForensics() {
   }
 
   const handlePinKey = (device: DigitalDevice, key: string) => {
+    // Seguir escribiendo después de un error lo limpia: antes los 4 puntos quedaban en
+    // rojo y no se veía cuántos dígitos llevabas, y el reinicio diferido borraba lo nuevo.
+    if (pinResetTimer.current) { clearTimeout(pinResetTimer.current); pinResetTimer.current = null }
+    const current = pinError ? '' : pinAttempt
+    setPinError(false)
     if (key === '⌫') {
-      setPinAttempt((p) => p.slice(0, -1))
-      setPinError(false)
+      setPinAttempt(current.slice(0, -1))
       return
     }
-    if (pinAttempt.length >= 4) return
-    const next = pinAttempt + key
+    if (current.length >= 4) return
+    const next = current + key
     setPinAttempt(next)
     if (next.length === 4) {
       const ok = unlockDevice(device.id, next)
       setPinError(!ok)
-      if (!ok) setTimeout(() => setPinAttempt(''), 400)
+      if (!ok) pinResetTimer.current = setTimeout(() => setPinAttempt(''), 400)
     }
   }
 
