@@ -13,12 +13,15 @@ export default function MuteToggle({ className = '' }: { className?: string }) {
         audioEngine.setMuted(next)
         setMuted(next)
       }}
+      // solo emoji + title no tenía nombre accesible; aria-pressed dice si está silenciado
+      aria-label={locale === 'en' ? 'Mute sound' : 'Silenciar sonido'}
+      aria-pressed={muted}
       title={
         locale === 'en' ? (muted ? 'Unmute' : 'Mute') : muted ? 'Activar sonido' : 'Silenciar'
       }
-      className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded text-sm text-zinc-400 hover:text-amber-400 transition-colors ${className}`}
+      className={`relative after:absolute after:-inset-2 after:content-[''] flex h-7 w-7 flex-shrink-0 items-center justify-center rounded text-sm text-zinc-400 hover:text-amber-400 transition-colors ${className}`}
     >
-      {muted ? '🔇' : '🔊'}
+      <span aria-hidden="true">{muted ? '🔇' : '🔊'}</span>
     </button>
   )
 }
