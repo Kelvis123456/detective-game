@@ -74,7 +74,7 @@ export default function GameHUD({ activeTab }: { activeTab: ActiveTab }) {
             </button>
           ))}
           <MuteToggle className="ml-1 self-center" />
-          <LanguageToggle className="self-center" />
+          <LanguageToggle className="ml-2 self-center" />
         </div>
 
         {/* Stats */}
