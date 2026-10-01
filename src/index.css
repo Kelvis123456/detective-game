@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  /* curva de salida compartida (la misma que usa Framer vía src/lib/motion.ts) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
 @layer base {
   * { box-sizing: border-box; }
 
@@ -15,6 +20,17 @@
      both webfonts were already being downloaded but never applied. */
   h1, h2, h3, h4 {
     font-family: 'Special Elite', 'Georgia', 'Times New Roman', serif;
+    /* Special Elite solo tiene peso 400: el font-bold de los títulos era una negrita
+       sintética que se veía corrida. La jerarquía la dan el tamaño y el color. */
+    font-synthesis-weight: none;
+  }
+
+  button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+
+  /* anillo de foco con el ámbar del juego (antes solo el del navegador) */
+  :focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
   }
 
   ::-webkit-scrollbar { width: 6px; }
@@ -45,6 +61,16 @@
   50% { opacity: 0; }
 }
 
+/* el grano se mueve a saltos, como en película: solo background-position, sin JS por frame */
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-37px, 21px); }
+  50% { transform: translate(19px, -43px); }
+  75% { transform: translate(-11px, 58px); }
+  100% { transform: translate(0, 0); }
+}
+.film-grain { animation: grain-shift 0.5s steps(4) infinite; }
+
 .animate-flicker { animation: flicker 6s infinite; }
 .animate-float { animation: float 3s ease-in-out infinite; }
 .cursor-blink { animation: typewriter-cursor 1s step-end infinite; }
@@ -55,3 +81,17 @@
    inline with text without wrapping every single one in its own span, which
    isn't worth the invasiveness for small button-label accents. */
 .emoji-tone { filter: sepia(0.55) saturate(0.65) hue-rotate(-8deg) brightness(1.05); }
+
+/* Movimiento reducido: menos y más suave, no cero. Se quedan los fundidos de opacidad;
+   se van los bucles (lluvia, parpadeo, flotar, ping de hotspots) y el grano en movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  .film-grain,
+  .animate-flicker,
+  .animate-float,
+  .animate-ping,
+  .rain-line {
+    animation: none !important;
+  }
+  .rain-line { display: none; }
+  html { scroll-behavior: auto; }
+}

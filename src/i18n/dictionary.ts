@@ -117,6 +117,8 @@ const DICTIONARY = {
       caseNumber: (n: string) => `CASO #${n}`,
       suspectsSuffix: 'sospechosos',
       evidenceSuffix: 'evidencias',
+      inProgress: 'EN CURSO',
+      continueHint: 'Continúa donde lo dejaste',
     },
     caseIntro: {
       newCase: 'NUEVO CASO ASIGNADO',
@@ -276,6 +278,8 @@ const DICTIONARY = {
       caseNumber: (n: string) => `CASE #${n}`,
       suspectsSuffix: 'suspects',
       evidenceSuffix: 'evidence',
+      inProgress: 'IN PROGRESS',
+      continueHint: 'Pick up where you left off',
     },
     caseIntro: {
       newCase: 'NEW CASE ASSIGNED',

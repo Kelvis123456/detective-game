@@ -35,6 +35,37 @@ describe('gameStore', () => {
       expect(state.caseProgress?.caseId).toBe(case001.id)
       expect(state.caseProgress?.collectedEvidenceIds.size).toBe(0)
     })
+
+    // "← Casos" y volver a tocar el mismo caso borraba todo el progreso sin aviso
+    it('re-selecting the same unsolved case resumes it instead of wiping progress', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().collectEvidence('recibo-materiales')
+      useGameStore.getState().goTo('case-selection')
+      useGameStore.getState().selectCase(case001)
+      const state = useGameStore.getState()
+      expect(state.caseProgress?.collectedEvidenceIds.has('recibo-materiales')).toBe(true)
+      expect(state.scene).toBe('crime-scene')
+    })
+
+    it('a solved case starts over when selected again', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().collectEvidence('recibo-materiales')
+      useGameStore.getState().submitAccusation({ suspectId: 'marco-delgado' })
+      useGameStore.getState().selectCase(case001)
+      const state = useGameStore.getState()
+      expect(state.caseProgress?.collectedEvidenceIds.size).toBe(0)
+      expect(state.caseProgress?.solved).toBe(false)
+      expect(state.scene).toBe('case-intro')
+    })
+
+    it('selecting a different case starts that one fresh', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().collectEvidence('recibo-materiales')
+      const other = { ...case001, id: 'otro-caso' } as Case
+      useGameStore.getState().selectCase(other)
+      expect(useGameStore.getState().caseProgress?.caseId).toBe('otro-caso')
+      expect(useGameStore.getState().caseProgress?.collectedEvidenceIds.size).toBe(0)
+    })
   })
 
   describe('collectEvidence', () => {
@@ -157,6 +188,15 @@ describe('gameStore', () => {
       expect(useGameStore.getState().playerStats.totalEvidenceFound).toBe(1)
     })
 
+    // Ir y volver entre chats ya leídos adelantaba la cuenta de acciones y disparaba
+    // la purga de evidencia antes de tiempo.
+    it('re-opening an already-read thread does not advance the tension counter', () => {
+      useGameStore.getState().openDigitalThread('phone-delgado', 'thread-comprador')
+      const after1 = useGameStore.getState().caseProgress!.actionCount
+      for (let i = 0; i < 10; i++) useGameStore.getState().openDigitalThread('phone-delgado', 'thread-comprador')
+      expect(useGameStore.getState().caseProgress!.actionCount).toBe(after1)
+    })
+
     it('openDigitalNote marks a note read without affecting evidence when it reveals none', () => {
       useGameStore.getState().openDigitalNote('phone-delgado', 'nota-borrador-delgado')
       const state = useGameStore.getState()
@@ -229,6 +269,27 @@ describe('gameStore', () => {
       expect(state.caseProgress?.correct).toBe(true)
       expect(state.caseProgress?.ending).toBe('correct-partial-reasoning')
       expect(state.playerStats.flawlessCases).toBe(0)
+    })
+
+    // La pantalla de acusación sigue montada y clickeable durante su animación de
+    // salida: un doble clic contaba el caso dos veces (y dos "flawless" acercaban el rango tope).
+    it('a second submit (double click) does not count the case again', () => {
+      useGameStore.getState().collectEvidence('recibo-materiales')
+      useGameStore.getState().collectEvidence('chat-comprador')
+      useGameStore.getState().collectEvidence('ficha-evaluacion')
+      const input = {
+        suspectId: 'marco-delgado',
+        meansEvidenceId: 'recibo-materiales',
+        motiveEvidenceId: 'chat-comprador',
+        opportunityEvidenceId: 'ficha-evaluacion',
+      }
+      useGameStore.getState().submitAccusation(input)
+      useGameStore.getState().submitAccusation(input)
+      useGameStore.getState().submitAccusation({ suspectId: 'valentina-cruz' })
+
+      const state = useGameStore.getState()
+      expect(state.playerStats).toMatchObject({ casesCompleted: 1, correctAccusations: 1, flawlessCases: 1 })
+      expect(state.caseProgress?.accusedSuspectId).toBe('marco-delgado')
     })
   })
 

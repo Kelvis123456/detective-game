@@ -19,7 +19,9 @@ export default function Particles({ count = 40 }: { count?: number }) {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')!
+    const ctx = canvas.getContext('2d')
+    // sin canvas (jsdom, canvas bloqueado) o con movimiento reducido: sin partículas
+    if (!ctx || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
 
     const resize = () => {
       canvas.width = window.innerWidth

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../../store/gameStore'
 import type { DigitalAppId, DigitalDevice, DigitalNote, DigitalThread } from '../../types'
@@ -59,12 +59,23 @@ function PinPad({
   dict: ReturnType<typeof getDictionary>['digitalForensics']
 }) {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫']
+  // también con el teclado físico (antes solo se podía tocar/clickear cada número)
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (/^[0-9]$/.test(e.key)) onKey(e.key)
+      else if (e.key === 'Backspace') onKey('⌫')
+      else return
+      e.preventDefault()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onKey])
   return (
     <motion.div key="lock" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className="mb-6 flex flex-col items-center pt-4">
         <span className="mb-3 text-3xl">🔒</span>
         <p className="text-sm font-medium text-zinc-100">{device.label}</p>
-        <p className="mb-4 text-[10px] tracking-widest text-zinc-500">
+        <p className="mb-4 text-[10px] tracking-widest text-zinc-400">
           {device.lockType === 'pin' ? dict.enterPin : dict.enterPattern}
         </p>
         <div className="mb-1 flex gap-3">
@@ -72,12 +83,16 @@ function PinPad({
             <span
               key={i}
               className={`h-3 w-3 rounded-full border transition-colors ${
-                i < pinAttempt.length ? 'border-amber-400 bg-amber-400' : 'border-zinc-600 bg-transparent'
-              } ${pinError ? '!border-red-500 !bg-red-500' : ''}`}
+                pinError
+                  ? 'border-red-500 bg-red-500'
+                  : i < pinAttempt.length
+                    ? 'border-amber-400 bg-amber-400'
+                    : 'border-zinc-600 bg-transparent'
+              }`}
             />
           ))}
         </div>
-        {pinError && <p className="mt-2 text-xs text-red-400">{dict.wrongCode}</p>}
+        <p role="alert" className="mt-2 min-h-4 text-xs text-red-400">{pinError ? dict.wrongCode : ''}</p>
       </div>
 
       {device.unlockHint && (
@@ -118,6 +133,8 @@ export default function DigitalForensics() {
   const [view, setView] = useState<ViewState>({ level: 'devices' })
   const [pinAttempt, setPinAttempt] = useState('')
   const [pinError, setPinError] = useState(false)
+  const pinResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (pinResetTimer.current) clearTimeout(pinResetTimer.current) }, [])
 
   if (!selectedCase || !caseProgress) return null
 
@@ -132,18 +149,22 @@ export default function DigitalForensics() {
   }
 
   const handlePinKey = (device: DigitalDevice, key: string) => {
+    // Seguir escribiendo después de un error lo limpia: antes los 4 puntos quedaban en
+    // rojo y no se veía cuántos dígitos llevabas, y el reinicio diferido borraba lo nuevo.
+    if (pinResetTimer.current) { clearTimeout(pinResetTimer.current); pinResetTimer.current = null }
+    const current = pinError ? '' : pinAttempt
+    setPinError(false)
     if (key === '⌫') {
-      setPinAttempt((p) => p.slice(0, -1))
-      setPinError(false)
+      setPinAttempt(current.slice(0, -1))
       return
     }
-    if (pinAttempt.length >= 4) return
-    const next = pinAttempt + key
+    if (current.length >= 4) return
+    const next = current + key
     setPinAttempt(next)
     if (next.length === 4) {
       const ok = unlockDevice(device.id, next)
       setPinError(!ok)
-      if (!ok) setTimeout(() => setPinAttempt(''), 400)
+      if (!ok) pinResetTimer.current = setTimeout(() => setPinAttempt(''), 400)
     }
   }
 
@@ -198,7 +219,7 @@ export default function DigitalForensics() {
                           : dict.locked}
                       </div>
                     </div>
-                    <span className="text-zinc-500">→</span>
+                    <span className="text-zinc-400">→</span>
                   </button>
                 ))}
               </div>
@@ -228,7 +249,7 @@ export default function DigitalForensics() {
               return (
                 <PhoneFrame>
                   <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <p className="mb-5 text-center text-[10px] tracking-widest text-zinc-500">
+                    <p className="mb-5 text-center text-[10px] tracking-widest text-zinc-400">
                       {device.label.toUpperCase()}
                     </p>
                     <div className="grid grid-cols-3 gap-4">
@@ -301,14 +322,14 @@ export default function DigitalForensics() {
                               <div className="flex items-center justify-between gap-2">
                                 <span
                                   className={`truncate text-sm ${
-                                    locked ? 'text-zinc-500 line-through' : 'text-zinc-100'
+                                    locked ? 'text-zinc-400 line-through' : 'text-zinc-100'
                                   }`}
                                 >
                                   {thread.title}
                                 </span>
                                 {unread && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500" />}
                               </div>
-                              <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-500'}`}>
+                              <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-400'}`}>
                                 {locked ? dict.purged : lastMessage?.text}
                               </p>
                             </div>
@@ -341,14 +362,14 @@ export default function DigitalForensics() {
                               <div className="flex items-center justify-between gap-2">
                                 <span
                                   className={`truncate text-sm ${
-                                    locked ? 'text-zinc-500 line-through' : 'text-zinc-100'
+                                    locked ? 'text-zinc-400 line-through' : 'text-zinc-100'
                                   }`}
                                 >
                                   {note.title}
                                 </span>
                                 {unread && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-amber-500" />}
                               </div>
-                              <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-500'}`}>
+                              <p className={`truncate text-xs ${locked ? 'text-red-400/70' : 'text-zinc-400'}`}>
                                 {locked ? dict.purged : note.body}
                               </p>
                             </div>
@@ -356,7 +377,7 @@ export default function DigitalForensics() {
                         )
                       })}
                       {allThreads.length === 0 && allNotes.length === 0 && (
-                        <p className="py-8 text-center text-sm text-zinc-500 italic">{dict.nothingHere}</p>
+                        <p className="py-8 text-center text-sm text-zinc-400 italic">{dict.nothingHere}</p>
                       )}
                     </div>
                   </motion.div>
@@ -407,7 +428,7 @@ function ThreadView({ device, threadId }: { device: DigitalDevice | undefined; t
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className="mb-3 border-b border-zinc-800 pb-3">
         <p className="text-sm font-bold text-zinc-100">{thread.title}</p>
-        <p className="text-[9px] text-zinc-500">{thread.participants.join(' · ')}</p>
+        <p className="text-[10px] text-zinc-400">{thread.participants.join(' · ')}</p>
       </div>
       <div className="space-y-2">
         {thread.messages.map((m) => {
@@ -422,7 +443,7 @@ function ThreadView({ device, threadId }: { device: DigitalDevice | undefined; t
                 <p className={`text-[13px] leading-snug whitespace-pre-line ${isOwn ? 'text-amber-50' : 'text-zinc-200'}`}>
                   {m.text}
                 </p>
-                <p className={`mt-1 text-[9px] ${isOwn ? 'text-amber-400/60' : 'text-zinc-500'}`}>{m.timestamp}</p>
+                <p className={`mt-1 text-[10px] ${isOwn ? 'text-amber-400/60' : 'text-zinc-400'}`}>{m.timestamp}</p>
               </div>
             </div>
           )

@@ -138,27 +138,28 @@ describe('CaseEngine — casos negativos y bordes', () => {
 
   // ── makeAccusation ───────────────────────────────────────────
   describe('makeAccusation', () => {
-    it('[BUG] se puede acusar dos veces: la segunda sobreescribe el veredicto', () => {
-      let p = freshProgress()
+    // Antes [BUG]: la segunda acusación sobreescribía el veredicto, y en la UI un
+    // doble clic contaba el caso dos veces en las estadísticas del jugador.
+    it('[GUARD] una vez resuelto, una segunda acusación se ignora', () => {
+      const p = freshProgress()
       const guiltyId = case001.solution.guiltyId
       const innocentId = case001.suspects.find((s) => !s.isGuilty)!.id
 
       const p1 = makeAccusation(p, case001, guiltyId)
       expect(p1.correct).toBe(true)
 
-      // Segunda acusación sobre el resultado ya resuelto
       const p2 = makeAccusation(p1, case001, innocentId)
-      expect(p2.correct).toBe(false) // sobreescribió la acusación correcta
-      expect(p2.solved).toBe(true)
+      expect(p2).toBe(p1)
+      expect(p2.correct).toBe(true)
+      expect(p2.accusedSuspectId).toBe(guiltyId)
     })
 
-    it('[BUG] se puede acusar a un sospechoso que no existe en el caso', () => {
+    // Antes [BUG]: aceptaba cualquier id y marcaba el caso como resuelto
+    it('[GUARD] acusar a un sospechoso que no existe en el caso no resuelve nada', () => {
       const p = freshProgress()
       const result = makeAccusation(p, case001, NONEXISTENT_ID)
-      // La función no valida que el ID exista; simplemente compara con guiltyId
-      expect(result.solved).toBe(true)
-      expect(result.correct).toBe(false)
-      expect(result.accusedSuspectId).toBe(NONEXISTENT_ID)
+      expect(result).toBe(p)
+      expect(result.solved).toBe(false)
     })
 
     it('[GUARD] acusar al culpable correcto marca correct = true', () => {

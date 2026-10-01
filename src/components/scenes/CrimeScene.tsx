@@ -197,7 +197,7 @@ export default function CrimeScene() {
                 {Array.from({ length: 14 }).map((_, i) => (
                   <div
                     key={i}
-                    className="absolute top-0 bottom-0 flex items-center justify-center text-[8px] font-black tracking-widest"
+                    className="absolute top-0 bottom-0 flex items-center justify-center text-[10px] font-black tracking-widest"
                     style={{
                       left: `${i * 7.15}%`,
                       width: '7.15%',
@@ -227,11 +227,12 @@ export default function CrimeScene() {
                     }}
                   >
                     <motion.button
-                      initial={{ opacity: 0, scale: 0.5 }}
+                      initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.3 + idx * 0.08, type: 'spring', stiffness: 260, damping: 18 }}
-                      whileHover={{ scale: 1.18 }}
-                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.95 }}
+                      aria-label={hasEvidence ? `${hotspot.label} ✓` : hotspot.label}
                       onClick={() => handleHotspotClick(hotspot)}
                       className="flex flex-col items-center gap-1 group"
                     >
@@ -239,7 +240,7 @@ export default function CrimeScene() {
                         <span className="absolute inline-flex h-12 w-12 rounded-full bg-amber-400/10 animate-ping" />
                       )}
                       <div
-                        className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full border-2 text-xl shadow-xl transition-all emoji-tone ${
+                        className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-full border-2 text-xl shadow-xl transition-[color,background-color,border-color,opacity,box-shadow,transform] emoji-tone ${
                           hasEvidence
                             ? 'border-green-500/60 bg-green-950/70 text-green-300'
                             : isActive
@@ -252,7 +253,12 @@ export default function CrimeScene() {
                             : { boxShadow: '0 0 12px rgba(34,197,94,0.25)' }
                         }
                       >
-                        {hasEvidence ? '✓' : hotspot.icon}
+                        {/* el ícono se queda (antes todos pasaban a la misma ✓ verde y la escena
+                            perdía su identidad); la ✓ va como insignia */}
+                        <span aria-hidden="true">{hotspot.icon}</span>
+                        {hasEvidence && (
+                          <span aria-hidden="true" className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-600 text-[10px] text-white">✓</span>
+                        )}
                       </div>
                       <span className="max-w-[84px] text-center text-[10px] leading-tight tracking-wide text-zinc-300 group-hover:text-amber-300 transition-colors font-medium drop-shadow-lg bg-zinc-950/70 px-1 rounded">
                         {hotspot.label}
@@ -266,7 +272,7 @@ export default function CrimeScene() {
 
           {/* Scene description — flow element pinned to bottom, height-capped so it never covers hotspots */}
           <div className="relative z-20 mt-auto px-4 py-2 bg-gradient-to-t from-zinc-950/95 to-transparent">
-            <p className="text-[11px] text-zinc-500 italic leading-relaxed line-clamp-2">
+            <p className="text-[11px] text-zinc-400 italic leading-relaxed line-clamp-2">
               {selectedCase.crimeSceneDescription}
             </p>
           </div>
@@ -310,12 +316,12 @@ export default function CrimeScene() {
                   <p className="text-xs text-zinc-400 leading-relaxed">{activeEvidence.description}</p>
                 </div>
                 <div className="rounded-lg border border-amber-900/30 bg-amber-950/20 p-3">
-                  <p className="text-[10px] tracking-[0.15em] text-amber-700 mb-2">{dict.forensicAnalysis}</p>
+                  <p className="text-[10px] tracking-[0.15em] text-amber-600 mb-2">{dict.forensicAnalysis}</p>
                   <p className="text-xs text-zinc-300 leading-relaxed">{activeEvidence.analysis}</p>
                 </div>
                 <button
                   onClick={() => setActiveEvidence(null)}
-                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
                   {dict.closeBtn}
                 </button>
@@ -340,13 +346,13 @@ export default function CrimeScene() {
                 </p>
                 <button
                   onClick={() => goTo('digital-forensics')}
-                  className="w-full rounded border border-amber-700/60 bg-amber-950/40 py-2.5 text-xs tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-all"
+                  className="w-full rounded border border-amber-700/60 bg-amber-950/40 py-2.5 text-xs tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
                   {dict.openDigitalForensics}
                 </button>
                 <button
                   onClick={() => setActiveDevice(null)}
-                  className="mt-3 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                  className="mt-3 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
                   {dict.closeBtn}
                 </button>
@@ -372,9 +378,9 @@ export default function CrimeScene() {
                 <p className="text-xs text-zinc-400 italic">{dict.nothingToCollect}</p>
                 <button
                   onClick={() => setActiveFlavorHotspot(null)}
-                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-all"
+                  className="mt-4 w-full rounded border border-zinc-800 py-2 text-xs text-zinc-400 hover:text-zinc-300 hover:border-zinc-600 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                 >
-                  ← Cerrar
+                  {dict.closeBtn}
                 </button>
               </motion.div>
             ) : (
@@ -387,19 +393,21 @@ export default function CrimeScene() {
                 <p className="text-[10px] tracking-[0.15em] text-zinc-400 mb-4">{dict.pointsOfInterest}</p>
                 <div className="space-y-2">
                   {selectedCase.hotspots.map((h, i) => (
-                    <motion.div
+                    <motion.button
+                      type="button"
                       key={h.id}
                       initial={{ opacity: 0, x: 12 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.06 }}
-                      className="flex items-center gap-2.5 text-xs p-2 rounded border border-zinc-800/50 hover:border-zinc-700 transition-colors cursor-pointer"
+                      className="flex w-full items-center gap-2.5 text-left text-xs p-2 rounded border border-zinc-800/50 hover:border-zinc-700 transition-colors cursor-pointer"
                       onClick={() => handleHotspotClick(h)}
                     >
-                      <span className="text-base emoji-tone">{isHotspotDone(h) ? '✅' : h.icon}</span>
-                      <span className={isHotspotDone(h) ? 'text-zinc-400 line-through' : 'text-zinc-400'}>
+                      <span className="text-base emoji-tone" aria-hidden="true">{h.icon}</span>
+                      <span className={isHotspotDone(h) ? 'text-zinc-400 line-through' : 'text-zinc-300'}>
                         {h.label}
                       </span>
-                    </motion.div>
+                      {isHotspotDone(h) && <span className="ml-auto text-green-400" aria-label="✓">✓</span>}
+                    </motion.button>
                   ))}
                 </div>
               </motion.div>
@@ -422,7 +430,7 @@ export default function CrimeScene() {
                     transition={{ delay: 0.3 + i * 0.08 }}
                     whileHover={{ x: 3 }}
                     onClick={() => startInterview(suspect)}
-                    className="flex w-full items-center gap-3 rounded border border-zinc-800 bg-zinc-900/50 p-2.5 hover:border-zinc-700 hover:bg-zinc-800/50 transition-all text-left"
+                    className="flex w-full items-center gap-3 rounded border border-zinc-800 bg-zinc-900/50 p-2.5 hover:border-zinc-700 hover:bg-zinc-800/50 transition-[color,background-color,border-color,opacity,box-shadow,transform] text-left"
                   >
                     <PortraitAvatar seed={suspect.id} size={28} className="flex-shrink-0 rounded-full" />
                     <div className="flex-1 min-w-0">
@@ -431,9 +439,9 @@ export default function CrimeScene() {
                       {/* Progress bar */}
                       <div className="mt-1 h-0.5 rounded-full bg-zinc-800">
                         <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${pct}%` }}
-                          className="h-full rounded-full bg-amber-700/60"
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: pct / 100 }}
+                          className="h-full origin-left rounded-full bg-amber-700/60"
                         />
                       </div>
                     </div>

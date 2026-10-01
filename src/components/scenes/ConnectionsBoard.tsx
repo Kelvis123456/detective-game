@@ -89,19 +89,19 @@ export default function ConnectionsBoard() {
         {playerConnections.length > 0 && (
           <div className="flex-shrink-0 rounded border border-zinc-800 bg-zinc-900/60 px-3 py-1.5 text-center">
             <div className="text-sm font-bold text-amber-400">{playerConnections.length}</div>
-            <div className="text-[9px] tracking-widest text-zinc-400">{dict.threadsPlaced}</div>
+            <div className="text-[10px] tracking-widest text-zinc-400">{dict.threadsPlaced}</div>
           </div>
         )}
       </div>
 
       {collected.length === 0 ? (
-        <div className="flex h-32 items-center justify-center text-zinc-500 text-sm italic">
+        <div className="flex h-32 items-center justify-center text-zinc-400 text-sm italic">
           {dict.noEvidence}
         </div>
       ) : (
         <>
           {/* Evidence cards */}
-          <p className="text-[10px] tracking-widest text-zinc-500 mb-2">{dict.evidenceLabel}</p>
+          <p className="text-[10px] tracking-widest text-zinc-400 mb-2">{dict.evidenceLabel}</p>
           <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {collected.map((evidence, i) => {
               const typeColor = getEvidenceTypeColor(evidence.type)
@@ -115,7 +115,7 @@ export default function ConnectionsBoard() {
                     nodeRefs.current[`ev-${evidence.id}`] = el
                   }}
                   onClick={() => handleEvidenceClick(evidence.id)}
-                  className="relative flex flex-col items-center gap-1.5 rounded bg-zinc-900 p-3 text-center shadow-lg transition-all"
+                  className="relative flex flex-col items-center gap-1.5 rounded bg-zinc-900 p-3 text-center shadow-lg transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                   style={{
                     border: isPicked ? `1px solid ${typeColor}` : '1px solid #27272a',
                     boxShadow: isPicked ? `0 0 16px ${typeColor}50` : '0 4px 10px rgba(0,0,0,0.4)',
@@ -132,7 +132,7 @@ export default function ConnectionsBoard() {
                   <span className="text-2xl mt-1 emoji-tone">{evidence.icon}</span>
                   <span className="text-[10px] font-medium text-zinc-300 leading-tight">{evidence.name}</span>
                   {connectedTo && (
-                    <span className="text-[9px] text-amber-600">{dict.connected}</span>
+                    <span className="text-[10px] text-amber-600">{dict.connected}</span>
                   )}
                 </button>
               )
@@ -140,7 +140,7 @@ export default function ConnectionsBoard() {
           </div>
 
           {/* Suspects */}
-          <p className="text-[10px] tracking-widest text-zinc-500 mb-2">{dict.suspects}</p>
+          <p className="text-[10px] tracking-widest text-zinc-400 mb-2">{dict.suspects}</p>
           <div className="flex flex-wrap gap-3">
             {selectedCase.suspects.map((suspect) => {
               const isTarget = pickedId !== null
@@ -152,7 +152,7 @@ export default function ConnectionsBoard() {
                   }}
                   onClick={() => handleSuspectClick(suspect.id)}
                   disabled={!isTarget}
-                  className="flex min-w-28 flex-col items-center gap-1 rounded border p-3 transition-all disabled:opacity-60"
+                  className="flex min-w-28 flex-col items-center gap-1 rounded border p-3 transition-[color,background-color,border-color,opacity,box-shadow,transform] disabled:opacity-60"
                   style={{
                     borderColor: isTarget ? '#b45309' : '#27272a',
                     boxShadow: isTarget ? '0 0 14px rgba(180,83,9,0.35)' : undefined,

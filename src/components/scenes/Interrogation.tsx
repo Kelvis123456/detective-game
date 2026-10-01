@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, type TargetAndTransition } from 'framer-motion'
+import { EASE_OUT } from '../../lib/motion'
 import { useGameStore } from '../../store/gameStore'
 import { useTypewriter } from '../../hooks/useTypewriter'
 import {
@@ -85,10 +86,10 @@ function SuspectPortrait({
         />
 
         {/* Corner marks */}
-        <div className="absolute top-2 left-2.5 text-[8px] tracking-widest font-bold" style={{ color: `${emotionColor}70` }}>
+        <div className="absolute top-2 left-2.5 text-[10px] tracking-widest font-bold" style={{ color: `${emotionColor}C0` }}>
           {getDictionary(locale).interrogation.suspectLabel}
         </div>
-        <div className="absolute top-2 right-2.5 text-[9px]" style={{ color: `${emotionColor}60` }}>
+        <div className="absolute top-2 right-2.5 text-[10px]" style={{ color: `${emotionColor}60` }}>
           ◆
         </div>
 
@@ -200,7 +201,7 @@ function SuspectPortrait({
           }}
         >
           {emotionalState && (
-            <p className="text-[8px] tracking-[0.15em] mb-0.5" style={{ color: `${emotionColor}80` }}>
+            <p className="text-[10px] tracking-[0.15em] mb-0.5" style={{ color: `${emotionColor}C0` }}>
               {EMOTIONAL_STATE_LABEL[locale][emotionalState].toUpperCase()}
             </p>
           )}
@@ -222,6 +223,13 @@ export default function Interrogation() {
   const dict = getDictionary(locale).interrogation
 
   const [currentDialogue, setCurrentDialogue] = useState<Dialogue | null>(null)
+  // Solo la evidencia que esta respuesta trajo de verdad: la que ya habías encontrado en
+  // la escena se anunciaba como "nueva" aunque el contador no cambiaba.
+  const [newlyRevealed, setNewlyRevealed] = useState<string[]>([])
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // el aviso se programa con 500 ms de retraso: si se cambia de pantalla antes, no debe
+  // aparecer encima de la siguiente (pasaba sobre el teclado del PIN)
+  useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current) }, [])
 
   // selectedSuspect is already re-pointed at the other locale's object by
   // gameStore.retranslateCase on a language switch -- re-derive the
@@ -244,14 +252,17 @@ export default function Interrogation() {
 
   const handleAsk = (dialogue: Dialogue) => {
     if (currentDialogue && !done) return
+    const fresh = dialogue.revealedEvidenceIds.filter((id) => !caseProgress.collectedEvidenceIds.has(id))
     setCurrentDialogue(dialogue)
+    setNewlyRevealed(fresh)
     askQuestion(selectedSuspect.id, dialogue.id, dialogue.revealedEvidenceIds)
 
-    if (dialogue.revealedEvidenceIds.length > 0) {
-      const names = dialogue.revealedEvidenceIds
+    if (fresh.length > 0) {
+      const names = fresh
         .map((id) => selectedCase.evidence.find((e) => e.id === id)?.name ?? id)
         .join(', ')
-      setTimeout(() => showNotification(dict.newEvidenceNotif(names)), 500)
+      if (toastTimer.current) clearTimeout(toastTimer.current)
+      toastTimer.current = setTimeout(() => showNotification(dict.newEvidenceNotif(names)), 500)
     }
   }
 
@@ -274,7 +285,7 @@ export default function Interrogation() {
         >
           {dict.backToScene}
         </button>
-        <p className="hidden whitespace-nowrap text-[10px] tracking-[0.2em] text-zinc-500 sm:block">
+        <p className="hidden whitespace-nowrap text-[10px] tracking-[0.2em] text-zinc-400 sm:block">
           {dict.title}
         </p>
         <button
@@ -285,7 +296,9 @@ export default function Interrogation() {
         </button>
       </motion.div>
 
-      <div className="flex flex-1 flex-col-reverse md:flex-row">
+      {/* retrato arriba en el celular: con col-reverse quedaba debajo de todas las preguntas
+          y nunca se veía la reacción mientras se leía la respuesta */}
+      <div className="flex flex-1 flex-col md:flex-row">
         {/* Left: Suspect portrait + info */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -334,7 +347,7 @@ export default function Interrogation() {
                 <span
                   style={{
                     color:
-                      suspicionLevel > 60 ? '#e05555' : suspicionLevel > 30 ? '#f0a830' : '#6b6375',
+                      suspicionLevel > 60 ? '#e05555' : suspicionLevel > 30 ? '#f0a830' : '#8a8394',
                     fontWeight: suspicionLevel > 60 ? 700 : 400,
                   }}
                 >
@@ -343,10 +356,10 @@ export default function Interrogation() {
               </div>
               <div className="h-1.5 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden">
                 <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${suspicionLevel}%` }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
-                  className="h-full rounded-full"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: suspicionLevel / 100 }}
+                  transition={{ duration: 0.6, ease: EASE_OUT }}
+                  className="h-full origin-left rounded-full"
                   style={{
                     background:
                       suspicionLevel > 60
@@ -366,17 +379,17 @@ export default function Interrogation() {
 
           {/* Alibi */}
           <div className="w-full rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-xs mb-3">
-            <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">{dict.alibi}</p>
+            <p className="text-[10px] tracking-[0.15em] text-zinc-400 mb-1">{dict.alibi}</p>
             <p className="text-zinc-400 leading-relaxed">{selectedSuspect.alibi}</p>
           </div>
 
           {/* Already asked */}
           {asked.length > 0 && (
             <div className="w-full">
-              <p className="text-[9px] tracking-[0.15em] text-zinc-500 mb-2">{dict.alreadyAsked}</p>
+              <p className="text-[10px] tracking-[0.15em] text-zinc-400 mb-2">{dict.alreadyAsked}</p>
               <div className="space-y-1">
                 {asked.map((d) => (
-                  <div key={d.id} className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+                  <div key={d.id} className="flex items-center gap-1.5 text-[10px] text-zinc-400">
                     <span style={{ color: getEmotionalStateColor(d.emotionalState) }}>
                       {getEmotionalStateIcon(d.emotionalState)}
                     </span>
@@ -393,7 +406,7 @@ export default function Interrogation() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex-1 flex flex-col p-6"
+          className="flex-1 flex flex-col p-6 md:max-w-3xl"
           style={{
             background: `radial-gradient(ellipse at 30% 50%, ${emotionColor}06 0%, transparent 60%)`,
           }}
@@ -412,7 +425,7 @@ export default function Interrogation() {
                 >
                   {/* Detective question */}
                   <div className="mb-3 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
-                    <p className="text-[9px] tracking-[0.15em] text-zinc-400 mb-1">{dict.detective}</p>
+                    <p className="text-[10px] tracking-[0.15em] text-zinc-400 mb-1">{dict.detective}</p>
                     <p className="text-sm text-zinc-300 italic">"{currentDialogue.question}"</p>
                   </div>
 
@@ -448,7 +461,7 @@ export default function Interrogation() {
                   </div>
 
                   {/* Revealed evidence */}
-                  {done && currentDialogue.revealedEvidenceIds.length > 0 && (
+                  {done && newlyRevealed.length > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -460,7 +473,7 @@ export default function Interrogation() {
                       <span>
                         {dict.newEvidenceRevealed}{' '}
                         <strong>
-                          {currentDialogue.revealedEvidenceIds
+                          {newlyRevealed
                             .map((id) => selectedCase.evidence.find((e) => e.id === id)?.name ?? id)
                             .join(', ')}
                         </strong>
@@ -476,7 +489,7 @@ export default function Interrogation() {
                   className="flex h-48 flex-col items-center justify-center gap-3"
                 >
                   <div className="text-4xl opacity-20">💬</div>
-                  <p className="text-sm text-zinc-500 italic">
+                  <p className="text-sm text-zinc-400 italic">
                     {dict.selectQuestion}
                   </p>
                 </motion.div>
@@ -500,9 +513,9 @@ export default function Interrogation() {
                     whileHover={{ x: 4 }}
                     onClick={() => handleAsk(dialogue)}
                     disabled={!done && currentDialogue !== null}
-                    className="w-full rounded border border-zinc-800 bg-zinc-900/50 p-3 text-left text-sm text-zinc-400 hover:border-amber-700/50 hover:bg-zinc-800/50 hover:text-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="w-full rounded border border-zinc-800 bg-zinc-900/50 p-3 text-left text-sm text-zinc-400 hover:border-amber-700/50 hover:bg-zinc-800/50 hover:text-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                   >
-                    <span className="text-amber-700 mr-2">›</span>
+                    <span className="text-amber-600 mr-2">›</span>
                     {dialogue.question}
                   </motion.button>
                 ))}
@@ -513,8 +526,8 @@ export default function Interrogation() {
                 animate={{ opacity: 1 }}
                 className="rounded-lg border border-zinc-800 bg-zinc-900/30 p-4 text-center"
               >
-                <p className="text-sm text-zinc-500 mb-1">{dict.interrogationComplete}</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-sm text-zinc-400 mb-1">{dict.interrogationComplete}</p>
+                <p className="text-xs text-zinc-400">
                   {dict.askedEverything}
                 </p>
               </motion.div>

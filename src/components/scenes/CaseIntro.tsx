@@ -114,13 +114,13 @@ export default function CaseIntro() {
             >
               <button
                 onClick={() => setPhase('suspects')}
-                className="flex-1 rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 hover:text-amber-100 transition-all"
+                className="flex-1 rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 hover:text-amber-100 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
               >
                 {dict.viewSuspects}
               </button>
               <button
                 onClick={() => goTo('crime-scene')}
-                className="flex-1 rounded border border-zinc-700 bg-zinc-900/50 px-6 py-3 text-sm tracking-widest uppercase text-zinc-300 hover:border-zinc-600 hover:text-zinc-100 transition-all"
+                className="flex-1 rounded border border-zinc-700 bg-zinc-900/50 px-6 py-3 text-sm tracking-widest uppercase text-zinc-300 hover:border-zinc-600 hover:text-zinc-100 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
               >
                 {dict.goToScene}
               </button>
@@ -175,8 +175,8 @@ function SuspectsOverview({
             <div className="flex-1 min-w-0">
               <div className="font-bold text-zinc-100">{s.name}</div>
               <div className="text-xs text-amber-600 mb-1">{s.occupation}</div>
-              <div className="text-sm text-zinc-500 leading-relaxed">{s.description}</div>
-              <div className="mt-2 text-xs text-zinc-500">
+              <div className="text-sm text-zinc-400 leading-relaxed">{s.description}</div>
+              <div className="mt-2 text-xs text-zinc-400">
                 <span className="text-zinc-400">{dict.alibi}</span>
                 {s.alibi}
               </div>
@@ -187,7 +187,7 @@ function SuspectsOverview({
 
       <button
         onClick={onContinue}
-        className="w-full rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 hover:text-amber-100 transition-all"
+        className="w-full rounded border border-amber-700/60 bg-amber-950/40 px-6 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 hover:text-amber-100 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
       >
         {dict.goToCrimeScene}
       </button>

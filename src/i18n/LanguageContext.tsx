@@ -22,6 +22,12 @@ const LanguageContext = createContext<LanguageContextValue | null>(null)
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>(() => readStoredLocale())
 
+  // el <html lang> quedaba en "es" también en inglés: los lectores de pantalla leían el
+  // texto en inglés con pronunciación española
+  useEffect(() => {
+    document.documentElement.lang = locale
+  }, [locale])
+
   useEffect(() => {
     try {
       localStorage.setItem(LANGUAGE_STORAGE_KEY, locale)

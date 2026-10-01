@@ -96,12 +96,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   goTo: (scene) => set({ scene }),
 
-  selectCase: (case_) =>
+  // Volver a elegir el caso que está a medias lo continúa: antes "← Casos" y tocar el
+  // mismo caso borraba toda la evidencia e interrogatorios sin aviso.
+  selectCase: (case_) => {
+    const { caseProgress } = get()
+    const resume = caseProgress?.caseId === case_.id && !caseProgress.solved
     set({
       selectedCase: case_,
-      caseProgress: createCaseProgress(case_.id),
-      scene: 'case-intro',
-    }),
+      caseProgress: resume ? caseProgress : createCaseProgress(case_.id),
+      selectedSuspect: null,
+      scene: resume ? 'crime-scene' : 'case-intro',
+    })
+  },
 
   collectEvidence: (evidenceId) => {
     const { caseProgress, selectedCase } = get()
@@ -199,7 +205,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       progress = collectEvidence(progress, eid)
     }
 
-    const advanced = advanceWithTension(progress, selectedCase)
+    // Releer algo ya leído no es progreso: antes cada vuelta adelantaba la cuenta
+    // regresiva de los eventos de tensión (ir y volver entre chats disparaba la purga antes).
+    const advanced = alreadyRead ? { progress, message: undefined } : advanceWithTension(progress, selectedCase)
     if (newEvidenceIds.length > 0) audioEngine.playSfx('evidence')
 
     set((state) => ({
@@ -234,7 +242,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       progress = collectEvidence(progress, eid)
     }
 
-    const advanced = advanceWithTension(progress, selectedCase)
+    // Releer algo ya leído no es progreso: antes cada vuelta adelantaba la cuenta
+    // regresiva de los eventos de tensión (ir y volver entre chats disparaba la purga antes).
+    const advanced = alreadyRead ? { progress, message: undefined } : advanceWithTension(progress, selectedCase)
     if (newEvidenceIds.length > 0) audioEngine.playSfx('evidence')
 
     set((state) => ({
@@ -266,7 +276,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   submitAccusation: (input) => {
     const { caseProgress, selectedCase } = get()
-    if (!caseProgress || !selectedCase) return
+    // La pantalla de acusación sigue montada (y su botón activo) durante los 350 ms de
+    // la animación de salida: un doble clic llegaba acá dos veces.
+    if (!caseProgress || !selectedCase || caseProgress.solved) return
 
     const accused = makeAccusation(caseProgress, selectedCase, input.suspectId)
     const evaluation = evaluateAccusation(caseProgress, selectedCase, input)

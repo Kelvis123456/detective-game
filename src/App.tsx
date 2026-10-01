@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { useGameStore } from './store/gameStore'
 import MainMenu from './components/scenes/MainMenu'
 import CaseSelection from './components/scenes/CaseSelection'
@@ -12,6 +12,8 @@ import Accusation from './components/scenes/Accusation'
 import Resolution from './components/scenes/Resolution'
 import Notification from './components/ui/Notification'
 import FilmGrain from './components/ui/FilmGrain'
+import ErrorBoundary from './components/ui/ErrorBoundary'
+import { EASE_OUT } from './lib/motion'
 import { audioEngine, type AmbientScene } from './audio/AudioEngine'
 import { useLanguage } from './i18n/LanguageContext'
 import type { Scene } from './types'
@@ -71,8 +73,12 @@ export default function App() {
   }, [scene])
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    // reducedMotion="user": con movimiento reducido Framer quita los desplazamientos y
+    // deja los fundidos (antes no había ningún soporte)
+    <MotionConfig reducedMotion="user">
+    <div className="min-h-dvh bg-zinc-950 text-zinc-100">
       <FilmGrain opacity={0.03} />
+      <ErrorBoundary>
       <AnimatePresence mode="wait">
         <motion.div
           key={scene}
@@ -80,7 +86,9 @@ export default function App() {
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={{ duration: 0.35 }}
+          // 0.18 (antes 0.35 de salida + 0.35 de entrada con mode="wait"): cada cambio de
+          // pestaña del HUD costaba ~0.7s
+          transition={{ duration: 0.18, ease: EASE_OUT }}
         >
           {scene === 'main-menu' && <MainMenu />}
           {scene === 'case-selection' && <CaseSelection />}
@@ -93,7 +101,9 @@ export default function App() {
           {scene === 'resolution' && <Resolution />}
         </motion.div>
       </AnimatePresence>
+      </ErrorBoundary>
       <Notification />
     </div>
+    </MotionConfig>
   )
 }

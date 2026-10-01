@@ -17,8 +17,13 @@ function hashString(s: string): number {
   return Math.abs(h)
 }
 
-function pick<T>(arr: readonly T[], seed: number, salt: number): T {
-  return arr[(seed + salt * 97) % arr.length]
+/**
+ * Cada rasgo sale de su propio hash (seed + salt). Antes era (h + salt*97) % n sobre un
+ * único hash: solo un corrimiento fijo, así que piel y ropa (listas de 6) iban siempre
+ * juntas y dos sospechosos del caso 1 salían con la misma cara.
+ */
+function pick<T>(arr: readonly T[], seed: string, salt: string): T {
+  return arr[hashString(`${seed}:${salt}`) % arr.length]
 }
 
 function shade(hex: string, amount: number): string {
@@ -97,6 +102,16 @@ function Accessory({ kind, tone }: { kind: (typeof ACCESSORIES)[number]; tone: s
   }
 }
 
+export function portraitTraits(seed: string) {
+  return {
+    skin: pick(SKIN_TONES, seed, 'skin'),
+    hairColor: pick(HAIR_COLORS, seed, 'hair-color'),
+    clothing: pick(CLOTHING_COLORS, seed, 'clothing'),
+    hairStyle: pick(HAIR_STYLES, seed, 'hair-style'),
+    accessory: pick(ACCESSORIES, seed, 'accessory'),
+  }
+}
+
 export function PortraitAvatar({
   seed,
   size = 56,
@@ -107,12 +122,7 @@ export function PortraitAvatar({
   className?: string
 }) {
   const { locale } = useLanguage()
-  const h = hashString(seed)
-  const skin = pick(SKIN_TONES, h, 1)
-  const hairColor = pick(HAIR_COLORS, h, 2)
-  const clothing = pick(CLOTHING_COLORS, h, 3)
-  const hairStyle = pick(HAIR_STYLES, h, 4)
-  const accessory = pick(ACCESSORIES, h, 5)
+  const { skin, hairColor, clothing, hairStyle, accessory } = portraitTraits(seed)
   const gradId = `pa-skin-${seed.replace(/[^a-zA-Z0-9]/g, '')}`
 
   return (

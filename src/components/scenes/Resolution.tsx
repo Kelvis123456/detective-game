@@ -92,7 +92,7 @@ export default function Resolution() {
           >
             {meta.title}
           </h2>
-          <p className="text-sm text-zinc-500">{meta.subtitle}</p>
+          <p className="text-sm text-zinc-400">{meta.subtitle}</p>
         </motion.div>
 
         {/* Partial reasoning breakdown */}
@@ -103,7 +103,7 @@ export default function Resolution() {
             transition={{ delay: 0.25 }}
             className="mb-6 rounded-lg border border-amber-900/40 bg-amber-950/10 p-4"
           >
-            <p className="text-[10px] tracking-widest text-amber-700 mb-3">{dict.reasoningBreakdown}</p>
+            <p className="text-[10px] tracking-widest text-amber-600 mb-3">{dict.reasoningBreakdown}</p>
             <div className="grid grid-cols-3 gap-3">
               {(['means', 'motive', 'opportunity'] as const).map((cat) => {
                 const requiredForCat = proof[cat] ?? []
@@ -133,12 +133,12 @@ export default function Resolution() {
             className="mb-6 grid grid-cols-2 gap-4"
           >
             <div className="rounded-lg border border-red-900/40 bg-red-950/20 p-4 text-center">
-              <p className="text-[10px] tracking-widest text-red-700 mb-2">{dict.yourAccused}</p>
+              <p className="text-[10px] tracking-widest text-red-400 mb-2">{dict.yourAccused}</p>
               <div className="mb-1 flex justify-center">
                 <PortraitAvatar seed={accused.id} size={48} className="rounded-full" />
               </div>
               <div className="text-sm font-bold text-red-300">{accused.name}</div>
-              <div className="text-xs text-red-700 mt-1">{dict.innocent}</div>
+              <div className="text-xs text-red-400 mt-1">{dict.innocent}</div>
             </div>
             <div className="rounded-lg border border-amber-900/40 bg-amber-950/20 p-4 text-center">
               <p className="text-[10px] tracking-widest text-amber-600 mb-2">{dict.realCulprit}</p>
@@ -163,7 +163,7 @@ export default function Resolution() {
           >
             <PortraitAvatar seed={guilty.id} size={64} className="rounded-full flex-shrink-0" />
             <div>
-              <p className="text-[10px] tracking-widest text-green-700 mb-0.5">{dict.culpritConfirmed}</p>
+              <p className="text-[10px] tracking-widest text-green-400 mb-0.5">{dict.culpritConfirmed}</p>
               <div className="text-xl font-bold text-green-300">{guilty.name}</div>
               <div className="text-xs text-zinc-400">{guilty.occupation}</div>
             </div>
@@ -178,7 +178,7 @@ export default function Resolution() {
             transition={{ delay: 0.4 }}
             className="mb-4 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4"
           >
-            <p className="text-[10px] tracking-widest text-amber-700 mb-2">{dict.realMotive}</p>
+            <p className="text-[10px] tracking-widest text-amber-600 mb-2">{dict.realMotive}</p>
             <p className="text-sm text-zinc-300 leading-relaxed">{guilty.motive}</p>
           </motion.div>
         )}
@@ -191,7 +191,7 @@ export default function Resolution() {
             transition={{ delay: 0.45 }}
             className="mb-6 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4"
           >
-            <p className="text-[10px] tracking-widest text-amber-700 mb-3">
+            <p className="text-[10px] tracking-widest text-amber-600 mb-3">
               {dict.yourConnectionsBoard(connectionAccuracy.correct, connectionAccuracy.total)}
             </p>
             <div className="space-y-1.5">
@@ -246,8 +246,10 @@ export default function Resolution() {
                 transition={{ delay: 0.7 + i * 0.1 }}
                 className="relative mb-4 pl-4"
               >
-                <div className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border border-amber-800 bg-amber-950" />
-                <p className="text-[10px] text-amber-700 mb-0.5">{event.time}</p>
+                {/* -22px = 16px del pl-4 del item + 6px de medio punto: centrado sobre la línea
+                    (con -left-1.5 quedaba 16px a la derecha de ella) */}
+                <div className="absolute -left-[22px] top-1.5 h-3 w-3 rounded-full border border-amber-800 bg-amber-950" />
+                <p className="text-[10px] text-amber-600 mb-0.5">{event.time}</p>
                 <p className="text-xs text-zinc-400 leading-relaxed">{event.description}</p>
               </motion.div>
             ))}
@@ -263,13 +265,13 @@ export default function Resolution() {
         >
           <button
             onClick={resetCase}
-            className="flex-1 rounded border border-amber-700/60 bg-amber-950/40 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-all"
+            className="flex-1 rounded border border-amber-700/60 bg-amber-950/40 py-3 text-sm tracking-widest uppercase text-amber-300 hover:bg-amber-900/50 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
           >
             {dict.anotherCase}
           </button>
           <button
             onClick={() => goTo('main-menu')}
-            className="flex-1 rounded border border-zinc-700 py-3 text-sm tracking-widest uppercase text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 transition-all"
+            className="flex-1 rounded border border-zinc-700 py-3 text-sm tracking-widest uppercase text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
           >
             {dict.mainMenuBtn}
           </button>

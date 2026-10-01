@@ -87,7 +87,7 @@ export default function Accusation() {
             <h2 className="text-2xl font-bold text-red-400 mb-2">
               {dict.accusing(accusedSuspect.name)}
             </h2>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-zinc-400">
               {dict.buildHint}
             </p>
           </motion.div>
@@ -105,10 +105,10 @@ export default function Accusation() {
                   </div>
                   <button
                     onClick={() => setProofChoice((prev) => ({ ...prev, [cat.id]: undefined }))}
-                    className={`mb-3 w-full rounded border px-3 py-2 text-left text-xs italic transition-all ${
+                    className={`mb-3 w-full rounded border px-3 py-2 text-left text-xs italic transition-[color,background-color,border-color,opacity,box-shadow,transform] ${
                       !proofChoice[cat.id]
                         ? 'border-zinc-700 bg-zinc-900/60 text-zinc-400'
-                        : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
+                        : 'border-zinc-800 text-zinc-400 hover:border-zinc-700'
                     }`}
                   >
                     {dict.noSpecificEvidence}
@@ -116,7 +116,7 @@ export default function Accusation() {
                   <div className="space-y-3">
                     {types.map((type) => (
                       <div key={type}>
-                        <p className="mb-1.5 text-[9px] tracking-widest text-zinc-500">
+                        <p className="mb-1.5 text-[10px] tracking-widest text-zinc-400">
                           {EVIDENCE_TYPE_LABEL[locale][type].toUpperCase()}
                         </p>
                         <div className="grid gap-2">
@@ -124,10 +124,10 @@ export default function Accusation() {
                             <button
                               key={e.id}
                               onClick={() => setProofChoice((prev) => ({ ...prev, [cat.id]: e.id }))}
-                              className={`rounded border px-3 py-2 text-left text-xs transition-all ${
+                              className={`rounded border px-3 py-2 text-left text-xs transition-[color,background-color,border-color,opacity,box-shadow,transform] ${
                                 proofChoice[cat.id] === e.id
                                   ? 'border-amber-700/60 bg-amber-950/30 text-amber-300'
-                                  : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
+                                  : 'border-zinc-800 text-zinc-400 hover:border-zinc-700'
                               }`}
                             >
                               <span className="mr-1.5">{e.icon}</span>
@@ -152,7 +152,7 @@ export default function Accusation() {
                 opportunityEvidenceId: proofChoice.opportunity,
               })
             }
-            className="w-full rounded border border-red-700 bg-red-950/40 px-6 py-3 text-sm tracking-widest uppercase text-red-300 hover:bg-red-900/50 hover:text-red-100 transition-all"
+            className="w-full rounded border border-red-700 bg-red-950/40 px-6 py-3 text-sm tracking-widest uppercase text-red-300 hover:bg-red-900/50 hover:text-red-100 transition-[color,background-color,border-color,opacity,box-shadow,transform]"
           >
             {dict.submitAccusation}
           </button>
@@ -195,13 +195,13 @@ export default function Accusation() {
           >
             {dict.whoIsGuilty}
           </h2>
-          <p className="text-sm text-zinc-500 mb-6">
+          <p className="text-sm text-zinc-400 mb-6">
             {dict.decisionHint}
           </p>
 
           {/* Key evidence status */}
           <div className="inline-flex items-center gap-3 rounded border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-xs">
-            <span className="text-zinc-500">{dict.keyEvidenceFound}</span>
+            <span className="text-zinc-400">{dict.keyEvidenceFound}</span>
             <span
               className={`font-bold ${collectedKey === totalKey ? 'text-green-400' : 'text-amber-400'}`}
             >
@@ -234,7 +234,7 @@ export default function Accusation() {
                   onClick={() => handleSelect(suspect)}
                   onMouseEnter={() => setHoveredId(suspect.id)}
                   onMouseLeave={() => setHoveredId(null)}
-                  className="w-full rounded border text-left transition-all"
+                  className="w-full rounded border text-left transition-[color,background-color,border-color,opacity,box-shadow,transform]"
                   style={{
                     borderColor: isConfirm
                       ? 'rgba(220,38,38,0.6)'
@@ -262,11 +262,11 @@ export default function Accusation() {
 
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-zinc-100 text-lg">{suspect.name}</div>
-                      <div className="text-xs text-zinc-500 mb-2">{suspect.occupation}</div>
+                      <div className="text-xs text-zinc-400 mb-2">{suspect.occupation}</div>
                       <div className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
                         {suspect.description}
                       </div>
-                      <div className="mt-2 text-[10px] text-zinc-500">
+                      <div className="mt-2 text-[10px] text-zinc-400">
                         {dict.questionsAnswered(interviewed, total)}
                       </div>
                     </div>
@@ -280,10 +280,10 @@ export default function Accusation() {
                         >
                           {dict.confirm}
                           <br />
-                          <span className="text-[10px] text-red-600">{dict.clickToContinue}</span>
+                          <span className="text-[10px] text-red-300">{dict.clickToContinue}</span>
                         </motion.div>
                       ) : (
-                        <div className="text-zinc-500 text-xl">→</div>
+                        <div className="text-zinc-400 text-xl">→</div>
                       )}
                     </div>
                   </div>
@@ -297,7 +297,7 @@ export default function Accusation() {
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       onClick={() => setConfirmId(null)}
-                      className="w-full text-center py-1.5 text-xs text-zinc-500 hover:text-zinc-500 transition-colors"
+                      className="w-full text-center py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
                     >
                       {dict.cancel}
                     </motion.button>
