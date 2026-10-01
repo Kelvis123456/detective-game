@@ -15,6 +15,7 @@ const DIFFICULTY_COLOR: Record<string, string> = {
 
 export default function CaseSelection() {
   const selectCase = useGameStore((s) => s.selectCase)
+  const caseProgress = useGameStore((s) => s.caseProgress)
   const goTo = useGameStore((s) => s.goTo)
   const stats = useGameStore((s) => s.playerStats)
   const rank = getDetectiveRank(stats)
@@ -54,7 +55,14 @@ export default function CaseSelection() {
         {/* Case cards */}
         <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
           {cases.map((case_, i) => (
-            <CaseCard key={case_.id} case_={case_} index={i} onSelect={selectCase} locale={locale} />
+            <CaseCard
+              key={case_.id}
+              case_={case_}
+              index={i}
+              onSelect={selectCase}
+              locale={locale}
+              inProgress={caseProgress?.caseId === case_.id && !caseProgress.solved}
+            />
           ))}
         </div>
       </div>
@@ -67,33 +75,31 @@ function CaseCard({
   index,
   onSelect,
   locale,
+  inProgress,
 }: {
   case_: Case
   index: number
   onSelect: (c: Case) => void
   locale: Locale
+  inProgress: boolean
 }) {
   const diffClass = DIFFICULTY_COLOR[case_.difficulty] ?? 'text-zinc-400 border-zinc-700'
   const dict = getDictionary(locale).caseSelection
 
   return (
-    <motion.div
+    // Un <button> de verdad: como div clickeable no tenía foco ni teclado, y sin elegir un
+    // caso no se podía jugar sin mouse. El brillo del hover va en CSS (con JS quedaba
+    // pegado después de tocar en el celular).
+    <motion.button
+      type="button"
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.15, duration: 0.5 }}
       whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
       onClick={() => onSelect(case_)}
-      className="group cursor-pointer rounded-lg border border-zinc-800 bg-zinc-900/80 p-6 backdrop-blur transition-all hover:border-amber-700/60 hover:bg-zinc-900"
-      style={{
-        boxShadow: `0 0 0 0 ${case_.color}`,
-        transition: 'box-shadow 0.3s, border-color 0.3s',
-      }}
-      onMouseEnter={(e) => {
-        ;(e.currentTarget as HTMLElement).style.boxShadow = `0 0 25px ${case_.color}30`
-      }}
-      onMouseLeave={(e) => {
-        ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 0 transparent'
-      }}
+      className="group block w-full cursor-pointer rounded-lg border border-zinc-800 bg-zinc-900/80 p-6 text-left backdrop-blur transition-[border-color,background-color,box-shadow] duration-300 hover:border-amber-700/60 hover:bg-zinc-900 hover:shadow-[0_0_25px_var(--case-glow)] focus-visible:shadow-[0_0_25px_var(--case-glow)]"
+      style={{ '--case-glow': `${case_.color}30` } as React.CSSProperties}
     >
       <div className="flex items-start gap-5">
         {/* Thumbnail */}
@@ -112,12 +118,17 @@ function CaseCard({
               {DIFFICULTY_LABEL[locale][case_.difficulty]}
             </span>
             <span className="text-xs text-zinc-400">{case_.location}</span>
+            {inProgress && (
+              <span className="rounded border border-amber-600/60 px-2 py-0.5 text-xs text-amber-400" title={dict.continueHint}>
+                {dict.inProgress}
+              </span>
+            )}
           </div>
 
           <h3 className="text-xl font-bold text-zinc-100 group-hover:text-amber-300 transition-colors">
             {case_.title}
           </h3>
-          <p className="text-sm text-zinc-500 italic mb-3">{case_.subtitle}</p>
+          <p className="text-sm text-zinc-400 italic mb-3">{case_.subtitle}</p>
           <p className="text-sm leading-relaxed text-zinc-400">{case_.description}</p>
 
           <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-zinc-400">
@@ -128,10 +139,10 @@ function CaseCard({
         </div>
 
         {/* Arrow */}
-        <div className="flex-shrink-0 self-center text-zinc-500 group-hover:text-amber-500 transition-colors text-xl">
+        <div aria-hidden="true" className="hidden sm:block flex-shrink-0 self-center text-zinc-500 group-hover:text-amber-500 transition-colors text-xl">
           →
         </div>
       </div>
-    </motion.div>
+    </motion.button>
   )
 }

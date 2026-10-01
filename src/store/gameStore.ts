@@ -96,12 +96,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   goTo: (scene) => set({ scene }),
 
-  selectCase: (case_) =>
+  // Volver a elegir el caso que está a medias lo continúa: antes "← Casos" y tocar el
+  // mismo caso borraba toda la evidencia e interrogatorios sin aviso.
+  selectCase: (case_) => {
+    const { caseProgress } = get()
+    const resume = caseProgress?.caseId === case_.id && !caseProgress.solved
     set({
       selectedCase: case_,
-      caseProgress: createCaseProgress(case_.id),
-      scene: 'case-intro',
-    }),
+      caseProgress: resume ? caseProgress : createCaseProgress(case_.id),
+      selectedSuspect: null,
+      scene: resume ? 'crime-scene' : 'case-intro',
+    })
+  },
 
   collectEvidence: (evidenceId) => {
     const { caseProgress, selectedCase } = get()

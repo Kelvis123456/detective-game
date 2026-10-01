@@ -35,6 +35,37 @@ describe('gameStore', () => {
       expect(state.caseProgress?.caseId).toBe(case001.id)
       expect(state.caseProgress?.collectedEvidenceIds.size).toBe(0)
     })
+
+    // "← Casos" y volver a tocar el mismo caso borraba todo el progreso sin aviso
+    it('re-selecting the same unsolved case resumes it instead of wiping progress', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().collectEvidence('recibo-materiales')
+      useGameStore.getState().goTo('case-selection')
+      useGameStore.getState().selectCase(case001)
+      const state = useGameStore.getState()
+      expect(state.caseProgress?.collectedEvidenceIds.has('recibo-materiales')).toBe(true)
+      expect(state.scene).toBe('crime-scene')
+    })
+
+    it('a solved case starts over when selected again', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().collectEvidence('recibo-materiales')
+      useGameStore.getState().submitAccusation({ suspectId: 'marco-delgado' })
+      useGameStore.getState().selectCase(case001)
+      const state = useGameStore.getState()
+      expect(state.caseProgress?.collectedEvidenceIds.size).toBe(0)
+      expect(state.caseProgress?.solved).toBe(false)
+      expect(state.scene).toBe('case-intro')
+    })
+
+    it('selecting a different case starts that one fresh', () => {
+      useGameStore.getState().selectCase(case001)
+      useGameStore.getState().collectEvidence('recibo-materiales')
+      const other = { ...case001, id: 'otro-caso' } as Case
+      useGameStore.getState().selectCase(other)
+      expect(useGameStore.getState().caseProgress?.caseId).toBe('otro-caso')
+      expect(useGameStore.getState().caseProgress?.collectedEvidenceIds.size).toBe(0)
+    })
   })
 
   describe('collectEvidence', () => {
