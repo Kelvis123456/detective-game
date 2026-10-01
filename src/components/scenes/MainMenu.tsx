@@ -6,6 +6,16 @@ import MuteToggle from '../ui/MuteToggle'
 import LanguageToggle from '../ui/LanguageToggle'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { getDictionary, RANK_LABEL } from '../../i18n/dictionary'
+import { EASE_OUT } from '../../lib/motion'
+
+// Calculada una vez al cargar: con Math.random() dentro del render, cualquier re-render
+// (cambiar de idioma) reacomodaba la lluvia y reiniciaba la animación.
+const RAIN = Array.from({ length: 20 }, () => ({
+  left: Math.random() * 100,
+  duration: 1.5 + Math.random() * 2,
+  delay: Math.random() * 3,
+  opacity: 0.3 + Math.random() * 0.5,
+}))
 
 export default function MainMenu() {
   const goTo = useGameStore((s) => s.goTo)
@@ -31,17 +41,17 @@ export default function MainMenu() {
 
       {/* Rain lines */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-10">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {RAIN.map((drop, i) => (
           <div
             key={i}
-            className="absolute w-px bg-amber-300"
+            className="rain-line absolute w-px bg-amber-300"
             style={{
-              left: `${Math.random() * 100}%`,
+              left: `${drop.left}%`,
               top: '-10%',
               height: '120%',
-              animation: `rain-drop ${1.5 + Math.random() * 2}s linear ${Math.random() * 3}s infinite`,
+              animation: `rain-drop ${drop.duration}s linear ${drop.delay}s infinite`,
               transform: 'rotate(10deg)',
-              opacity: 0.3 + Math.random() * 0.5,
+              opacity: drop.opacity,
             }}
           />
         ))}
@@ -65,10 +75,12 @@ export default function MainMenu() {
         </motion.div>
 
         {/* Title */}
+        {/* opacity/transform en vez de letterSpacing: animar el espaciado recalculaba el layout
+            en cada frame */}
         <motion.h1
-          initial={{ opacity: 0, letterSpacing: '0.5em' }}
-          animate={{ opacity: 1, letterSpacing: '0.08em' }}
-          transition={{ delay: 0.3, duration: 1 }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.8, ease: EASE_OUT }}
           className="mb-2 text-5xl font-bold tracking-widest text-amber-400 animate-flicker"
           style={{ textShadow: '0 0 30px rgba(200,169,110,0.6)' }}
         >
