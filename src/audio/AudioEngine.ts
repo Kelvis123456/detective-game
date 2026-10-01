@@ -70,10 +70,31 @@ class AudioEngine {
       this.master.gain.value = this.muted ? 0 : 1
       this.master.connect(this.ctx.destination)
     }
-    if (this.ctx.state === 'suspended') {
+    // 'interrupted' también (Safari iOS tras una llamada o al volver de segundo plano),
+    // no solo 'suspended'
+    if (this.ctx.state !== 'running' && this.ctx.state !== 'closed') {
       this.ctx.resume().catch(() => {})
     }
     return this.ctx
+  }
+
+  /**
+   * Reanuda el contexto dentro de un gesto del usuario. El ambiente del menú se crea al
+   * cargar, antes de cualquier clic, y el navegador lo deja suspendido; como pasar a la
+   * selección de casos usa el mismo ambiente, nada volvía a intentar reanudarlo y el menú
+   * quedaba en silencio en la primera visita.
+   */
+  resumeFromGesture() {
+    if (this.ctx && this.ctx.state !== 'running' && this.ctx.state !== 'closed' && !document.hidden) {
+      this.ctx.resume().catch(() => {})
+    }
+  }
+
+  /** Pestaña oculta: se pausa el ambiente en vez de seguir sonando en segundo plano. */
+  setHidden(hidden: boolean) {
+    if (!this.ctx || this.ctx.state === 'closed') return
+    if (hidden) this.ctx.suspend().catch(() => {})
+    else this.ctx.resume().catch(() => {})
   }
 
   // ─── One-shot sound effects ──────────────────────────────────────────
@@ -377,3 +398,10 @@ class AudioEngine {
 }
 
 export const audioEngine = new AudioEngine()
+
+if (typeof window !== 'undefined') {
+  for (const type of ['pointerdown', 'keydown'] as const) {
+    window.addEventListener(type, () => audioEngine.resumeFromGesture(), { passive: true })
+  }
+  document.addEventListener('visibilitychange', () => audioEngine.setHidden(document.hidden))
+}
