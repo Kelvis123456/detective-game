@@ -55,6 +55,11 @@ export function makeAccusation(
   case_: Case,
   suspectId: string
 ): CaseProgress {
+  // Un caso se acusa una sola vez: un doble clic durante la animación de salida
+  // de la pantalla de acusación volvía a contar el caso en las estadísticas.
+  if (progress.solved) return progress
+  // Solo se puede acusar a alguien del caso
+  if (!case_.suspects.some((s) => s.id === suspectId)) return progress
   const correct = case_.solution.guiltyId === suspectId
   return {
     ...progress,
