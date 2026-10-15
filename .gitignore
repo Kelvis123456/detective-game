@@ -24,3 +24,14 @@ dist-ssr
 *.sw?
 
 .vercel
+
+.env
+.env.*
+!.env.example
+.agents/
+.claude/
+.codebuddy/
+.continue/
+.junie/
+.kiro/
+skills-lock.json
